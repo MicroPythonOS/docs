@@ -1,6 +1,7 @@
 site_name: MicroPythonOS Documentation
 site_url: https://docs.micropythonos.com
 repo_url: https://github.com/MicroPythonOS/MicroPythonOS
+use_directory_urls: true
 theme:
   name: material
   palette:
