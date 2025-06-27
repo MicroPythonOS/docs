@@ -1,68 +1,36 @@
 # Installation
 
-MicroPythonOS can be installed on supported microcontrollers (e.g., ESP32) or desktop systems (Linux, potentially MacOS). For detailed instructions, visit [install.micropythonos.com](https://install.micropythonos.com).
+MicroPythonOS can be installed on supported microcontrollers (e.g., ESP32) and on desktop systems (Linux, Raspberry Pi, MacOS, etc).
+
+If you're a developer, you can [build it yourself and install from source](../building/index.md)
+
+To simply install prebuilt software, read on!
 
 ## Installing on ESP32
 
-1. **Prepare the Environment**:
-```bash
-mkdir ~/MicroPythonOS
-cd ~/MicroPythonOS
-git clone https://github.com/MicroPythonOS/MicroPythonOS.git
-git clone https://github.com/MicroPythonOS/freezeFS
-git clone https://github.com/cnadler86/micropython-camera-API
-echo 'include("~/MicroPythonOS/lvgl_micropython/build/manifest.py")' >> micropython-camera-API/src/manifest.py
-git clone https://github.com/MicroPythonOS/lvgl_micropython
-git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
-```
-
-2. **Build for ESP32**:
-```bash
-cd ~/MicroPythonOS/MicroPythonOS
-./scripts/build_lvgl_micropython.sh esp32 prod
-```
-   For a development build (no preinstalled files):
-```bash
-./scripts/build_lvgl_micropython.sh esp32 dev
-```
-
-3. **Flash to ESP32**:
-   - Put your ESP32 in bootloader mode (long-press the BOOT button if running MicroPythonOS).
-   - Flash the firmware:
-```bash
-./scripts/flash_over_usb.sh
-```
-   - For a development build, install files manually:
-```bash
-./scripts/install.sh
-```
+Just use the [WebSerial installer at install.micropythonos.com](https://install.micropythonos.com).
 
 ## Installing on Desktop (Linux/MacOS)
 
-1. **Install Dependencies** (Linux):
-```bash
-sudo apt install libv4l-dev  # For webcam support
-```
-   See [lvgl-micropython](https://github.com/MicroPythonOS/lvgl-micropython) for additional dependencies.
+Download the [latest release for desktop](https://github.com/MicroPythonOS/MicroPythonOS/releases).
 
-2. **Build for Desktop**:
-```bash
-cd ~/MicroPythonOS/MicroPythonOS
-./scripts/build_lvgl_micropython.sh unix dev
-```
-   For MacOS (untested):
-```bash
-./scripts/build_lvgl_micropython.sh macOS dev
-```
+Here we'll assume you saved it in /tmp/MicroPythonOS_amd64_Linux_0.0.8
 
-3. **Run on Desktop**:
-   - Download a release (e.g., `MicroPythonOS_amd64_Linux_0.0.6`) or use your build.
-   - Run:
-```bash
+Get the internal_filesystem files:
+
+```
+git clone https://github.com/MicroPythonOS/MicroPythonOS.git
+cd MicroPythonOS/
 cd internal_filesystem/
-/path/to/MicroPythonOS_amd64_Linux_0.0.6 -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
 ```
-   - See `scripts/run_on_desktop.sh` for options like fullscreen or direct app launch.
+
+Now run it by starting the entry points, boot_unix.py and main.py:
+
+```
+/tmp/MicroPythonOS_amd64_Linux_0.0.8 -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
+```
+
+You can also check out `scripts/run_desktop.sh` for more examples, such as immediately starting an app or starting fullscreen.
 
 ## Next Steps
 
