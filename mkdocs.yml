@@ -5,18 +5,32 @@ use_directory_urls: true
 theme:
   name: material
   palette:
+    # Light theme
     - scheme: default
-      primary: teal
-      accent: red
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark theme
     - scheme: slate
-      primary: teal
-      accent: red
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
   features:
     - content.code.copy
     - navigation.sections
     - navigation.top
     - search.suggest
     - search.highlight
+  custom_dir: docs/overrides
+extra_css:
+  - stylesheets/extra.css
 nav:
   - Home: index.md
   - Overview: overview.md

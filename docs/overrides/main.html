@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block styles %}
+  {{ super() }}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <style>
+    .md-typeset h1,
+    .md-typeset h2,
+    .md-typeset h3,
+    .md-typeset h4,
+    .md-typeset h5,
+    .md-typeset h6 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+    }
+  </style>
+{% endblock %}

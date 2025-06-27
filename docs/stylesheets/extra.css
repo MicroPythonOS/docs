@@ -1,0 +1,35 @@
+/* Light theme */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0A4D68; /* Dark teal for nav bar and headers */
+  --md-primary-fg-color--light: #0A4D68; /* Same for consistency */
+  --md-primary-fg-color--dark: #0A4D68; /* Same for consistency */
+  --md-accent-fg-color: #FF6B6B; /* Coral red for links and buttons */
+  --md-default-bg-color: #F8EDE3; /* Light beige for background */
+  --md-default-fg-color: #1A2E44; /* Dark navy for text */
+  --md-typeset-a-color: #FF6B6B; /* Coral red for links */
+}
+
+/* Dark theme */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0A4D68; /* Dark teal for nav bar and headers */
+  --md-primary-fg-color--light: #0A4D68;
+  --md-primary-fg-color--dark: #0A4D68;
+  --md-accent-fg-color: #FF6B6B; /* Coral red for links and buttons */
+  --md-default-bg-color: #1A2E44; /* Dark navy for background */
+  --md-default-fg-color: #F8EDE3; /* Light beige for text */
+  --md-typeset-a-color: #FF6B6B; /* Coral red for links */
+}
+
+/* Ensure links have consistent hover color */
+.md-typeset a:hover {
+  color: #FF8E8E; /* Lighter coral for hover, matching index.html */
+}
+
+/* Adjust code block background for better contrast */
+.md-typeset code {
+  background-color: #f5f5f5; /* Light gray for light theme code blocks */
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: #2A3B52; /* Slightly lighter navy for dark theme code blocks */
+}
