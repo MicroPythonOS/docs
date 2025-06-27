@@ -70,7 +70,7 @@ In `MANIFEST.JSON`, put:
 
 ## Icon
 
-The icon is a simple 64x64 pixel PNG image, which you can create with any tool, such as GIMP.
+The icon is a [simple 64x64 pixel PNG image](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.launcher/res/mipmap-mdpi/icon_64x64.png), which you can create with any tool, such as GIMP.
 
 It's recommended to keep it as small as possible by setting compression level to 9 and not storing any metadata such as background color, resolution, creation time, comments, Exif data, XMP data, thumbnail or color profile.
 
