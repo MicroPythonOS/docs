@@ -1,6 +1,6 @@
 # Building for ESP32
 
-Build MicroPythonOS for ESP32 microcontrollers, such as the Waveshare ESP32-S3-Touch-LCD-2.
+Build MicroPythonOS for ESP32 microcontrollers, such as [supported hardware](../getting-started/supported-hardware.md).
 
 ## Prerequisites
 
