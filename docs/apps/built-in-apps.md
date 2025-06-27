@@ -1,6 +1,6 @@
 # Built-in Apps
 
-MicroPythonOS includes essential apps to bootstrap the system, located in `/builtin/apps/`.
+MicroPythonOS includes essential apps to bootstrap the system, located in [`/builtin/apps/`](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem/builtin/apps).
 
 - **Launcher**: Starts apps and provides the home screen.
 - **WiFi**: Configures WiFi connections.

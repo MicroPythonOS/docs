@@ -1,4 +1,4 @@
-# App Store
+# AppStore
 
 The MicroPythonOS App Store allows users to download and install new apps to extend system functionality.
 
