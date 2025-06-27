@@ -80,7 +80,7 @@ The size will be somewhere between 3 and 7KB.
 
 The app can be installed by copying the top-level folder `com.micropythonos.helloworld/` (and its contents) to the `/apps/` folder.
 
-### On desktop
+### On Desktop
 
 You probably already have a clone of the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem) that you're using to run MicroPythonOS on desktop.
 
