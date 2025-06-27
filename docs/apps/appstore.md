@@ -1,12 +1,15 @@
 # App Store
 
-The MicroPythonOS App Store allows users to download and install new apps to extend system functionality. Visit [apps.micropythonos.com](https://apps.micropythonos.com) for available apps.
+The MicroPythonOS App Store allows users to download and install new apps to extend system functionality.
+
+App discovery is currently done by downloading the app list from [apps.micropythonos.com](https://apps.micropythonos.com).
 
 ## Example Apps
 
 - **Hello World**: A sample app demonstrating basic functionality.
 - **Camera**: Captures images and scans QR codes.
 - **Image Viewer**: Displays images stored in `/data/images/`.
+- **IMU**: Visualize data from the Intertial Measurement Unit, also known as the accellerometer.
 
 ## Screenshots
 

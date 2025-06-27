@@ -41,6 +41,7 @@ nav:
       - Overview: apps/index.md
       - Built-in Apps: apps/built-in-apps.md
       - App Store: apps/appstore.md
+      - Developing Apps: apps/developing.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
