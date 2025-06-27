@@ -37,6 +37,10 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Supported Hardware: getting-started/supported-hardware.md
+  - Apps:
+      - Overview: apps/index.md
+      - Built-in Apps: apps/built-in-apps.md
+      - App Store: apps/appstore.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
@@ -45,10 +49,6 @@ nav:
       - For ESP32: building/esp32.md
       - For Desktop: building/desktop.md
       - Release Checklist: building/release-checklist.md
-  - Apps:
-      - Overview: apps/index.md
-      - Built-in Apps: apps/built-in-apps.md
-      - App Store: apps/appstore.md
 extra:
   social:
     - icon: fontawesome/brands/github
