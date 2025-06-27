@@ -1,0 +1,44 @@
+site_name: MicroPythonOS Documentation
+site_url: https://docs.micropythonos.com
+repo_url: https://github.com/MicroPythonOS/MicroPythonOS
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: red
+    - scheme: slate
+      primary: teal
+      accent: red
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+nav:
+  - Home: index.md
+  - Overview: overview.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Supported Hardware: getting-started/supported-hardware.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - System Components: architecture/system-components.md
+      - Filesystem Layout: architecture/filesystem.md
+  - Building:
+      - For ESP32: building/esp32.md
+      - For Desktop: building/desktop.md
+      - Release Checklist: building/release-checklist.md
+  - Apps:
+      - Overview: apps/index.md
+      - Built-in Apps: apps/built-in-apps.md
+      - App Store: apps/appstore.md
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/MicroPythonOS
+    - icon: fontawesome/solid/comments
+      link: https://chat.micropythonos.com
+    - icon: fontawesome/solid/envelope
+      link: mailto:info@micropythonos.com
