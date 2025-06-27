@@ -108,13 +108,13 @@ index e6e3970..7f5d934 100644
      def ensure_friendly_repl(self):
 ```
 
-Then copy your app using:
+Then connect your device with a cable and install your app using:
 
 ```
 /path/to/mpremote.py fs cp -r com.micropythonos.helloworld/ :/apps/
 ```
 
-## Starting the App
+## Starting your App
 
 If the app is installed into the /apps/ folder, it should show up in the launcher after refreshing it.
 
@@ -123,3 +123,15 @@ You can also launch it manually by typing this in the MicroPython REPL:
 ```
 import mpos.apps; mpos.apps.start_app('apps/com.micropythonos.helloworld/')
 ```
+
+## Bundling your App
+
+To bundle your app in an .mpk file, just make an uncompressed .zip file of it, without including the top-level `com.micropythonos.helloworld/` folder.
+
+For example:
+
+```
+cd com.micropythonos.helloworld/
+zip -r0 /tmp/com.micropythonos.helloworld_0.0.2.mpk .
+```
+
