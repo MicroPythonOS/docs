@@ -14,28 +14,33 @@ sudo apt install libv4l-dev  # For webcam support
 ## Build Process
 
 1. **Navigate to the Repository**:
-```bash
-cd ~/MicroPythonOS/MicroPythonOS
-```
+
+    ```bash
+    cd ~/MicroPythonOS/MicroPythonOS
+    ```
 
 2. **Build for Linux**:
-```bash
-./scripts/build_lvgl_micropython.sh unix dev
-```
+
+    ```bash
+    ./scripts/build_lvgl_micropython.sh unix dev
+    ```
 
 3. **Build for MacOS** (untested):
-```bash
-./scripts/build_lvgl_micropython.sh macOS dev
-```
+
+    ```bash
+    ./scripts/build_lvgl_micropython.sh macOS dev
+    ```
 
 ## Running on Desktop
 
-1. Download a release (e.g., `MicroPythonOS_amd64_Linux_0.0.6`) or use your build.
+1. Download a release (e.g., `MicroPythonOS_amd64_Linux_0.0.8`) or use your build.
 2. Run the application:
-```bash
-cd internal_filesystem/
-/path/to/MicroPythonOS_amd64_Linux_0.0.6 -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
-```
+
+    ```bash
+    cd internal_filesystem/
+    /path/to/MicroPythonOS_amd64_Linux_0.0.8 -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
+    ```
+
 3. Check `scripts/run_on_desktop.sh` for options like fullscreen or direct app launch.
 
 ## Notes
