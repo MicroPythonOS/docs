@@ -41,7 +41,7 @@ nav:
       - Overview: apps/index.md
       - Built-in Apps: apps/built-in-apps.md
       - App Store: apps/appstore.md
-      - Developing : apps/developing-apps.md
+      - Creating Apps: apps/creating-apps.md
       - Bundling Apps: apps/bundling-apps.md
   - Architecture:
       - Overview: architecture/overview.md

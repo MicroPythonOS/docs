@@ -4,7 +4,7 @@ Apps are written in MicroPython and installed in `/apps/`. See [Filesystem Layou
 
 Here we'll go over how to create and install a simple HelloWorld app.
 
-More advanced app examples are available in the [source code repository](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem/apps).
+More advanced examples are available in the [source code repository](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem/apps).
 
 ## Structure
 
