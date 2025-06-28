@@ -4,7 +4,8 @@ Build MicroPythonOS for ESP32 microcontrollers, such as [supported hardware](../
 
 ## Prerequisites
 
-- Clone the required repositories:
+Clone the required repositories:
+
 ```bash
 mkdir ~/MicroPythonOS
 cd ~/MicroPythonOS
@@ -19,31 +20,38 @@ git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
 ## Build Process
 
 1. **Navigate to the Repository**:
-```bash
-cd ~/MicroPythonOS/MicroPythonOS
-```
+
+    ```
+    cd ~/MicroPythonOS/MicroPythonOS
+    ```
 
 2. **Build for Production** (includes preinstalled files):
-```bash
-./scripts/build_lvgl_micropython.sh esp32 prod
-```
+
+    ```bash
+    ./scripts/build_lvgl_micropython.sh esp32 prod
+    ```
 
 3. **Build for Development** (no preinstalled files):
-```bash
-./scripts/build_lvgl_micropython.sh esp32 dev
-```
+
+    ```bash
+    ./scripts/build_lvgl_micropython.sh esp32 dev
+    ```
 
 ## Flashing to ESP32
 
 1. Put your ESP32 in bootloader mode (long-press the BOOT button if running MicroPythonOS).
+
 2. Flash the firmware:
-```bash
-./scripts/flash_over_usb.sh
-```
+
+    ```bash
+    ./scripts/flash_over_usb.sh
+    ```
+
 3. For a development build, install files manually:
-```bash
-./scripts/install.sh
-```
+
+    ```bash
+    ./scripts/install.sh
+    ```
 
 ## Notes
 
