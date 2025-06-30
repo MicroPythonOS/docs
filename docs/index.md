@@ -32,7 +32,7 @@ New to MicroPythonOS? Start here:
 
 Join our community to contribute to MicroPythonOS:
 
-- [GitHub Repository](https://github.com/MicroPythonOS)
+- [GitHub Repositories](https://github.com/MicroPythonOS)
 - [Community Chat](https://chat.micropythonos.com)
 - [Contact Us](mailto:info@micropythonos.com)
 
