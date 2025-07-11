@@ -8,7 +8,7 @@ MicroPythonOS can be built to run as an application on Linux desktops (fully sup
 ```bash
 sudo apt install libv4l-dev  # For webcam support
 ```
-- See [lvgl-micropython](https://github.com/MicroPythonOS/lvgl-micropython) for additional requirements.
+- See [lvgl-micropython](https://github.com/MicroPythonOS/lvgl_micropython) for additional requirements.
 - Clone repositories as described in [Building for ESP32](esp32.md).
 
 ## Build Process
