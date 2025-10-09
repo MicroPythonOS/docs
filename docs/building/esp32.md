@@ -28,13 +28,21 @@ git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
 2. **Build for Production** (includes preinstalled files):
 
     ```bash
-    ./scripts/build_lvgl_micropython.sh esp32 prod
+    ./scripts/build_lvgl_micropython.sh esp32 prod waveshare-esp32-s3-touch-lcd-2
+    ```
+
+    or, depending on the device you're building for:
+
+    ```bash
+    ./scripts/build_lvgl_micropython.sh esp32 prod fri3d-2024
     ```
 
 3. **Build for Development** (no preinstalled files):
 
     ```bash
-    ./scripts/build_lvgl_micropython.sh esp32 dev
+    ./scripts/build_lvgl_micropython.sh esp32 dev fri3d-2024
+    # or
+    ./scripts/build_lvgl_micropython.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
     ```
 
 ## Flashing to ESP32
