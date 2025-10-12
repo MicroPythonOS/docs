@@ -11,10 +11,17 @@ mkdir ~/MicroPythonOS
 cd ~/MicroPythonOS
 git clone https://github.com/MicroPythonOS/MicroPythonOS.git
 git clone https://github.com/MicroPythonOS/freezeFS
-git clone https://github.com/cnadler86/micropython-camera-API
-echo 'include("~/MicroPythonOS/lvgl_micropython/build/manifest.py")' >> micropython-camera-API/src/manifest.py
-git clone https://github.com/MicroPythonOS/lvgl_micropython
 git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
+git clone https://github.com/MicroPythonOS/lvgl_micropython
+cd lvgl_micropython/
+echo "  espressif/esp32-camera:
+    git: https://github.com/cnadler86/esp32-camera.git" > lib/micropython/ports/esp32/main/idf_component.yml
+
+git clone https://github.com/cnadler86/micropython-camera-API
+cd micropython-camera-API/
+git checkout v0.4.0
+echo 'include("~/MicroPythonOS/lvgl_micropython/build/manifest.py")' >> src/manifest.py
+
 ```
 
 ## Build Process
@@ -55,7 +62,7 @@ git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
     ./scripts/flash_over_usb.sh
     ```
 
-3. For a development build, install files manually:
+3. For a development build, fill the filesystem manually:
 
     ```bash
     ./scripts/install.sh
