@@ -9,19 +9,19 @@ Clone the required repositories:
 ```bash
 mkdir ~/MicroPythonOS
 cd ~/MicroPythonOS
+
 git clone https://github.com/MicroPythonOS/MicroPythonOS.git
 git clone https://github.com/MicroPythonOS/freezeFS
 git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
 git clone https://github.com/MicroPythonOS/lvgl_micropython
-cd lvgl_micropython/
 echo "  espressif/esp32-camera:
-    git: https://github.com/cnadler86/esp32-camera.git" > lib/micropython/ports/esp32/main/idf_component.yml
+    git: https://github.com/cnadler86/esp32-camera.git" > lvgl_micropython/lib/micropython/ports/esp32/main/idf_component.yml
 
 git clone https://github.com/cnadler86/micropython-camera-API
-cd micropython-camera-API/
+pushd micropython-camera-API/
 git checkout v0.4.0
 echo 'include("~/MicroPythonOS/lvgl_micropython/build/manifest.py")' >> src/manifest.py
-
+popd
 ```
 
 ## Build Process
