@@ -6,7 +6,7 @@ Build MicroPythonOS for ESP32 microcontrollers, such as [supported hardware](../
 
 Clone the required repositories:
 
-```bash
+```
 mkdir ~/MicroPythonOS
 cd ~/MicroPythonOS
 
@@ -14,8 +14,9 @@ git clone https://github.com/MicroPythonOS/MicroPythonOS.git
 git clone https://github.com/MicroPythonOS/freezeFS
 git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
 git clone https://github.com/MicroPythonOS/lvgl_micropython
+
 echo "  espressif/esp32-camera:
-    git: https://github.com/cnadler86/esp32-camera.git" > lvgl_micropython/lib/micropython/ports/esp32/main/idf_component.yml
+    git: https://github.com/MicroPythonOS/esp32-camera" >> lvgl_micropython/lib/micropython/ports/esp32/main/idf_component.yml
 
 git clone https://github.com/cnadler86/micropython-camera-API
 pushd micropython-camera-API/
@@ -26,7 +27,7 @@ popd
 
 ## Build Process
 
-1. **Navigate to the Repository**:
+1. **Navigate to the main repository**:
 
     ```
     cd ~/MicroPythonOS/MicroPythonOS
@@ -34,21 +35,25 @@ popd
 
 2. **Build for Production** (includes preinstalled files):
 
-    ```bash
+    ```
     ./scripts/build_lvgl_micropython.sh esp32 prod waveshare-esp32-s3-touch-lcd-2
     ```
 
     or, depending on the device you're building for:
 
-    ```bash
+    ```
     ./scripts/build_lvgl_micropython.sh esp32 prod fri3d-2024
     ```
 
-3. **Build for Development** (no preinstalled files):
+3. **Build for Development** (no preinstalled/frozen files):
 
-    ```bash
+    ```
     ./scripts/build_lvgl_micropython.sh esp32 dev fri3d-2024
-    # or
+    ```
+
+    or, depending on the device you're building for:
+
+    ```
     ./scripts/build_lvgl_micropython.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
     ```
 
@@ -58,17 +63,18 @@ popd
 
 2. Flash the firmware:
 
-    ```bash
+    ```
     ./scripts/flash_over_usb.sh
     ```
 
-3. For a development build, fill the filesystem manually:
+3. For a development build, fill the filesystem with files manually:
 
-    ```bash
+    ```
     ./scripts/install.sh
     ```
 
 ## Notes
 
+- A "dev" build without frozen files is quite a bit slower when starting apps because all the libraries need to be compiled at runtime.
 - Ensure your ESP32 is compatible (see [Supported Hardware](../getting-started/supported-hardware.md)).
 - Refer to [Release Checklist](release-checklist.md) for creating a production release.
