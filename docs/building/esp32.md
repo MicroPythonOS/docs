@@ -18,9 +18,9 @@ git clone https://github.com/MicroPythonOS/lvgl_micropython
 echo "  espressif/esp32-camera:
     git: https://github.com/MicroPythonOS/esp32-camera" >> lvgl_micropython/lib/micropython/ports/esp32/main/idf_component.yml
 
-echo 'include("$(MPY_DIR)/extmod/asyncio") # This is needed to have asyncio, which is used by aiohttp, which has easy to use websockets' >> lvgl_micropython/lib/micropython/ports/unix/variants/manifest.py
+echo 'include("$(MPY_DIR)/extmod/asyncio") # This is needed to have asyncio, which is used by aiohttp, which has used by websockets' >> lvgl_micropython/lib/micropython/ports/unix/variants/manifest.py
 
-# Unix builds need this as they don't handle C_
+# Unix builds need these symlinks because they don't handle USER_C_MODULE properly:
 ln -s ../../secp256k1-embedded-ecdh lvgl_micropython/ext_mod/secp256k1-embedded-ecdh
 ln -s ../../MicroPythonOS/c_mpos lvgl_micropython/ext_mod/c_mpos
 
