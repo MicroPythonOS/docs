@@ -5,7 +5,7 @@ MicroPythonOS can be built to run as an application on Linux desktops (fully sup
 ## Prerequisites
 
 - Install dependencies (Linux):
-```bash
+```
 sudo apt install libv4l-dev  # For webcam support
 ```
 - See [lvgl-micropython](https://github.com/MicroPythonOS/lvgl_micropython) for additional requirements.
@@ -15,19 +15,19 @@ sudo apt install libv4l-dev  # For webcam support
 
 1. **Navigate to the Repository**:
 
-    ```bash
+    ```
     cd ~/MicroPythonOS/MicroPythonOS
     ```
 
 2. **Build for Linux**:
 
-    ```bash
+    ```
     ./scripts/build_lvgl_micropython.sh unix dev
     ```
 
 3. **Build for MacOS** (untested):
 
-    ```bash
+    ```
     ./scripts/build_lvgl_micropython.sh macOS dev
     ```
 
@@ -37,7 +37,7 @@ sudo apt install libv4l-dev  # For webcam support
 2. Run the application:
 
     <pre>
-    ```bash
+    ```
     cd internal_filesystem/
     /path/to/MicroPythonOS_amd64_Linux -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
     ```

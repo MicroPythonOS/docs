@@ -11,7 +11,7 @@ Document changes in `CHANGELOG.md`.
    - Increment `CURRENT_OS_VERSION` in `internal_filesystem/lib/mpos/info.py`.
    - Update version numbers for modified apps:
 
-```bash
+```
 git diff --stat 0.0.4 internal_filesystem/  # Check changes since last release
 git diff 0.0.4 -- internal_filesystem/apps/*/META-INF/*  # Check app manifests
 git diff 0.0.4 -- internal_filesystem/builtin/apps/*/META-INF/*  # Check built-in app manifests
@@ -21,7 +21,7 @@ git diff 0.0.4 -- internal_filesystem/builtin/apps/*/META-INF/*  # Check built-i
 
 **Bundle and publish apps**:
 
-```bash
+```
 ./scripts/bundle_apps.sh
 pushd ../apps/
 git add apps/
@@ -31,7 +31,7 @@ git push
 
 **Build for all supported devices**
 
-```bash
+```
 ./scripts/build_all.sh
 ```
 
@@ -44,7 +44,7 @@ git push
 **Copy the builds to the [install](https://github.com/MicroPythonOS/install) and [updates](https://github.com/MicroPythonOS/updates) repositories**:
 
 This is a manual action, but check out these old scripts for inspiration:
-```bash
+```
 scripts/release_to_updates.sh
 scripts/release_to_install.sh
 ```

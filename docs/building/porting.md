@@ -6,6 +6,8 @@ Ideally, the hardware drivers (for your display) are also already available in t
 
 Of course, porting is always quite a technical undertaking, so if you want to make your life easy, just purchase one of the already supported devices - they're fairly cheap.
 
+If you prefer to have the porting work done for you and you're open to making a donation, be sure to [reach out](mailto:info@MicroPythonOS.com) and we'll get it done!
+
 ## What to write
 
 By design, the only device-specific code for MicroPythonOS is found in the ```internal_filesystem/boot*.py``` files.
