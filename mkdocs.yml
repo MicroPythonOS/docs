@@ -50,6 +50,7 @@ nav:
   - Building:
       - For ESP32: building/esp32.md
       - For Desktop: building/desktop.md
+      - Porting Guide: building/porting.md
       - Release Checklist: building/release-checklist.md
 extra:
   social:

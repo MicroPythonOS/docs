@@ -33,13 +33,15 @@ sudo apt install libv4l-dev  # For webcam support
 
 ## Running on Desktop
 
-1. Download a release (e.g., `MicroPythonOS_amd64_Linux_0.0.8`) or use your build.
+1. Download a release (e.g., `MicroPythonOS_amd64_Linux`) or use your build.
 2. Run the application:
 
+    <pre>
     ```bash
     cd internal_filesystem/
-    /path/to/MicroPythonOS_amd64_Linux_0.0.8 -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
+    /path/to/MicroPythonOS_amd64_Linux -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
     ```
+    </pre>
 
 3. Check `scripts/run_on_desktop.sh` for options like fullscreen or direct app launch.
 
