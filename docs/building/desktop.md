@@ -4,6 +4,8 @@ MicroPythonOS can be built to run as an application on Linux desktops (fully sup
 
 ## Prerequisites
 
+<!-- https://github.com/lvgl-micropython/lvgl_micropython?tab=readme-ov-file#compiling-for-ubuntu-linux -->
+
 - Install dependencies (Linux):
 ```
 sudo apt install libv4l-dev  # For webcam support
@@ -43,7 +45,7 @@ sudo apt install libv4l-dev  # For webcam support
     ```
     </pre>
 
-3. Check `scripts/run_on_desktop.sh` for options like fullscreen or direct app launch.
+3. Check `scripts/run_desktop.sh` for options like fullscreen or direct app launch.
 
 ## Notes
 
