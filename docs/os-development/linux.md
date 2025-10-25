@@ -33,20 +33,24 @@ sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build 
 
     Usage:
 
+    <pre>
     ```
     ./scripts/build_lvgl_micropython.sh <target system> <build type (prod or dev)> [optional target device]
     ```
+    </pre>
 
-    Supported target systems: esp32, unix (= Linux) and macOS
+    **Target systems**: esp32, unix (= Linux) and macOS
     
-    Build types: 
+    **Build types**:
+
     - A "prod" build includes the complete filesystem that's "frozen" into the build, so it's fast and all ready to go but the files in /lib and /builtin will be read-only.
     - A "dev" build comes without a filesystem, so it's perfect for power users that want to work on MicroPythonOS internals. There's a simple script that will copy all the necessary files over later, and these will be writeable.
-    Note: for unix and macOS systems, only "dev" has been tested. The "prod" builds might have issues.
 
-    Target devices: waveshare-esp32-s3-touch-lcd-2 and fri3d-2024
+    _Note_: for unix and macOS systems, only "dev" has been tested. The "prod" builds might have issues but should be made to work soon.
+
+    **Target devices**: waveshare-esp32-s3-touch-lcd-2 and fri3d-2024
     
-    Examples:
+    **Examples**:
 
     <pre>
     ```
@@ -58,6 +62,7 @@ sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build 
     </pre>
 
     The resulting build file will be in `lvgl_micropython/build/`, for example:
+
     - lvgl_micropython/build/lvgl_micropy_unix
     - lvgl_micropython/build/lvgl_micropy_macOS
     - lvgl_micropython/build/lvgl_micropy_ESP32_GENERIC_S3-SPIRAM_OCT-16.bin
@@ -69,9 +74,12 @@ sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build 
 
     <pre>
     ```
-    ./scripts/run_desktop.sh
+    cd internal_filesystem/
+    /path/to/MicroPythonOS_amd64_Linux -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
     ```
     </pre>
+
+    There's also convenient `./scripts/run_desktop.sh` script that will attempt to start the latest build, if you compiled it yourself.
 
 ### Modifying files
 
