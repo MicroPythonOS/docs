@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install dependencies
-        run: pip install mkdocs mkdocs-material
+        run: pip install mkdocs mkdocs-material markdown-include
       - name: Build site
         run: mkdocs build
       - name: Setup Pages
