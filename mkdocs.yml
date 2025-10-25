@@ -52,7 +52,7 @@ nav:
       - Building for Linux: os-development/building-for-linux.md
       - Building for MacOS: os-development/building-for-macos.md
       - Building for ESP32: os-development/building-for-esp32.md
-      - Porting Guide: os-development/porting.md
+      - Porting Guide: os-development/porting-guide.md
   - Other:
       - Release Process: other/release-checklist.md
 extra:

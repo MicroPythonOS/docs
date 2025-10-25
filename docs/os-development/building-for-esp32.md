@@ -2,58 +2,32 @@
 
 Build MicroPythonOS for ESP32 microcontrollers, such as [supported hardware](../getting-started/supported-hardware.md).
 
-## Prerequisites
+## Get the prerequisites
 
-Clone the required repositories:
+Clone the repositories:
 
 ```
-mkdir ~/MicroPythonOS
-cd ~/MicroPythonOS
-
-git clone https://github.com/MicroPythonOS/MicroPythonOS.git
-git clone https://github.com/MicroPythonOS/freezeFS
-git clone https://github.com/MicroPythonOS/secp256k1-embedded-ecdh
-git clone https://github.com/MicroPythonOS/lvgl_micropython
-
-mkdir -p lvgl_micropython/lib/micropython/ports/esp32/main/
-echo "  espressif/esp32-camera:
-    git: https://github.com/MicroPythonOS/esp32-camera" >> lvgl_micropython/lib/micropython/ports/esp32/main/idf_component.yml
-
-mkdir -p lvgl_micropython/lib/micropython/ports/unix/variants
-echo 'include("$(MPY_DIR)/extmod/asyncio") # This is needed to have asyncio, which is used by aiohttp, which has used by websockets' >> lvgl_micropython/lib/micropython/ports/unix/variants/manifest.py
-
-# Unix builds need these symlinks because they don't handle USER_C_MODULE properly:
-ln -s ../../secp256k1-embedded-ecdh lvgl_micropython/ext_mod/secp256k1-embedded-ecdh
-ln -s ../../MicroPythonOS/c_mpos lvgl_micropython/ext_mod/c_mpos
-
-git clone https://github.com/cnadler86/micropython-camera-API
-pushd micropython-camera-API/
-git checkout v0.4.0
-echo 'include("~/MicroPythonOS/lvgl_micropython/build/manifest.py")' >> src/manifest.py
-popd
+git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
 ```
 
-## Build Process
+That will take a while, because it recursively clones MicroPython, LVGL, ESP-IDF and all their dependencies.
+
+While that's going on, make sure you have everything installed to compile code:
+
+```
+sudo apt update
+sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev libv4l-dev
+```
+
+## Compile the code
 
 1. **Navigate to the main repository**:
 
     ```
-    cd ~/MicroPythonOS/MicroPythonOS
+    cd ~/MicroPythonOS
     ```
 
-2. **Build for Production** (includes preinstalled files):
-
-    ```
-    ./scripts/build_lvgl_micropython.sh esp32 prod waveshare-esp32-s3-touch-lcd-2
-    ```
-
-    or, depending on the device you're building for:
-
-    ```
-    ./scripts/build_lvgl_micropython.sh esp32 prod fri3d-2024
-    ```
-
-3. **Build for Development** (no preinstalled/frozen files):
+2. **Start the Compilation**
 
     ```
     ./scripts/build_lvgl_micropython.sh esp32 dev fri3d-2024
@@ -65,9 +39,13 @@ popd
     ./scripts/build_lvgl_micropython.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
     ```
 
-## Flashing to ESP32
+## Install it on an ESP32
 
-1. Put your ESP32 in bootloader mode (long-press the BOOT button if running MicroPythonOS).
+1. Put your ESP32 in bootloader
+
+If you're already in MicroPythonOS: go to Settings - Restart to Bootloader - Bootloader - Save.
+
+Otherwise, physically keep the "BOOT" (sometimes labeled "START") button pressed while briefly pressing the "RESET" button.
 
 2. Flash the firmware:
 
@@ -75,7 +53,9 @@ popd
     ./scripts/flash_over_usb.sh
     ```
 
-3. For a development build, fill the filesystem with files manually:
+    After reset, you should find a MicroPython REPL shell on the serial line.
+
+3. Run this script to copy the files to the device manually:
 
     ```
     ./scripts/install.sh
@@ -84,5 +64,5 @@ popd
 ## Notes
 
 - A "dev" build without frozen files is quite a bit slower when starting apps because all the libraries need to be compiled at runtime.
-- Ensure your ESP32 is compatible (see [Supported Hardware](../getting-started/supported-hardware.md)).
+- Ensure your ESP32 is compatible (see [Supported Hardware](../getting-started/supported-hardware.md)). If it's not, then you might need the [Porting Guide](../os-development/porting-guide.md).
 - Refer to [Release Checklist](release-checklist.md) for creating a production release.
