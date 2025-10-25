@@ -44,7 +44,7 @@
     - lvgl_micropython/build/lvgl_micropy_macOS
     - lvgl_micropython/build/lvgl_micropy_ESP32_GENERIC_S3-SPIRAM_OCT-16.bin
 
-## Running on Desktop
+## Running on Linux or MacOS
 
 1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) or build your own [on MacOS](macos.md) or [Linux](linux.md).
 2. Run the application:
