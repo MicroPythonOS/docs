@@ -1,53 +1,82 @@
-# Building for Desktop
+# OS Development on Linux
 
-MicroPythonOS can be built to run as an application on Linux desktops (fully supported) or MacOS (untested).
+Most users can just use a pre-built binary from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and install it manually or using the [web installer](https://install.MicroPythonOS.com).
 
-## Prerequisites
+But if for some reason that one doesn't work, or you really want to modify things under the hood, you're in the right place here!
 
-<!-- https://github.com/lvgl-micropython/lvgl_micropython?tab=readme-ov-file#compiling-for-ubuntu-linux -->
+## Get the prerequisites
 
-- Install dependencies (Linux):
+Clone the repositories:
+
 ```
-sudo apt install libv4l-dev  # For webcam support
+git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
 ```
-- See [lvgl-micropython](https://github.com/MicroPythonOS/lvgl_micropython) for additional requirements.
-- Clone repositories as described in [Building for ESP32](esp32.md).
 
-## Build Process
+That will take a while, because it recursively clones MicroPython, LVGL, ESP-IDF and all their dependencies.
 
-1. **Navigate to the Repository**:
+While that's going on, make sure you have everything installed to compile code:
 
-    ```
-    cd ~/MicroPythonOS/MicroPythonOS
-    ```
+```
+sudo apt update
+sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev libpipewire-0.3-dev libwayland-dev libdecor-0-dev libv4l-dev
+```
 
-2. **Build for Linux**:
+## Compile the code
 
-    ```
-    ./scripts/build_lvgl_micropython.sh unix dev
-    ```
-
-3. **Build for MacOS** (untested):
+1. **Make sure you're in the main repository**:
 
     ```
-    ./scripts/build_lvgl_micropython.sh macOS dev
+    cd MicroPythonOS
     ```
 
-## Running on Desktop
+2. **Start the Compilation**
 
-1. Download a release (e.g., `MicroPythonOS_amd64_Linux`) or use your build.
+    Usage:
+
+    ```
+    ./scripts/build_lvgl_micropython.sh <target system> <build type (prod or dev)> [optional target device]
+    ```
+
+    Supported target systems: esp32, unix (= Linux) and macOS
+    
+    Build types: 
+    - A "prod" build includes the complete filesystem that's "frozen" into the build, so it's fast and all ready to go but the files in /lib and /builtin will be read-only.
+    - A "dev" build comes without a filesystem, so it's perfect for power users that want to work on MicroPythonOS internals. There's a simple script that will copy all the necessary files over later, and these will be writeable.
+    Note: for unix and macOS systems, only "dev" has been tested. The "prod" builds might have issues.
+
+    Target devices: waveshare-esp32-s3-touch-lcd-2 and fri3d-2024
+    
+    Examples:
+
+    <pre>
+    ```
+    ./scripts/build_lvgl_micropython.sh esp32 prod fri3d-2024
+    ./scripts/build_lvgl_micropython.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
+    ./scripts/build_lvgl_micropython.sh esp32 unix dev
+    ./scripts/build_lvgl_micropython.sh esp32 macOS dev
+    ```
+    </pre>
+
+    The resulting build file will be in `lvgl_micropython/build/`, for example:
+    - lvgl_micropython/build/lvgl_micropy_unix
+    - lvgl_micropython/build/lvgl_micropy_macOS
+    - lvgl_micropython/build/lvgl_micropy_ESP32_GENERIC_S3-SPIRAM_OCT-16.bin
+
+## Running on Linux
+
+1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`) or use your own build from above.
 2. Run the application:
 
     <pre>
     ```
-    cd internal_filesystem/
-    /path/to/MicroPythonOS_amd64_Linux -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
+    ./scripts/run_desktop.sh
     ```
     </pre>
 
-3. Check `scripts/run_desktop.sh` for options like fullscreen or direct app launch.
+### Modifying files
 
-## Notes
+You'll notice that, whenever you change a file on your local system, the changes are immediately visible whenever you reload the file.
 
-- Linux is fully supported; MacOS support is experimental.
-- See [Supported Hardware](../getting-started/supported-hardware.md) for platform details.
+This results in a very quick coding cycle.
+
+Give this a try by editing `internal_filesystem/builtin/apps/com.micropythonos.about/assets/about.py` and then restarting the "About" app. Powerful stuff!
