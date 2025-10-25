@@ -31,6 +31,9 @@ theme:
   custom_dir: docs/overrides
 extra_css:
   - stylesheets/extra.css
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
 nav:
   - Home: index.md
   - Overview: overview.md
@@ -51,7 +54,7 @@ nav:
       - On Linux: os-development/linux.md
       - On MacOS: os-development/macos.md
       - On Windows: os-development/windows.md
-      - Install on ESP32: os-development/manual-install-esp32.md
+      - Installing on ESP32: os-development/installing-on-esp32.md
       - Porting Guide: os-development/porting-guide.md
   - Other:
       - Release Process: other/release-checklist.md
