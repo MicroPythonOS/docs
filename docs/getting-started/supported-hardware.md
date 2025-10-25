@@ -10,13 +10,12 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 ## Desktop Computers
 
 - **Linux**: Supported using SDL for display handling.
-- **MacOS**: Should work but untested.
+- **MacOS**: Supported as well.
 
 ## Raspberry Pi
 
-- **Raspbian/Linux-based**: Should work, especially with a Linux desktop. Untested.
+- **Raspbian and other Linux-based**: Should work!
 
 ## Notes
 
-- Ensure your hardware supports touch screens, IMUs, or cameras for full feature compatibility.
 - Check [Installation](installation.md) for setup instructions.

@@ -48,5 +48,3 @@ Explore MicroPythonOS in action:
     <figcaption>WiFi Settings</figcaption>
   </figure>
 </div>
-
-[See more screenshots](#screenshots)

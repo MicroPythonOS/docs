@@ -21,5 +21,6 @@ xcode-select --install || true # already installed on github
 brew install pkg-config libffi ninja make SDL2
 ```
 
+{!os-development/compiling.md!}
 
-{!os-development/compile-and-run.md!}
+{!os-development/running-on-desktop.md!}
