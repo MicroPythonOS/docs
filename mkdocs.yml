@@ -47,11 +47,14 @@ nav:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
       - Filesystem Layout: architecture/filesystem.md
-  - Building:
-      - For ESP32: building/esp32.md
-      - For Desktop: building/desktop.md
-      - Porting Guide: building/porting.md
-      - Release Checklist: building/release-checklist.md
+  - OS Development:
+      - Easy Quick Start: os-development/prebuilt.md
+      - Building for Linux: os-development/building-for-linux.md
+      - Building for MacOS: os-development/building-for-macos.md
+      - Building for ESP32: os-development/building-for-esp32.md
+      - Porting Guide: os-development/porting.md
+  - Other:
+      - Release Process: other/release-checklist.md
 extra:
   social:
     - icon: fontawesome/brands/github
