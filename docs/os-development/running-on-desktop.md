@@ -1,8 +1,16 @@
 ## Running on Linux or MacOS
 
-1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) or build your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md).
+1. Make sure you have the software
 
-2. Get the `local_filesystem/` folder
+    Either you built your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md) or you can download a pre-built executable binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+
+    Give it executable permissions:
+
+    ```
+    chmod +x /path/to/MicroPythonOS_executable_binary
+    ``` 
+
+2. Make sure you have the `local_filesystem/` folder
 
     You probably already have a local clone that contains the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem).
 
@@ -20,7 +28,7 @@
     <pre>
     ```
     cd internal_filesystem/ # make sure you're in the right place to find the filesystem
-    /path/to/release_binary -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
+    /path/to/MicroPythonOS_executable_binary -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
     ```
     </pre>
 

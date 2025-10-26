@@ -3,7 +3,7 @@
 1. **Make sure you're in the main repository**:
 
     ```
-    cd MicroPythonOS
+    cd MicroPythonOS/
     ```
 
 2. **Start the Compilation**
