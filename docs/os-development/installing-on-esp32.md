@@ -16,10 +16,10 @@ But if you need to install a version that's not available there, or you built yo
 3. **Flash the firmware**
 
     ```
-    ~/.espressif/python_env/idf5.2_py3.9_env/bin/python -m esptool --chip esp32s3 0x0 firmware_file.bin
+    ~/.espressif/python_env/idf5.2_py3.9_env/bin/python -m esptool --chip esp32s3 write_flash 0x0 firmware_file.bin
     ```
 
-    Add --erase-all if you want to erase the entire flash memory, so that no old files or apps will remain.
+    Add the `--erase-all` option if you want to erase the entire flash memory, so that no old files or apps will remain.
     
     There's also a convenient `./scripts/flash_over_usb.sh` script that will attempt to flash the latest firmware that you compiled yourself.
 

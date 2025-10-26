@@ -2,16 +2,20 @@
 
 1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) or build your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md).
 
-2. If you don't have a local clone yet then do it now, so you have the local_filesystem/ folder:
+2. Get the `local_filesystem/` folder
+
+    You probably already have a local clone that contains the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem).
+
+    If not, then clone it now:
 
     <pre>
     ```
-    git clone https://github.com/MicroPythonOS/MicroPythonOS.git
+    git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
     cd MicroPythonOS/
     ```
     </pre>
 
-3. Start it:
+3. Start it from the local_filesystem/ folder:
 
     <pre>
     ```
