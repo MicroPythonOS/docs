@@ -40,7 +40,7 @@
 
     The resulting build file will be in `lvgl_micropython/build/`, for example:
 
-    - lvgl_micropython/build/lvgl_micropy_unix
-    - lvgl_micropython/build/lvgl_micropy_macOS
-    - lvgl_micropython/build/lvgl_micropy_ESP32_GENERIC_S3-SPIRAM_OCT-16.bin
+    - `lvgl_micropython/build/lvgl_micropy_unix`
+    - `lvgl_micropython/build/lvgl_micropy_macOS`
+    - `lvgl_micropython/build/lvgl_micropy_ESP32_GENERIC_S3-SPIRAM_OCT-16.bin`
 
