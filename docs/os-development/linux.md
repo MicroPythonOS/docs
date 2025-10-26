@@ -22,7 +22,6 @@ sudo apt-get install -y build-essential libffi-dev pkg-config cmake ninja-build 
 ```
 
 
-
 {!os-development/compiling.md!}
 
 {!os-development/running-on-desktop.md!}

@@ -18,7 +18,7 @@ By design, the only device-specific code for MicroPythonOS is found in the ```in
 
 	The goal is to have it boot and show a MicroPython REPL shell on the serial line.
 
-	Take a look at our [build_lvgl_micropython.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_lvgl_micropython.sh) script. A "dev" build (without any "frozen" filesystem) is preferred as this will still change a lot.
+	Take a look at our [build_mpos.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) script. A "dev" build (without any "frozen" filesystem) is preferred as this will still change a lot.
 
 	Also go over the [official lvgl_micropython documentation](https://github.com/lvgl-micropython/lvgl_micropython/blob/main/README.md) for porting instructions. If you're in luck, your device is already listed in the esp32 BOARD list. Otherwise use a generic one like `BOARD=ESP32_GENERIC` with `BOARD_VARIANT=SPIRAM` or `BOARD=ESP32_GENERIC_S3` with `BOARD_VARIANT=SPIRAM_OCT` if it has an SPIRAM.
 

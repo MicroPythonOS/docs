@@ -12,7 +12,7 @@
 
     <pre>
     ```
-    ./scripts/build_lvgl_micropython.sh <target system> <build type (prod or dev)> [optional target device]
+    ./scripts/build_mpos.sh <target system> <build type (prod or dev)> [optional target device]
     ```
     </pre>
 
@@ -31,10 +31,10 @@
 
     <pre>
     ```
-    ./scripts/build_lvgl_micropython.sh esp32 prod fri3d-2024
-    ./scripts/build_lvgl_micropython.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
-    ./scripts/build_lvgl_micropython.sh esp32 unix dev
-    ./scripts/build_lvgl_micropython.sh esp32 macOS dev
+    ./scripts/build_mpos.sh esp32 prod fri3d-2024
+    ./scripts/build_mpos.sh esp32 dev waveshare-esp32-s3-touch-lcd-2
+    ./scripts/build_mpos.sh esp32 unix dev
+    ./scripts/build_mpos.sh esp32 macOS dev
     ```
     </pre>
 
