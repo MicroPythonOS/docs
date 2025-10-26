@@ -1,6 +1,6 @@
 ## Running on Linux or MacOS
 
-1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) or build your own [on MacOS](macos.md) or [Linux](linux.md).
+1. Download a release binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) or build your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md).
 
 2. If you don't have a local clone yet then do it now, so you have the local_filesystem/ folder:
 

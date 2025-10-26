@@ -52,4 +52,4 @@ scripts/release_to_install.sh
 ## Notes
 
 - Ensure all repositories are pushed before tagging.
-- Verify builds on target hardware (see [Building for ESP32](esp32.md)).
+- Verify builds on target hardware
