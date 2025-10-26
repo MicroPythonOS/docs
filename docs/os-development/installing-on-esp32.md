@@ -35,7 +35,10 @@ But if you need to install a version that's not available there, or you built yo
 
 5. **Populate the filesystem** (only for "dev" builds)
 
-    The "dev" builds come without a filesystem so you probably want to copy the whole internal_filesystem/ folder over, as well as one of the device-specific boot*.py files and main.py.
+    The "dev" builds come without a filesystem so you probably want to copy:
+
+    - the whole internal_filesystem/ folder, including main.py
+    - the appropriate device-specific internal_filesystem/boot*.py file to /boot.py on the device
     
     There's a convenient script that will do this for you.
     
