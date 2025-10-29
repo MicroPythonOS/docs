@@ -16,16 +16,16 @@
     ```
     </pre>
 
-    **Target systems**: esp32, unix (= Linux) and macOS
+    **Target systems**: `esp32`, `unix` (= Linux) and `macOS`
     
     **Build types**:
 
-    - A "prod" build includes the complete filesystem that's "frozen" into the build, so it's fast and all ready to go but the files in /lib and /builtin will be read-only.
-    - A "dev" build comes without a filesystem, so it's perfect for power users that want to work on MicroPythonOS internals. There's a simple script that will copy all the necessary files over later, and these will be writeable.
+    - A `prod` build includes the complete filesystem that's "frozen" into the build, so it's fast and all ready to go but the files in /lib and /builtin will be read-only.
+    - A `dev` build comes without a filesystem, so it's perfect for power users that want to work on MicroPythonOS internals. There's a simple script that will copy all the necessary files over later, and these will be writeable.
 
-    _Note_: for unix and macOS systems, only "dev" has been tested. The "prod" builds might have issues but should be made to work soon.
+    _Note_: for unix and macOS systems, only `dev` has been tested. The `prod` builds might have issues but should be made to work soon.
 
-    **Target devices**: waveshare-esp32-s3-touch-lcd-2 or fri3d-2024
+    **Target devices**: `waveshare-esp32-s3-touch-lcd-2` or `fri3d-2024`
     
     **Examples**:
 
