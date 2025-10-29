@@ -17,7 +17,7 @@ That will take a while, because it recursively clones MicroPython, LVGL, ESP-IDF
 While that's going on, make sure you have everything installed to compile code:
 
 ```
-xcode-select --install || true # already installed on github
+xcode-select --install
 brew install pkg-config libffi ninja make SDL2
 ```
 
