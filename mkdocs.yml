@@ -46,6 +46,8 @@ nav:
       - App Store: apps/appstore.md
       - Creating Apps: apps/creating-apps.md
       - Bundling Apps: apps/bundling-apps.md
+  - Frameworks:
+      - Preferences: frameworks/preferences.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
