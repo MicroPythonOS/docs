@@ -10,7 +10,8 @@ If you prefer to have the porting work done for you and you're open to making a 
 
 ## What to write
 
-By design, the only device-specific code for MicroPythonOS is found in the ```internal_filesystem/boot*.py``` files.
+By design, the only device-specific code for MicroPythonOS is found in the ```internal_filesystem/lib/mpos/board/<boardname>.py``` files.
+
 
 ## Steps to port to a new device
 
@@ -18,15 +19,17 @@ By design, the only device-specific code for MicroPythonOS is found in the ```in
 
 	The goal is to have it boot and show a MicroPython REPL shell on the serial line.
 
-	Take a look at our [build_mpos.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) script. A "dev" build (without any "frozen" filesystem) is preferred as this will still change a lot.
+	Take a look at our [build_mpos.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) script.
 
 	Also go over the [official lvgl_micropython documentation](https://github.com/lvgl-micropython/lvgl_micropython/blob/main/README.md) for porting instructions. If you're in luck, your device is already listed in the esp32 BOARD list. Otherwise use a generic one like `BOARD=ESP32_GENERIC` with `BOARD_VARIANT=SPIRAM` or `BOARD=ESP32_GENERIC_S3` with `BOARD_VARIANT=SPIRAM_OCT` if it has an SPIRAM.
 
 2. Figure out how to initialize the display for the new device
 
-    Use the MicroPython REPL shell on the serial port to type or paste (CTRL-E) MicroPython code.
+    Use the MicroPython REPL shell on the serial port to type or paste (CTRL-E) MicroPython code manually at first to see what works.
     
-    Check out how it's done for the [Waveshare 2 inch Touch Screen](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/boot.py) and for the [Fri3d Camp 2024 Badge](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/boot_fri3d-2024.py). You essentially need to set the correct pins to which the display is connected (like `LCD_SCLK`, `LCD_MOSI`, `LCD_MOSI` etc.) and also set the resolution of the display (`TFT_HOR_RES`, `TFT_VER_RE`S).
+    Take a look at [```waveshare_esp32_s3_touch_lcd_2.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py) or [```fri3d_2024.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d-2024.py).
+
+    You essentially need to set the correct pins to which the display is connected (like `LCD_SCLK`, `LCD_MOSI`, `LCD_MOSI` etc.) and also set the resolution of the display (`TFT_HOR_RES`, `TFT_VER_RE`S).
     
     After a failed attempt, reset the device to make sure the hardware is in a known initial state again.
     
@@ -47,17 +50,16 @@ By design, the only device-specific code for MicroPythonOS is found in the ```in
     ```
     </pre>
 
-3. Put the initialization code in a custom boot_...py file for your device
+3. Put the initialization code in a custom ```<boardname>.py``` file for your device
 
-4. Copy the custom boot_...py file and the generic MicroPythonOS files to your device (see [install.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/install.sh)
+4. Copy the custom ```<boardname>.py``` file and the generic MicroPythonOS files to your device (see [install.sh](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/install.sh)
 
-    After reset, your custom boot_...py file should initialize the display and then MicroPythonOS should start, run the launcher, which shows the icons etc.
+    After reset, your custom ```<boardname>.py``` file should initialize the display and then MicroPythonOS should start, run the launcher, which shows the icons etc.
 
 5. Add more hardware support
 
-    If your device has a touch screen, check out how it's initialized for the [Waveshare 2 inch Touch Screen](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/boot.py).
-    If it has buttons for input, check out the KeyPad code for the [Fri3d Camp 2024 Badge](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/boot_fri3d-2024.py).
+    If your device has a touch screen, check out how it's initialized for the [Waveshare 2 inch Touch Screen](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py). If it has buttons for input, check out the KeyPad code for the [Fri3d Camp 2024 Badge](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d-2024.py).
     
     Now you should be able to control the device, connect to WiFi and install more apps from the AppStore.
     
-    This would be a good time to create a pull-request to merge your boot_...py file into the main codebase so the support becomes official!
+    This would be a good time to create a pull-request to merge your ```<boardname>.py``` file into the main codebase so the support becomes official!
