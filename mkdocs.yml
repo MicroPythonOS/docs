@@ -49,6 +49,8 @@ nav:
   - Frameworks:
       - Preferences: frameworks/preferences.md
       - SensorManager: frameworks/sensor-manager.md
+      - AudioFlinger: frameworks/audioflinger.md
+      - LightsManager: frameworks/lights-manager.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
