@@ -48,6 +48,7 @@ nav:
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
       - Preferences: frameworks/preferences.md
+      - SensorManager: frameworks/sensor-manager.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
