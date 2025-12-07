@@ -224,9 +224,21 @@ class GestureDetector(Activity):
 
 ## Calibration
 
-Calibration removes sensor drift and improves accuracy. The device must be **stationary** during calibration.
+Calibration removes sensor drift and improves accuracy. The device must be **stationary on a flat surface** during calibration.
 
-### Manual Calibration
+### Using the Built-in Calibration Tool
+
+The easiest way to calibrate your IMU is through the Settings app:
+
+1. Open **Settings** → **IMU** → **Calibrate IMU**
+2. Place your device on a flat, stable surface
+3. Tap **Calibrate Now**
+4. Keep the device still for ~2 seconds
+5. Done! Calibration is saved automatically
+
+The built-in tool performs stationarity checks and calibrates both the accelerometer and gyroscope with 100 samples each for optimal accuracy.
+
+### Manual Calibration (Programmatic)
 
 ```python
 class SettingsActivity(Activity):
@@ -237,7 +249,7 @@ class SettingsActivity(Activity):
 
         # Show instructions
         self.status_label.set_text("Place device flat and still...")
-        time.sleep(2)
+        wait_for_render()  # Let UI update
 
         # Calibrate accelerometer (100 samples)
         self.status_label.set_text("Calibrating accelerometer...")
@@ -255,7 +267,7 @@ class SettingsActivity(Activity):
 
 ### Persistent Calibration
 
-Calibration data is automatically saved to `data/com.micropythonos.sensors/config.json` and loaded on boot. You only need to calibrate once (unless the device is moved to a different location or orientation changes significantly).
+Calibration data is automatically saved to `data/com.micropythonos.settings/sensors.json` and loaded on boot. You only need to calibrate once (unless the device is physically relocated or significantly re-oriented).
 
 ## List Available Sensors
 
@@ -437,6 +449,7 @@ Calibrates the sensor (device must be stationary). Returns calibration offsets. 
 ### Sensor Object
 
 Properties:
+
 - `name` - Human-readable sensor name
 - `type` - Sensor type constant
 - `vendor` - Manufacturer name
