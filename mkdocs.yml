@@ -48,6 +48,8 @@ nav:
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
       - Preferences: frameworks/preferences.md
+      - TaskManager: frameworks/task-manager.md
+      - DownloadManager: frameworks/download-manager.md
       - SensorManager: frameworks/sensor-manager.md
       - AudioFlinger: frameworks/audioflinger.md
       - LightsManager: frameworks/lights-manager.md
