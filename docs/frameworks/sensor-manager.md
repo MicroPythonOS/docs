@@ -12,11 +12,11 @@ SensorManager automatically detects available sensors on your device:
 
 The framework handles:
 
-✅ **Auto-detection** - Identifies which IMU is present
-✅ **Unit normalization** - Returns standard SI units (m/s², deg/s, °C)
-✅ **Persistent calibration** - Calibrate once, saved across reboots
-✅ **Thread-safe** - Safe for concurrent access
-✅ **Hardware-agnostic** - Apps work on all platforms without changes
+- **Auto-detection** - Identifies which IMU is present
+- **Unit normalization** - Returns standard SI units (m/s², deg/s, °C)
+- **Persistent calibration** - Calibrate once, saved across reboots
+- **Thread-safe** - Safe for concurrent access
+- **Hardware-agnostic** - Apps work on all platforms without changes
 
 ## Sensor Types
 

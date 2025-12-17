@@ -6,12 +6,12 @@ MicroPythonOS provides a centralized task management service called **TaskManage
 
 TaskManager provides:
 
-✅ **Simplified async interface** - Easy wrappers around uasyncio primitives
-✅ **Task creation** - Launch background coroutines without boilerplate
-✅ **Sleep operations** - Async delays in seconds or milliseconds
-✅ **Timeouts** - Wait for operations with automatic timeout handling
-✅ **Event notifications** - Simple async event signaling
-✅ **Centralized management** - Single point of control for all async operations
+- **Simplified async interface** - Easy wrappers around uasyncio primitives
+- **Task creation** - Launch background coroutines without boilerplate
+- **Sleep operations** - Async delays in seconds or milliseconds
+- **Timeouts** - Wait for operations with automatic timeout handling
+- **Event notifications** - Simple async event signaling
+- **Centralized management** - Single point of control for all async operations
 
 ## Quick Start
 

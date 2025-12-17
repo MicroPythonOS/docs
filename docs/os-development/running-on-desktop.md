@@ -42,9 +42,9 @@
 
 When you run `./scripts/run_desktop.sh`, the OS runs **directly from `internal_filesystem/`**. This means:
 
-✅ **All changes to Python files are immediately active** - no build or install needed
-✅ **Instant testing** - edit a file, restart the app, see the changes
-✅ **Fast iteration cycle** - the recommended way to develop and test
+- **All changes to Python files are immediately active** - no build or install needed
+- **Instant testing** - edit a file, restart the app, see the changes
+- **Fast iteration cycle** - the recommended way to develop and test
 
 **DO NOT run `./scripts/install.sh` when testing on desktop!** That script is only for deploying to physical hardware.
 

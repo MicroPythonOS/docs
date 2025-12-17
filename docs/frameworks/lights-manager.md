@@ -6,12 +6,12 @@ MicroPythonOS provides a simple LED control service called **LightsManager** for
 
 LightsManager provides:
 
-✅ **One-shot LED control** - Direct control of individual or all LEDs
-✅ **Buffered updates** - Set multiple LEDs then apply all changes at once
-✅ **Hardware abstraction** - Same API works across all boards
-✅ **Predefined colors** - Quick access to common notification colors
-✅ **Frame-based animations** - Integrate with TaskHandler for smooth animations
-✅ **Low overhead** - Lightweight singleton pattern
+- **One-shot LED control** - Direct control of individual or all LEDs
+- **Buffered updates** - Set multiple LEDs then apply all changes at once
+- **Hardware abstraction** - Same API works across all boards
+- **Predefined colors** - Quick access to common notification colors
+- **Frame-based animations** - Integrate with TaskHandler for smooth animations
+- **Low overhead** - Lightweight singleton pattern
 
 ⚠️ **Note**: LightsManager provides primitives for LED control, not built-in animations. Apps implement custom animations using the `update_frame()` pattern.
 

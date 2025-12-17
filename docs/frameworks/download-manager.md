@@ -6,13 +6,13 @@ MicroPythonOS provides a centralized HTTP download service called **DownloadMana
 
 DownloadManager provides:
 
-✅ **Three output modes** - Download to memory, file, or stream with callbacks
-✅ **Automatic session management** - Shared aiohttp session with connection reuse
-✅ **Thread-safe** - Safe for concurrent downloads across apps
-✅ **Progress tracking** - Real-time download progress callbacks
-✅ **Retry logic** - Automatic retry on chunk failures (3 attempts)
-✅ **Resume support** - HTTP Range headers for partial downloads
-✅ **Memory efficient** - Chunked downloads (1KB chunks)
+- **Three output modes** - Download to memory, file, or stream with callbacks
+- **Automatic session management** - Shared aiohttp session with connection reuse
+- **Thread-safe** - Safe for concurrent downloads across apps
+- **Progress tracking** - Real-time download progress callbacks
+- **Retry logic** - Automatic retry on chunk failures (3 attempts)
+- **Resume support** - HTTP Range headers for partial downloads
+- **Memory efficient** - Chunked downloads (1KB chunks)
 
 ## Quick Start
 

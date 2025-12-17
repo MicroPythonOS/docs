@@ -6,13 +6,13 @@ MicroPythonOS provides a centralized audio service called **AudioFlinger**, insp
 
 AudioFlinger provides:
 
-✅ **Priority-based audio focus** - Higher priority streams interrupt lower priority ones
-✅ **Multiple audio devices** - I2S digital audio, PWM buzzer, or both
-✅ **Background playback** - Runs in separate thread
-✅ **WAV file support** - 8/16/24/32-bit PCM, mono/stereo, auto-upsampling
-✅ **RTTTL ringtone support** - Full Ring Tone Text Transfer Language parser
-✅ **Thread-safe** - Safe for concurrent access
-✅ **Hardware-agnostic** - Apps work across all platforms without changes
+- **Priority-based audio focus** - Higher priority streams interrupt lower priority ones
+- **Multiple audio devices** - I2S digital audio, PWM buzzer, or both
+- **Background playback** - Runs in separate thread
+- **WAV file support** - 8/16/24/32-bit PCM, mono/stereo, auto-upsampling
+- **RTTTL ringtone support** - Full Ring Tone Text Transfer Language parser
+- **Thread-safe** - Safe for concurrent access
+- **Hardware-agnostic** - Apps work across all platforms without changes
 
 ## Supported Audio Devices
 
