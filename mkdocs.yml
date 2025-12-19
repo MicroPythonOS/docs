@@ -50,6 +50,8 @@ nav:
       - Preferences: frameworks/preferences.md
       - TaskManager: frameworks/task-manager.md
       - DownloadManager: frameworks/download-manager.md
+      - WifiService: frameworks/wifi-service.md
+      - ConnectivityManager: frameworks/connectivity-manager.md
       - SensorManager: frameworks/sensor-manager.md
       - AudioFlinger: frameworks/audioflinger.md
       - LightsManager: frameworks/lights-manager.md
