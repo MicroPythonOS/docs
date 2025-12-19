@@ -47,14 +47,14 @@ nav:
       - Creating Apps: apps/creating-apps.md
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
-      - Preferences: frameworks/preferences.md
-      - TaskManager: frameworks/task-manager.md
-      - DownloadManager: frameworks/download-manager.md
-      - WifiService: frameworks/wifi-service.md
-      - ConnectivityManager: frameworks/connectivity-manager.md
-      - SensorManager: frameworks/sensor-manager.md
       - AudioFlinger: frameworks/audioflinger.md
+      - ConnectivityManager: frameworks/connectivity-manager.md
+      - DownloadManager: frameworks/download-manager.md
       - LightsManager: frameworks/lights-manager.md
+      - Preferences: frameworks/preferences.md
+      - SensorManager: frameworks/sensor-manager.md
+      - TaskManager: frameworks/task-manager.md
+      - WifiService: frameworks/wifi-service.md
   - Architecture:
       - Overview: architecture/overview.md
       - System Components: architecture/system-components.md
