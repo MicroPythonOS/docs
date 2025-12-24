@@ -164,7 +164,70 @@ success = await DownloadManager.download_url(
 )
 ```
 
-### Helper Functions
+### Utility Functions
+
+#### `DownloadManager.is_network_error(exception)`
+
+Check if an exception is a recoverable network error.
+
+Recognizes common network error codes and messages that indicate temporary connectivity issues that can be retried.
+
+**Parameters:**
+- `exception` - Exception to check
+
+**Returns:**
+- `bool` - True if this is a network error that can be retried
+
+**Example:**
+```python
+try:
+    await DownloadManager.download_url(url)
+except Exception as e:
+    if DownloadManager.is_network_error(e):
+        # Network error - wait and retry
+        await TaskManager.sleep(2)
+        # Retry with resume...
+    else:
+        # Fatal error - show error to user
+        raise
+```
+
+**Detected error codes:**
+- `-110` - ETIMEDOUT (connection timed out)
+- `-113` - ECONNABORTED (connection aborted)
+- `-104` - ECONNRESET (connection reset by peer)
+- `-118` - EHOSTUNREACH (no route to host)
+- `-202` - DNS/connection error (network not ready)
+
+**Detected error messages:**
+- "connection reset", "connection aborted"
+- "broken pipe", "network unreachable", "host unreachable"
+- "failed to download chunk"
+
+#### `DownloadManager.get_resume_position(outfile)`
+
+Get the current size of a partially downloaded file.
+
+Useful for implementing resume functionality with Range headers.
+
+**Parameters:**
+- `outfile` - Path to file
+
+**Returns:**
+- `int` - File size in bytes, or 0 if file doesn't exist
+
+**Example:**
+```python
+resume_from = DownloadManager.get_resume_position("/sdcard/file.bin")
+if resume_from > 0:
+    headers = {'Range': f'bytes={resume_from}-'}
+    await DownloadManager.download_url(url, outfile=outfile, headers=headers)
+else:
+    # Start new download
+    await DownloadManager.download_url(url, outfile=outfile)
+```
+
+### Session Management Functions
 
 #### `DownloadManager.is_session_active()`
 
@@ -254,24 +317,23 @@ async def download_mpk(self, app):
 ### Resume Partial Download
 
 ```python
-import os
-
 async def resume_download(self, url, outfile):
     """Resume a partial download using Range headers"""
-    bytes_written = 0
-
-    # Check if partial file exists
-    try:
-        bytes_written = os.stat(outfile)[6]  # File size
+    # Use DownloadManager utility to get resume position
+    bytes_written = DownloadManager.get_resume_position(outfile)
+    
+    if bytes_written > 0:
         print(f"Resuming from {bytes_written} bytes")
-    except OSError:
+        headers = {'Range': f'bytes={bytes_written}-'}
+    else:
         print("Starting new download")
+        headers = None
 
     # Download remaining bytes
     success = await DownloadManager.download_url(
         url,
         outfile=outfile,
-        headers={'Range': f'bytes={bytes_written}-'}
+        headers=headers
     )
 
     return success
@@ -279,30 +341,49 @@ async def resume_download(self, url, outfile):
 
 **Note:** Server must support HTTP Range requests.
 
-### Error Handling
+### Error Handling with Network Detection
 
 ```python
-async def robust_download(self, url):
-    """Download with comprehensive error handling"""
-    try:
-        data = await DownloadManager.download_url(url)
+async def robust_download(self, url, outfile):
+    """Download with comprehensive error handling and retry"""
+    max_retries = 3
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            success = await DownloadManager.download_url(url, outfile=outfile)
+            
+            if success:
+                return True
+            else:
+                print("Download failed")
+                return False
 
-        if data is None:
-            print("Download failed (network error or HTTP error)")
-            return None
-
-        if len(data) == 0:
-            print("Warning: Downloaded empty file")
-
-        return data
-
-    except ValueError as e:
-        print(f"Invalid parameters: {e}")
-        return None
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return None
+        except Exception as e:
+            if DownloadManager.is_network_error(e):
+                # Network error - retry with resume
+                print(f"Network error (attempt {attempt + 1}/{max_retries}): {e}")
+                
+                if attempt < max_retries - 1:
+                    await TaskManager.sleep(retry_delay)
+                    # Resume from last position
+                    continue
+                else:
+                    print("Max retries reached")
+                    return False
+            else:
+                # Non-network error - don't retry
+                print(f"Fatal error: {e}")
+                return False
+    
+    return False
 ```
+
+**Benefits:**
+- Automatic retry on network errors
+- Resume from last position
+- No retry on fatal errors (404, invalid URL, etc.)
+- User-friendly error messages
 
 ## Session Management
 
