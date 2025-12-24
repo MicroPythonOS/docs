@@ -27,7 +27,7 @@ By design, the only device-specific code for MicroPythonOS is found in the ```in
 
     Use the MicroPython REPL shell on the serial port to type or paste (CTRL-E) MicroPython code manually at first to see what works.
     
-    Take a look at [```waveshare_esp32_s3_touch_lcd_2.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py) or [```fri3d_2024.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d-2024.py).
+    Take a look at [```waveshare_esp32_s3_touch_lcd_2.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py) or [```fri3d_2024.py```](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d_2024.py).
 
     You essentially need to set the correct pins to which the display is connected (like `LCD_SCLK`, `LCD_MOSI`, `LCD_MOSI` etc.) and also set the resolution of the display (`TFT_HOR_RES`, `TFT_VER_RE`S).
     
@@ -58,7 +58,7 @@ By design, the only device-specific code for MicroPythonOS is found in the ```in
 
 5. Add more hardware support
 
-    If your device has a touch screen, check out how it's initialized for the [Waveshare 2 inch Touch Screen](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py). If it has buttons for input, check out the KeyPad code for the [Fri3d Camp 2024 Badge](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d-2024.py).
+    If your device has a touch screen, check out how it's initialized for the [Waveshare 2 inch Touch Screen](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/waveshare_esp32_s3_touch_lcd_2.py). If it has buttons for input, check out the KeyPad code for the [Fri3d Camp 2024 Badge](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/board/fri3d_2024.py).
     
     Now you should be able to control the device, connect to WiFi and install more apps from the AppStore.
     
