@@ -37,7 +37,7 @@ SensorManager.TYPE_IMU_TEMPERATURE  # °C (IMU chip temperature)
 ### Basic Usage
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.sensor_manager as SensorManager
 
 class MyActivity(Activity):
@@ -84,7 +84,7 @@ if imu_temperature:
 This example shows how to create a simple tilt-controlled ball game:
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.sensor_manager as SensorManager
 import mpos.ui
 import lvgl as lv

@@ -28,7 +28,7 @@ LightsManager provides:
 ### Check Availability
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.lights as LightsManager
 
 class MyActivity(Activity):
@@ -240,7 +240,7 @@ def sparkle_effect(duration_ms=5000):
 For smooth, real-time animations that integrate with the game loop, use the **TaskHandler event system**:
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.ui
 import mpos.lights as LightsManager
 import time
@@ -571,7 +571,7 @@ def onPause(self, screen):
 ## Complete Example: LED Status Indicator
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.lights as LightsManager
 import lvgl as lv
 

@@ -26,7 +26,7 @@ com.micropythonos.helloworld/
 In `hello.py`, put:
 
 ```
-from mpos.apps import Activity
+from mpos import Activity
 
 class Hello(Activity):
 

@@ -17,7 +17,7 @@ ConnectivityManager provides:
 ### Checking Connectivity
 
 ```python
-from mpos.net.connectivity_manager import ConnectivityManager
+from mpos import ConnectivityManager
 
 # Get the singleton instance
 cm = ConnectivityManager.get()
@@ -36,8 +36,7 @@ if cm.is_wifi_connected():
 ### Registering for Connectivity Changes
 
 ```python
-from mpos.app.activity import Activity
-from mpos.net.connectivity_manager import ConnectivityManager
+from mpos import Activity, ConnectivityManager
 
 class MyActivity(Activity):
     def onCreate(self):
@@ -73,7 +72,7 @@ class MyActivity(Activity):
 ### Waiting for Connectivity
 
 ```python
-from mpos.net.connectivity_manager import ConnectivityManager
+from mpos import ConnectivityManager
 
 def download_with_wait():
     cm = ConnectivityManager.get()
@@ -91,9 +90,7 @@ def download_with_wait():
 ### Network-Aware App
 
 ```python
-from mpos.app.activity import Activity
-from mpos.net.connectivity_manager import ConnectivityManager
-from mpos import TaskManager, DownloadManager
+from mpos import Activity, ConnectivityManager, TaskManager, DownloadManager
 import lvgl as lv
 
 class NewsReaderActivity(Activity):
@@ -144,8 +141,7 @@ class NewsReaderActivity(Activity):
 ### Retry on Reconnect
 
 ```python
-from mpos.net.connectivity_manager import ConnectivityManager
-from mpos import TaskManager, DownloadManager
+from mpos import ConnectivityManager, TaskManager, DownloadManager
 
 class SyncManager:
     def __init__(self):
@@ -179,7 +175,7 @@ class SyncManager:
 ### Conditional Feature Loading
 
 ```python
-from mpos.net.connectivity_manager import ConnectivityManager
+from mpos import ConnectivityManager
 
 class AppStoreActivity(Activity):
     def onCreate(self):
@@ -432,8 +428,7 @@ ConnectivityManager works alongside WifiService:
 - **ConnectivityManager** - Monitors connection status and notifies apps
 
 ```python
-from mpos.net.wifi_service import WifiService
-from mpos.net.connectivity_manager import ConnectivityManager
+from mpos import WifiService, ConnectivityManager
 
 # WifiService for connection management
 WifiService.attempt_connecting("MyNetwork", "password")

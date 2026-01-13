@@ -19,7 +19,7 @@ WifiService provides:
 ### Checking Connection Status
 
 ```python
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 
 # Check if WiFi is connected
 if WifiService.is_connected():
@@ -32,7 +32,7 @@ else:
 ### Scanning for Networks
 
 ```python
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 
 # Scan for available networks
 networks = WifiService.scan_networks()
@@ -46,7 +46,7 @@ for ssid in networks:
 ### Connecting to a Network
 
 ```python
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 
 # Save network credentials first
 WifiService.save_network("MyNetwork", "password123")
@@ -63,7 +63,7 @@ else:
 ### Managing Saved Networks
 
 ```python
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 
 # Save a network
 WifiService.save_network("HomeWiFi", "mypassword")
@@ -87,8 +87,7 @@ WifiService.forget_network("OldNetwork")
 ### WiFi Settings Screen
 
 ```python
-from mpos.app.activity import Activity
-from mpos.net.wifi_service import WifiService
+from mpos import Activity, WifiService
 import lvgl as lv
 
 class WifiSettingsActivity(Activity):
@@ -161,7 +160,7 @@ WifiService automatically handles auto-connect on boot. This is typically starte
 
 ```python
 import _thread
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 import mpos.apps
 
 # Start auto-connect in background thread
@@ -182,7 +181,7 @@ _thread.start_new_thread(WifiService.auto_connect, ())
 On ESP32-S3, ADC2 pins (GPIO11-20) don't work when WiFi is active. WifiService provides methods to temporarily disable WiFi:
 
 ```python
-from mpos.net.wifi_service import WifiService
+from mpos import WifiService
 
 def read_adc2_sensor():
     """Read from ADC2 pin which requires WiFi to be disabled."""

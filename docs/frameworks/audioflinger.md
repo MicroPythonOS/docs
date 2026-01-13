@@ -28,7 +28,7 @@ AudioFlinger provides:
 ### Playing WAV Files
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.audio.audioflinger as AudioFlinger
 
 class MusicPlayerActivity(Activity):
@@ -148,7 +148,7 @@ if AudioFlinger.is_playing():
 ### Complete Recording Example
 
 ```python
-from mpos.apps import Activity
+from mpos import Activity
 import mpos.audio.audioflinger as AudioFlinger
 import lvgl as lv
 import time
@@ -299,7 +299,7 @@ Audio device preference is configured in the Settings app under **"Advanced Sett
 ## Complete Example: Music Player with Controls
 
 ```python
-from mpos.app.activity import Activity
+from mpos import Activity
 import mpos.audio.audioflinger as AudioFlinger
 import lvgl as lv
 

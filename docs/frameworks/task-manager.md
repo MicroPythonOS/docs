@@ -18,8 +18,7 @@ TaskManager provides:
 ### Creating Background Tasks
 
 ```python
-from mpos.app.activity import Activity
-from mpos import TaskManager
+from mpos import Activity, TaskManager
 
 class MyActivity(Activity):
     def onCreate(self):

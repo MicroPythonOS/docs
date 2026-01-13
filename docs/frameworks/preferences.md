@@ -7,7 +7,7 @@ Here's a simple example of how to add it to your app, taken from [QuasiNametag](
 --- quasinametag.py.orig        2025-10-29 12:24:27.494193748 +0100
 +++ quasinametag.py     2025-10-29 12:07:59.357264302 +0100
 @@ -1,4 +1,5 @@
- from mpos.apps import Activity
+ from mpos import Activity
 +import mpos.config
  import mpos.ui
  import mpos.ui.anim
