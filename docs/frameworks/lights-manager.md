@@ -648,5 +648,6 @@ class StatusIndicatorActivity(Activity):
 ## See Also
 
 - [Creating Apps](../apps/creating-apps.md) - Learn how to create MicroPythonOS apps
+- [WidgetAnimator](widget-animator.md) - Smooth UI animations
 - [AudioFlinger](audioflinger.md) - Audio control for sound feedback
 - [SensorManager](sensor-manager.md) - Sensor integration for interactive effects

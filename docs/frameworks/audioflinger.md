@@ -708,5 +708,6 @@ AudioFlinger.record_wav("test.wav", duration_ms=5000)
 ## See Also
 
 - [Creating Apps](../apps/creating-apps.md) - Learn how to create MicroPythonOS apps
+- [WidgetAnimator](widget-animator.md) - Smooth UI animations
 - [LightsManager](lights-manager.md) - LED control for visual feedback
 - [SharedPreferences](preferences.md) - Store audio preferences

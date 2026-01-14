@@ -56,6 +56,7 @@ nav:
       - SettingActivity: frameworks/setting-activity.md
       - SettingsActivity: frameworks/settings-activity.md
       - TaskManager: frameworks/task-manager.md
+      - WidgetAnimator: frameworks/widget-animator.md
       - WifiService: frameworks/wifi-service.md
   - Architecture:
       - Overview: architecture/overview.md
