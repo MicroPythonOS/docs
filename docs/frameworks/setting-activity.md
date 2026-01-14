@@ -39,6 +39,7 @@ Each setting is defined as a dictionary with the following properties:
 - **`ui`** (string): UI type to use for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"activity"`
 - **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types
 - **`placeholder`** (string): Placeholder text for textarea input
+- **`default_value`** (string): Default value to select or fill in
 - **`changed_callback`** (function): Callback function called when the setting value changes
 - **`should_show`** (function): Function to determine if this setting should be displayed
 - **`dont_persist`** (bool): If `True`, the setting won't be saved to SharedPreferences
