@@ -5,7 +5,7 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 ## ESP32 Microcontrollers
 
 - [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
-- [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Good support but missing a bit of hardware support (IMU, Buzzer, Multi-Color LEDs, Communicator Add-On)
+- [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Fully Supported
 
 ## Desktop Computers
 
