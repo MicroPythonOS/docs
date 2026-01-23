@@ -199,6 +199,8 @@ except Exception as e:
 - `-118` - EHOSTUNREACH (no route to host)
 - `-202` - DNS/connection error (network not ready)
 
+For more info, see https://docs.espressif.com/projects/esp-techpedia/en/latest/esp-friends/advanced-development/protocol/socket-troubleshooting.html
+
 **Detected error messages:**
 - "connection reset", "connection aborted"
 - "broken pipe", "network unreachable", "host unreachable"
