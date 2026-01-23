@@ -560,5 +560,4 @@ WidgetAnimator.change_widget(
 ## See Also
 
 - [Creating Apps](../apps/creating-apps.md) - Learn how to create MicroPythonOS apps
-- [Activity](activity.md) - Activity lifecycle and UI management
 - [LVGL Documentation](https://docs.lvgl.io/) - LVGL animation API reference

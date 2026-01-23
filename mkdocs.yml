@@ -39,6 +39,7 @@ nav:
   - Home: index.md
   - Overview: overview.md
   - Getting Started:
+      - Overview: getting-started/index.md
       - Installation: getting-started/installation.md
       - Supported Hardware: getting-started/supported-hardware.md
   - Apps:
@@ -60,10 +61,14 @@ nav:
       - WidgetAnimator: frameworks/widget-animator.md
       - WifiService: frameworks/wifi-service.md
   - Architecture:
-      - Overview: architecture/overview.md
+      - Overview: architecture/index.md
+      - Architecture Overview: architecture/overview.md
+      - Frameworks: architecture/frameworks.md
       - System Components: architecture/system-components.md
       - Filesystem Layout: architecture/filesystem.md
   - OS Development:
+      - Overview: os-development/index.md
+      - Running on Desktop: os-development/running-on-desktop.md
       - On Linux: os-development/linux.md
       - On MacOS: os-development/macos.md
       - On Windows: os-development/windows.md
