@@ -19,7 +19,7 @@ WidgetAnimator provides:
 ### Fade In/Out
 
 ```python
-from mpos.ui.anim import WidgetAnimator
+from mpos import WidgetAnimator
 import lvgl as lv
 
 # Create a widget
@@ -33,27 +33,27 @@ WidgetAnimator.show_widget(my_widget, anim_type="fade", duration=500)
 WidgetAnimator.hide_widget(my_widget, anim_type="fade", duration=500)
 ```
 
-### Convenience Functions
+### Convenience Methods
 
-For the most common use case (fade animations), use the convenience functions:
+For the most common use case (fade animations), use the convenience methods:
 
 ```python
-from mpos import smooth_show, smooth_hide
+from mpos import WidgetAnimator
 
 # Fade in with default 500ms duration
-smooth_show(my_widget)
+WidgetAnimator.smooth_show(my_widget)
 
 # Fade out with default 500ms duration
-smooth_hide(my_widget)
+WidgetAnimator.smooth_hide(my_widget)
 
 # Fade out without hiding the widget (just opacity)
-smooth_hide(my_widget, hide=False)
+WidgetAnimator.smooth_hide(my_widget, hide=False)
 ```
 
 ### Slide Animations
 
 ```python
-from mpos.ui.anim import WidgetAnimator
+from mpos import WidgetAnimator
 
 # Slide down from above
 WidgetAnimator.show_widget(my_widget, anim_type="slide_down", duration=500)
@@ -73,7 +73,7 @@ WidgetAnimator.hide_widget(my_widget, anim_type="slide_up", duration=500)
 Animate numeric values with a custom display callback:
 
 ```python
-from mpos.ui.anim import WidgetAnimator
+from mpos import WidgetAnimator
 
 # Animate balance from 1000 to 1500 over 5 seconds
 def display_balance(value):
@@ -167,13 +167,13 @@ WidgetAnimator.change_widget(
 - Ensures final value is set after animation completes
 - Uses ease-in-out path for smooth motion
 
-### Convenience Functions
+### Convenience Methods
 
-**`smooth_show(widget, duration=500, delay=0)`**
+**`WidgetAnimator.smooth_show(widget, duration=500, delay=0)`**
 
 Fade in a widget (shorthand for `show_widget()` with fade animation).
 
-**`smooth_hide(widget, hide=True, duration=500, delay=0)`**
+**`WidgetAnimator.smooth_hide(widget, hide=True, duration=500, delay=0)`**
 
 Fade out a widget (shorthand for `hide_widget()` with fade animation).
 
@@ -256,7 +256,8 @@ WidgetAnimator.change_widget(
 ### Image Viewer with Fade Transitions
 
 ```python
-from mpos import Activity, smooth_show, smooth_hide
+from mpos import Activity
+from mpos import WidgetAnimator
 import lvgl as lv
 
 class ImageViewerActivity(Activity):
@@ -281,17 +282,17 @@ class ImageViewerActivity(Activity):
     
     def show_prev_image(self):
         # Fade out current image
-        smooth_hide(self.image)
+        WidgetAnimator.smooth_hide(self.image)
         # Load and fade in next image
         self.load_image("prev_image.png")
-        smooth_show(self.image)
+        WidgetAnimator.smooth_show(self.image)
     
     def show_next_image(self):
         # Fade out current image
-        smooth_hide(self.image)
+        WidgetAnimator.smooth_hide(self.image)
         # Load and fade in next image
         self.load_image("next_image.png")
-        smooth_show(self.image)
+        WidgetAnimator.smooth_show(self.image)
     
     def load_image(self, path):
         self.image.set_src(f"M:{path}")
@@ -301,7 +302,7 @@ class ImageViewerActivity(Activity):
 
 ```python
 from mpos import Activity
-from mpos.ui.anim import WidgetAnimator
+from mpos import WidgetAnimator
 import lvgl as lv
 
 class WalletActivity(Activity):
@@ -333,8 +334,8 @@ class WalletActivity(Activity):
 ### Fullscreen Mode Toggle with Slide Animations
 
 ```python
-from mpos import Activity, smooth_show, smooth_hide
-from mpos.ui.anim import WidgetAnimator
+from mpos import Activity
+from mpos import WidgetAnimator
 import lvgl as lv
 
 class ImageViewerActivity(Activity):
@@ -374,12 +375,12 @@ class ImageViewerActivity(Activity):
 
 ## Best Practices
 
-### 1. Use Convenience Functions for Simple Cases
+### 1. Use Convenience Methods for Simple Cases
 
 ```python
 # Good - simple and readable
-smooth_show(widget)
-smooth_hide(widget)
+WidgetAnimator.smooth_show(widget)
+WidgetAnimator.smooth_hide(widget)
 
 # Less readable - more verbose
 WidgetAnimator.show_widget(widget, anim_type="fade", duration=500, delay=0)
@@ -415,10 +416,10 @@ WidgetAnimator.change_widget(
 
 ```python
 # Quick feedback (UI elements)
-smooth_show(button, duration=200)
+WidgetAnimator.smooth_show(button, duration=200)
 
 # Standard transitions (screens, panels)
-smooth_hide(panel, duration=500)
+WidgetAnimator.smooth_hide(panel, duration=500)
 
 # Slow animations (value updates, important transitions)
 WidgetAnimator.change_widget(
@@ -433,7 +434,7 @@ WidgetAnimator.change_widget(
 
 ### 4. Handle Widget Deletion Gracefully
 
-WidgetAnimator automatically handles deleted widgets through `safe_widget_access()`. No special handling needed:
+WidgetAnimator automatically handles deleted widgets through internal safe widget access. No special handling needed:
 
 ```python
 # Safe - animation continues even if widget is deleted
@@ -446,11 +447,11 @@ WidgetAnimator.show_widget(widget, duration=500)
 
 ```python
 # Fade out old content
-smooth_hide(old_content, duration=300)
+WidgetAnimator.smooth_hide(old_content, duration=300)
 
 # After fade completes, show new content
 # (Use delay to sequence animations)
-smooth_show(new_content, duration=300, delay=300)
+WidgetAnimator.smooth_show(new_content, duration=300, delay=300)
 ```
 
 ## Performance Tips
@@ -459,10 +460,10 @@ smooth_show(new_content, duration=300, delay=300)
 
 ```python
 # Good - quick feedback for user interactions
-smooth_show(button, duration=200)
+WidgetAnimator.smooth_show(button, duration=200)
 
 # Avoid - slow animations for frequent events
-smooth_show(button, duration=2000)
+WidgetAnimator.smooth_show(button, duration=2000)
 ```
 
 ### 2. Limit Simultaneous Animations
@@ -497,7 +498,7 @@ widget.remove_flag(lv.obj.FLAG.HIDDEN)  # For show animations
 widget.set_style_opa(255, 0)  # For fade animations
 
 # Use longer duration for testing
-smooth_show(widget, duration=1000)
+WidgetAnimator.smooth_show(widget, duration=1000)
 ```
 
 ### Widget Disappears After Animation
@@ -509,10 +510,10 @@ smooth_show(widget, duration=1000)
 **Solution:**
 ```python
 # If you want to keep widget visible but transparent
-smooth_hide(widget, hide=False, duration=500)
+WidgetAnimator.smooth_hide(widget, hide=False, duration=500)
 
 # If you want to hide it completely
-smooth_hide(widget, hide=True, duration=500)
+WidgetAnimator.smooth_hide(widget, hide=True, duration=500)
 ```
 
 ### Animation Stutters or Jitters
@@ -531,7 +532,7 @@ smooth_hide(widget, hide=True, duration=500)
 lv.anim_delete(widget, None)
 
 # Then start new animation
-smooth_show(widget, duration=500)
+WidgetAnimator.smooth_show(widget, duration=500)
 ```
 
 ### Value Animation Shows Wrong Final Value

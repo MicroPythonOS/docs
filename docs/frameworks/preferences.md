@@ -10,7 +10,6 @@ Here's a simple example of how to add it to your app, taken from [QuasiNametag](
  from mpos import Activity
 +import mpos.config
  import mpos.ui
- import mpos.ui.anim
  import mpos.ui.focus_direction
 @@ -42,6 +43,12 @@
          # Add key event handler to container to catch all key events

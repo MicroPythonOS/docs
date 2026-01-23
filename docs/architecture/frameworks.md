@@ -56,6 +56,23 @@ class MyFramework:
 
 ## Available Frameworks
 
+### AppearanceManager
+Manages visual appearance: light/dark mode, theme colors, UI dimensions, and LVGL styling.
+
+```python
+from mpos import AppearanceManager
+
+# Initialize at startup
+AppearanceManager.init(prefs)
+
+# Use anywhere
+if AppearanceManager.is_light_mode():
+    print("Light mode enabled")
+
+bar_height = AppearanceManager.get_notification_bar_height()
+primary_color = AppearanceManager.get_primary_color()
+```
+
 ### AudioFlinger
 Manages audio playback and recording.
 
@@ -155,6 +172,7 @@ Frameworks should be initialized once at system startup in the board initializat
 ```python
 # In board/your_board.py
 from mpos import (
+    AppearanceManager,
     AudioFlinger,
     DownloadManager,
     ConnectivityManager,
@@ -165,6 +183,7 @@ from mpos import (
 
 def init_frameworks():
     """Initialize all frameworks."""
+    AppearanceManager.init(prefs)  # Requires SharedPreferences
     AudioFlinger.init()
     DownloadManager.init()
     ConnectivityManager.init()
@@ -250,6 +269,7 @@ All frameworks are imported consistently as classes:
 
 ```python
 from mpos import (
+    AppearanceManager,
     AudioFlinger,
     CameraManager,
     ConnectivityManager,
