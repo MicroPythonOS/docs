@@ -4,6 +4,7 @@ repo_url: https://github.com/MicroPythonOS/MicroPythonOS
 use_directory_urls: true
 theme:
   name: material
+  logo: https://micropythonos.com/images/MicroPythonOS-logo-white(alpha)-long.svg
   palette:
     # Light theme
     - scheme: default
