@@ -51,6 +51,7 @@ nav:
   - Frameworks:
       - AudioFlinger: frameworks/audioflinger.md
       - ConnectivityManager: frameworks/connectivity-manager.md
+      - DisplayMetrics: frameworks/display-metrics.md
       - DownloadManager: frameworks/download-manager.md
       - LightsManager: frameworks/lights-manager.md
       - Preferences: frameworks/preferences.md
