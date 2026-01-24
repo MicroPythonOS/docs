@@ -50,7 +50,9 @@ nav:
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
       - AudioFlinger: frameworks/audioflinger.md
+      - BuildInfo: frameworks/build-info.md
       - ConnectivityManager: frameworks/connectivity-manager.md
+      - DeviceInfo: frameworks/device-info.md
       - DisplayMetrics: frameworks/display-metrics.md
       - DownloadManager: frameworks/download-manager.md
       - LightsManager: frameworks/lights-manager.md
@@ -59,6 +61,7 @@ nav:
       - SettingActivity: frameworks/setting-activity.md
       - SettingsActivity: frameworks/settings-activity.md
       - TaskManager: frameworks/task-manager.md
+      - TimeZone: frameworks/time-zone.md
       - WidgetAnimator: frameworks/widget-animator.md
       - WifiService: frameworks/wifi-service.md
   - Architecture:
