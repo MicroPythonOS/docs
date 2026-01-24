@@ -351,7 +351,7 @@ SensorManager is thread-safe and can be read from multiple threads:
 
 ```python
 import _thread
-import mpos.apps
+from mpos import TaskManager
 
 def background_monitoring():
     accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
@@ -361,7 +361,7 @@ def background_monitoring():
         time.sleep(1)
 
 # Start background thread
-_thread.stack_size(mpos.apps.good_stack_size())
+_thread.stack_size(TaskManager.good_stack_size())
 _thread.start_new_thread(background_monitoring, ())
 ```
 

@@ -56,6 +56,26 @@ class MyFramework:
 
 ## Available Frameworks
 
+### AppManager
+Manages app discovery, installation, launching, and version management.
+
+```python
+from mpos.content.app_manager import AppManager
+
+# Get all installed apps
+apps = AppManager.get_app_list()
+
+# Start an app
+AppManager.start_app("com.example.myapp")
+
+# Install from .mpk file
+AppManager.install_mpk("/tmp/app.mpk", "apps/com.example.newapp")
+
+# Check for updates
+if AppManager.is_update_available("com.example.myapp", "2.0.0"):
+    print("Update available")
+```
+
 ### AppearanceManager
 Manages visual appearance: light/dark mode, theme colors, UI dimensions, and LVGL styling.
 
@@ -180,9 +200,11 @@ from mpos import (
     SensorManager,
     TaskManager
 )
+from mpos.content.app_manager import AppManager
 
 def init_frameworks():
     """Initialize all frameworks."""
+    AppManager.refresh_apps()  # Discover all installed apps
     AppearanceManager.init(prefs)  # Requires SharedPreferences
     AudioFlinger.init()
     DownloadManager.init()
@@ -191,6 +213,8 @@ def init_frameworks():
     SensorManager.init()
     TaskManager.init()
 ```
+
+**Note:** AppManager doesn't require explicit initialization - call `refresh_apps()` to discover apps at startup.
 
 ## Creating New Frameworks
 
@@ -278,9 +302,11 @@ from mpos import (
     SharedPreferences,
     TaskManager,
     WifiService,
-    PackageManager,
 )
+from mpos.content.app_manager import AppManager
 ```
+
+**Note:** AppManager is imported from `mpos.content.app_manager` rather than the main `mpos` module.
 
 ## Benefits of Harmonization
 
@@ -357,6 +383,7 @@ class TestMyFramework(unittest.TestCase):
 
 ## See Also
 
+- [AppManager](../frameworks/app-manager.md): App discovery, installation, and launching
 - [System Components](system-components.md): Overview of all system components
 - [Architecture Overview](overview.md): High-level design principles
 - [App Development Guide](../apps/index.md): How to use frameworks in apps

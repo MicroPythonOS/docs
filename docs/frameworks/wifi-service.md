@@ -161,10 +161,10 @@ WifiService automatically handles auto-connect on boot. This is typically starte
 ```python
 import _thread
 from mpos import WifiService
-import mpos.apps
+from mpos import TaskManager
 
 # Start auto-connect in background thread
-_thread.stack_size(mpos.apps.good_stack_size())
+_thread.stack_size(TaskManager.good_stack_size())
 _thread.start_new_thread(WifiService.auto_connect, ())
 ```
 
