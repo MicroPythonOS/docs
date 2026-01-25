@@ -55,6 +55,7 @@ nav:
       - DeviceInfo: frameworks/device-info.md
       - DisplayMetrics: frameworks/display-metrics.md
       - DownloadManager: frameworks/download-manager.md
+      - InputManager: frameworks/input-manager.md
       - LightsManager: frameworks/lights-manager.md
       - Preferences: frameworks/preferences.md
       - SensorManager: frameworks/sensor-manager.md
