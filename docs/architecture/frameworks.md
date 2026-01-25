@@ -2,6 +2,47 @@
 
 MicroPythonOS provides a unified framework architecture for accessing system services. All frameworks follow a consistent, simple pattern that makes them easy to discover, use, and extend.
 
+## Importing from mpos
+
+**Apps should only import from the `mpos` module directly.** Importing from submodules (such as `mpos.ui`, `mpos.content`, etc.) is not necessary and should be avoided.
+
+All frameworks and utilities you need are available through the main `mpos` module. If you find yourself needing to import from a submodule, or if you would like a new framework to be created, please [create a GitHub issue](https://github.com/MicroPythonOS/MicroPythonOS/issues) describing your use case.
+
+### Correct Import Style
+
+Import directly from `mpos`:
+
+```python
+from mpos import DisplayMetrics
+
+DisplayMetrics.width()
+```
+
+Or import the module and use it:
+
+```python
+import mpos
+
+mpos.DisplayMetrics.width()
+```
+
+### Avoid Submodule Imports
+
+Do not import from submodules:
+
+```python
+# ❌ Don't do this
+from mpos.ui import DisplayMetrics
+from mpos.content import AppManager
+```
+
+Instead, use the main `mpos` module which re-exports everything you need:
+
+```python
+# ✅ Do this instead
+from mpos import DisplayMetrics, AppManager
+```
+
 ## Overview
 
 Frameworks are centralized services that provide access to system capabilities like audio, networking, camera, sensors, and task management. They follow a **singleton class pattern with class methods**, ensuring a predictable and discoverable API across the entire system.
@@ -60,7 +101,7 @@ class MyFramework:
 Manages app discovery, installation, launching, and version management.
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Get all installed apps
 apps = AppManager.get_app_list()
@@ -191,16 +232,7 @@ Frameworks should be initialized once at system startup in the board initializat
 
 ```python
 # In board/your_board.py
-from mpos import (
-    AppearanceManager,
-    AudioFlinger,
-    DownloadManager,
-    ConnectivityManager,
-    CameraManager,
-    SensorManager,
-    TaskManager
-)
-from mpos.content.app_manager import AppManager
+from mpos import AppearanceManager, AudioFlinger, DownloadManager, ConnectivityManager, CameraManager, SensorManager, TaskManager, AppManager
 
 def init_frameworks():
     """Initialize all frameworks."""
@@ -292,21 +324,8 @@ class MyFramework:
 All frameworks are imported consistently as classes:
 
 ```python
-from mpos import (
-    AppearanceManager,
-    AudioFlinger,
-    CameraManager,
-    ConnectivityManager,
-    DownloadManager,
-    SensorManager,
-    SharedPreferences,
-    TaskManager,
-    WifiService,
-)
-from mpos.content.app_manager import AppManager
+from mpos import AppearanceManager, AudioFlinger, CameraManager, ConnectivityManager, DownloadManager, SensorManager, SharedPreferences, TaskManager, WifiService, AppManager
 ```
-
-**Note:** AppManager is imported from `mpos.content.app_manager` rather than the main `mpos` module.
 
 ## Benefits of Harmonization
 
