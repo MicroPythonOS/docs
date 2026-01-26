@@ -30,7 +30,7 @@ AudioFlinger provides:
 AudioFlinger uses a singleton pattern. Initialize it once at startup with your hardware configuration:
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Initialize with I2S and buzzer (typical Fri3d badge setup)
 i2s_pins = {'sck': 2, 'ws': 47, 'sd': 16, 'sd_in': 15}
@@ -45,8 +45,7 @@ AudioFlinger.set_volume(70)
 ### Playing WAV Files
 
 ```python
-from mpos import Activity
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import Activity, AudioFlinger
 
 class MusicPlayerActivity(Activity):
     def onCreate(self):
@@ -70,7 +69,7 @@ class MusicPlayerActivity(Activity):
 ### Playing RTTTL Ringtones
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Play notification sound via buzzer
 rtttl = "Nokia:d=4,o=5,b=225:8e6,8d6,8f#,8g#,8c#6,8b,d,8p,8b,8a,8c#,8e"
@@ -94,7 +93,7 @@ Nokia:d=4,o=5,b=225:8e6,8d6,8f#,8g#
 ### Volume Control
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Set volume (0-100)
 AudioFlinger.set_volume(70)
@@ -107,6 +106,8 @@ print(f"Current volume: {volume}")
 ### Stopping Playback
 
 ```python
+from mpos import AudioFlinger
+
 # Stop currently playing audio
 AudioFlinger.stop()
 ```
@@ -118,7 +119,7 @@ AudioFlinger supports recording audio from an I2S microphone to WAV files.
 ### Basic Recording
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Check if microphone is available
 if AudioFlinger.has_microphone():
@@ -254,7 +255,7 @@ AudioFlinger implements a 3-tier priority-based audio focus system inspired by A
 ### Example: Priority in Action
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Start playing music (priority 0)
 AudioFlinger.play_wav("music.wav", stream_type=AudioFlinger.STREAM_MUSIC)
@@ -322,8 +323,7 @@ Audio device preference is configured in the Settings app under **"Advanced Sett
 ## Complete Example: Music Player with Controls
 
 ```python
-from mpos import Activity
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import Activity, AudioFlinger
 import lvgl as lv
 
 class SimpleMusicPlayerActivity(Activity):
@@ -495,7 +495,7 @@ Check if buzzer is available for RTTTL playback.
 4. Use equal or higher priority stream type
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Check if playback was rejected
 success = AudioFlinger.play_wav("sound.wav", stream_type=AudioFlinger.STREAM_MUSIC)
@@ -536,24 +536,26 @@ ffmpeg -i input.wav -acodec pcm_s16le -ar 22050 -ac 1 output.wav
 **Possible causes:**
 
 1. **Volume set to 0**
-   ```python
-   AudioFlinger.set_volume(50)  # Set to 50%
-   ```
+    ```python
+    from mpos import AudioFlinger
+    
+    AudioFlinger.set_volume(50)  # Set to 50%
+    ```
 
 2. **Wrong audio device selected**
-   - Check Settings → Advanced Settings → Audio Device
-   - Try "Auto-detect" or manually select device
-   - **Restart required** after changing audio device
+    - Check Settings → Advanced Settings → Audio Device
+    - Try "Auto-detect" or manually select device
+    - **Restart required** after changing audio device
 
 3. **Hardware not available (desktop)**
-   ```python
-   # Desktop builds have no audio hardware
-   # AudioFlinger will return success but produce no sound
-   ```
+    ```python
+    # Desktop builds have no audio hardware
+    # AudioFlinger will return success but produce no sound
+    ```
 
 4. **I2C/Speaker not connected (Fri3d badge)**
-   - Check if speaker is properly connected
-   - Verify I2S pins are not used by other peripherals
+    - Check if speaker is properly connected
+    - Verify I2S pins are not used by other peripherals
 
 ### Audio Cuts Out or Stutters
 
@@ -563,18 +565,18 @@ ffmpeg -i input.wav -acodec pcm_s16le -ar 22050 -ac 1 output.wav
 
 **Solution**:
 1. **Check for interrupting streams:**
-   ```python
-   # Avoid notifications during music playback
-   # Or use callbacks to resume after interruption
-   ```
+    ```python
+    # Avoid notifications during music playback
+    # Or use callbacks to resume after interruption
+    ```
 
 2. **Reduce memory usage:**
-   - Close unused apps
-   - Use lower bitrate WAV files (22050 Hz instead of 44100 Hz)
-   - Free up memory with `gc.collect()`
+    - Close unused apps
+    - Use lower bitrate WAV files (22050 Hz instead of 44100 Hz)
+    - Free up memory with `gc.collect()`
 
 3. **Check SD card speed:**
-   - Use Class 10 or faster SD card for smooth WAV playback
+    - Use Class 10 or faster SD card for smooth WAV playback
 
 ### Restart Required After Configuration Change
 
@@ -607,32 +609,32 @@ ffmpeg -i input.wav -acodec pcm_s16le -ar 22050 -ac 1 output.wav
 **Possible causes:**
 
 1. **No microphone available**
-    ```python
-    from mpos.audio.audioflinger import AudioFlinger
-    
-    if not AudioFlinger.has_microphone():
-        print("No microphone on this device")
-    ```
+     ```python
+     from mpos import AudioFlinger
+     
+     if not AudioFlinger.has_microphone():
+         print("No microphone on this device")
+     ```
 
 2. **Currently playing audio**
-    ```python
-    from mpos.audio.audioflinger import AudioFlinger
-    import time
-    
-    # I2S can only be TX or RX, not both
-    if AudioFlinger.is_playing():
-        AudioFlinger.stop()
-        time.sleep_ms(100)  # Wait for cleanup
-    AudioFlinger.record_wav("recording.wav")
-    ```
+     ```python
+     from mpos import AudioFlinger
+     import time
+     
+     # I2S can only be TX or RX, not both
+     if AudioFlinger.is_playing():
+         AudioFlinger.stop()
+         time.sleep_ms(100)  # Wait for cleanup
+     AudioFlinger.record_wav("recording.wav")
+     ```
 
 3. **Already recording**
-    ```python
-    from mpos.audio.audioflinger import AudioFlinger
-    
-    if AudioFlinger.is_recording():
-        print("Already recording")
-    ```
+     ```python
+     from mpos import AudioFlinger
+     
+     if AudioFlinger.is_recording():
+         print("Already recording")
+     ```
 
 4. **Wrong board** - Waveshare doesn't have a microphone
 
@@ -667,7 +669,7 @@ ffmpeg -i input.wav -acodec pcm_s16le -ar 44100 -ac 2 output.wav
 AudioFlinger runs in a separate thread, so playback doesn't block the UI:
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # This doesn't block - returns immediately
 AudioFlinger.play_wav("long_song.wav", stream_type=AudioFlinger.STREAM_MUSIC)
@@ -697,7 +699,7 @@ On desktop builds (Linux/macOS), AudioFlinger provides simulated recording for t
 This allows testing the Sound Recorder app and other recording features without hardware.
 
 ```python
-from mpos.audio.audioflinger import AudioFlinger
+from mpos import AudioFlinger
 
 # Desktop simulation is automatic when machine.I2S is not available
 # The generated WAV file contains a 440Hz tone

@@ -21,7 +21,7 @@ The framework handles:
 ## Sensor Types
 
 ```python
-import mpos.sensor_manager as SensorManager
+from mpos import SensorManager
 
 # Motion sensors
 SensorManager.TYPE_ACCELEROMETER    # m/s² (meters per second squared)
@@ -37,8 +37,7 @@ SensorManager.TYPE_IMU_TEMPERATURE  # °C (IMU chip temperature)
 ### Basic Usage
 
 ```python
-from mpos import Activity
-import mpos.sensor_manager as SensorManager
+from mpos import Activity, SensorManager
 
 class MyActivity(Activity):
     def onCreate(self):
@@ -84,8 +83,7 @@ if imu_temperature:
 This example shows how to create a simple tilt-controlled ball game:
 
 ```python
-from mpos import Activity
-import mpos.sensor_manager as SensorManager
+from mpos import Activity, SensorManager
 import mpos.ui
 import lvgl as lv
 import time
@@ -175,7 +173,7 @@ class TiltBallActivity(Activity):
 Detect device shake and rotation:
 
 ```python
-import mpos.sensor_manager as SensorManager
+from mpos import SensorManager
 import math
 
 class GestureDetector(Activity):
@@ -351,7 +349,7 @@ SensorManager is thread-safe and can be read from multiple threads:
 
 ```python
 import _thread
-from mpos import TaskManager
+from mpos import TaskManager, SensorManager
 
 def background_monitoring():
     accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
@@ -380,14 +378,16 @@ _thread.start_new_thread(background_monitoring, ())
 Always check if sensors are available:
 
 ```python
+from mpos import SensorManager
+
 if SensorManager.is_available():
-    # Use real sensor data
-    accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
-    data = SensorManager.read_sensor(accel)
-else:
-    # Fallback for desktop/testing
-    data = (0.0, 0.0, 9.8)  # Simulate device at rest
-```
+     # Use real sensor data
+     accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
+     data = SensorManager.read_sensor(accel)
+ else:
+     # Fallback for desktop/testing
+     data = (0.0, 0.0, 9.8)  # Simulate device at rest
+ ```
 
 ## Unit Conversions
 
@@ -396,6 +396,8 @@ SensorManager returns standard SI units. Here are common conversions:
 ### Acceleration
 
 ```python
+from mpos import SensorManager
+
 # SensorManager returns m/s²
 accel = SensorManager.read_sensor(accel_sensor)
 ax, ay, az = accel
@@ -410,6 +412,8 @@ print(f"Acceleration: {az_g:.2f} G")  # At rest, Z ≈ 1.0 G
 ### Gyroscope
 
 ```python
+from mpos import SensorManager
+
 # SensorManager returns deg/s
 gyro = SensorManager.read_sensor(gyro_sensor)
 gx, gy, gz = gyro
@@ -463,14 +467,16 @@ Properties:
 ### Sensor Returns None
 
 ```python
+from mpos import SensorManager
+
 data = SensorManager.read_sensor(accel)
 if data is None:
-    # Possible causes:
-    # 1. Sensor not available (check is_available())
-    # 2. I2C communication error
-    # 3. Sensor not initialized
-    print("Sensor read failed")
-```
+     # Possible causes:
+     # 1. Sensor not available (check is_available())
+     # 2. I2C communication error
+     # 3. Sensor not initialized
+     print("Sensor read failed")
+ ```
 
 ### Inaccurate Readings
 
@@ -485,25 +491,27 @@ if data is None:
 - **Use filtered data** - Apply low-pass filter for smoother readings
 
 ```python
+from mpos import SensorManager
+
 # Simple low-pass filter
 class LowPassFilter:
-    def __init__(self, alpha=0.1):
-        self.alpha = alpha
-        self.value = None
+     def __init__(self, alpha=0.1):
+         self.alpha = alpha
+         self.value = None
 
-    def filter(self, new_value):
-        if self.value is None:
-            self.value = new_value
-        else:
-            self.value = self.alpha * new_value + (1 - self.alpha) * self.value
-        return self.value
+     def filter(self, new_value):
+         if self.value is None:
+             self.value = new_value
+         else:
+             self.value = self.alpha * new_value + (1 - self.alpha) * self.value
+         return self.value
 
-# Usage
-accel_filter_x = LowPassFilter(alpha=0.2)
-accel = SensorManager.read_sensor(accel_sensor)
-ax, ay, az = accel
-filtered_ax = accel_filter_x.filter(ax)
-```
+ # Usage
+ accel_filter_x = LowPassFilter(alpha=0.2)
+ accel = SensorManager.read_sensor(accel_sensor)
+ ax, ay, az = accel
+ filtered_ax = accel_filter_x.filter(ax)
+ ```
 
 ### ImportError: can't import name _CONSTANT
 

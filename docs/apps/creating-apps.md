@@ -25,8 +25,9 @@ com.micropythonos.helloworld/
 
 In `hello.py`, put:
 
-```
+```python
 from mpos import Activity
+import lvgl as lv
 
 class Hello(Activity):
 
@@ -106,8 +107,9 @@ If the app is installed into the /apps/ folder, it should show up in the launche
 
 You can also launch it manually by typing this in the MicroPython REPL:
 
-```
-from mpos import AppManager ; AppManager.start_app('apps/com.micropythonos.helloworld/')
+```python
+from mpos import AppManager
+AppManager.start_app('com.micropythonos.helloworld')
 ```
 
 

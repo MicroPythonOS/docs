@@ -22,7 +22,7 @@ AppManager provides:
 AppManager is initialized at system startup and automatically discovers all apps:
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Get list of all installed apps (auto-discovers on first call)
 apps = AppManager.get_app_list()
@@ -34,7 +34,7 @@ for app in apps:
 ### Listing Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Get all apps (sorted by name)
 all_apps = AppManager.get_app_list()
@@ -52,7 +52,7 @@ except KeyError:
 ### Launching Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Start an app by fullname
 success = AppManager.start_app("com.example.myapp")
@@ -66,7 +66,7 @@ else:
 ### Installing Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Install an app from a .mpk file
 # .mpk files are ZIP archives containing the app structure
@@ -81,7 +81,7 @@ AppManager.install_mpk(
 ### Uninstalling Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Uninstall a user-installed app
 AppManager.uninstall_app("com.example.myapp")
@@ -102,7 +102,7 @@ User-installed apps override built-in apps with the same fullname.
 ### Discovery Process
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Manually trigger app discovery (called automatically on first use)
 AppManager.refresh_apps()
@@ -170,7 +170,7 @@ AppManager provides version comparison utilities:
 ### Comparing Versions
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Compare two version strings
 # Returns True if ver1 > ver2, False otherwise
@@ -187,7 +187,7 @@ is_newer = AppManager.compare_versions("1.0.0", "1.0.0")
 ### Checking for Updates
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Check if a newer version is available
 has_update = AppManager.is_update_available("com.example.myapp", "2.0.0")
@@ -201,7 +201,7 @@ if has_update:
 ### Installing Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Install from a .mpk file (ZIP archive)
 AppManager.install_mpk(
@@ -216,7 +216,7 @@ app = AppManager.get("com.example.newapp")
 ### Checking Installation Status
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Check if app is installed (by name)
 is_installed = AppManager.is_installed_by_name("com.example.myapp")
@@ -234,7 +234,7 @@ is_override = AppManager.is_overridden_builtin_app("com.example.myapp")
 ### Uninstalling Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Uninstall a user-installed app
 AppManager.uninstall_app("com.example.myapp")
@@ -252,8 +252,8 @@ AppManager implements Android-inspired intent resolution for activity discovery:
 Activities register themselves with AppManager to handle specific intents:
 
 ```python
-from mpos.content.app_manager import AppManager
-from mpos.app.activity import Activity
+from mpos import AppManager
+from mpos import Activity
 
 class ShareActivity(Activity):
     pass
@@ -265,8 +265,7 @@ AppManager.register_activity("android.intent.action.SEND", ShareActivity)
 ### Resolving Intents
 
 ```python
-from mpos.content.app_manager import AppManager
-from mpos.content.intent import Intent
+from mpos import AppManager, Intent
 
 # Create an intent
 intent = Intent(action="android.intent.action.SEND")
@@ -288,7 +287,7 @@ AppManager provides utilities for launcher discovery and restart:
 ### Finding the Launcher
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Get the system launcher app
 launcher = AppManager.get_launcher()
@@ -301,7 +300,7 @@ if launcher:
 ### Restarting the Launcher
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Stop all activities and restart the launcher
 AppManager.restart_launcher()
@@ -319,7 +318,7 @@ AppManager handles the low-level execution of app scripts:
 ### Starting Apps
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Start an app (high-level interface)
 success = AppManager.start_app("com.example.myapp")
@@ -335,7 +334,7 @@ else:
 AppManager can execute arbitrary Python scripts with proper environment setup:
 
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Execute a script file
 success = AppManager.execute_script(
@@ -381,8 +380,7 @@ If a `cwd` is provided, it's added to `sys.path` for relative imports.
 Here's how the App Store uses AppManager:
 
 ```python
-from mpos import Activity
-from mpos.content.app_manager import AppManager
+from mpos import Activity, AppManager
 import lvgl as lv
 
 class AppStoreActivity(Activity):
@@ -658,7 +656,7 @@ Stop all activities and restart launcher.
 
 **Solution:**
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Refresh app list
 AppManager.refresh_apps()
@@ -686,7 +684,7 @@ else:
 
 **Solution:**
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Verify app exists
 app = AppManager.get("com.example.myapp")
@@ -722,7 +720,7 @@ if not success:
 
 **Solution:**
 ```python
-from mpos.content.app_manager import AppManager
+from mpos import AppManager
 
 # Verify ZIP file is valid
 import zipfile

@@ -56,44 +56,65 @@ Frameworks are centralized services that provide access to system capabilities l
 
 ## Unified Framework Pattern
 
-All frameworks follow this standardized structure:
+All frameworks follow a **singleton pattern with class method delegation**. This provides a clean API where you call class methods directly without needing to instantiate or call `.get()`.
 
 ```python
 class MyFramework:
     """Centralized service for [purpose]."""
     
-    _initialized = False
-    _instance_data = {}
+    _instance = None  # Singleton instance
     
-    @classmethod
-    def init(cls, *args, **kwargs):
-        """Initialize the framework (call once at startup)."""
-        cls._initialized = True
+    def __init__(self):
+        """Initialize singleton instance (called once)."""
+        if MyFramework._instance:
+            return
+        MyFramework._instance = self
         # initialization logic
-        return True
     
     @classmethod
-    def is_available(cls):
-        """Check if framework is available."""
-        return cls._initialized
+    def get(cls):
+        """Get or create the singleton instance."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
     
-    @classmethod
-    def method_name(cls, *args, **kwargs):
-        """Framework methods as class methods."""
+    def method_name(self, *args, **kwargs):
+        """Instance methods (implementation)."""
         # implementation
         return result
+
+# Class method delegation (at module level)
+_original_methods = {}
+_methods_to_delegate = ['method_name']
+
+for method_name in _methods_to_delegate:
+    _original_methods[method_name] = getattr(MyFramework, method_name)
+
+def _make_class_method(method_name):
+    """Create a class method that delegates to the singleton instance."""
+    original_method = _original_methods[method_name]
+    
+    @classmethod
+    def class_method(cls, *args, **kwargs):
+        instance = cls.get()
+        return original_method(instance, *args, **kwargs)
+    
+    return class_method
+
+for method_name in _methods_to_delegate:
+    setattr(MyFramework, method_name, _make_class_method(method_name))
 ```
 
 ### Key Characteristics
 
 | Aspect | Details |
 |--------|---------|
-| **Instantiation** | No instance creation needed - use class methods directly |
-| **Initialization** | Call `Framework.init()` once at startup |
-| **State Management** | Use class variables (`_instance_data`, `_initialized`) |
-| **API Access** | `Framework.method_name(...)` - no `.get()` needed |
-| **Async Support** | Class methods can be async (`async def`) |
-| **Testing** | Easy to mock class methods and class variables |
+| **Instantiation** | Singleton pattern - single instance created on first use |
+| **Initialization** | Call `Framework.init()` once at startup (or auto-initialize on first use) |
+| **State Management** | Instance variables stored in singleton instance |
+| **API Access** | `Framework.method_name(...)` - class methods delegate to singleton |
+| **Async Support** | Instance methods can be async (`async def`) |
+| **Testing** | Easy to mock by replacing `_instance` |
 
 ## Available Frameworks
 
@@ -260,11 +281,23 @@ MyFramework - [Brief description of what this framework does]
 class MyFramework:
     """Centralized service for [purpose]."""
     
-    _initialized = False
-    _instance_data = {}
+    _instance = None  # Singleton instance
+    
+    def __init__(self):
+        """Initialize singleton instance."""
+        if MyFramework._instance:
+            return
+        MyFramework._instance = self
+        # initialization logic
     
     @classmethod
-    def init(cls, **kwargs):
+    def get(cls):
+        """Get or create the singleton instance."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+    
+    def init(self, **kwargs):
         """
         Initialize the framework.
         
@@ -274,21 +307,15 @@ class MyFramework:
         Returns:
             bool: True if initialization successful
         """
-        if cls._initialized:
-            return True
-        
         # Perform initialization
-        cls._instance_data['config'] = kwargs
-        cls._initialized = True
+        self._config = kwargs
         return True
     
-    @classmethod
-    def is_available(cls):
+    def is_available(self):
         """Check if framework is available."""
-        return cls._initialized
+        return hasattr(self, '_config')
     
-    @classmethod
-    def your_method(cls, arg1, arg2):
+    def your_method(self, arg1, arg2):
         """
         Do something.
         
@@ -299,21 +326,43 @@ class MyFramework:
         Returns:
             Result of operation
         """
-        if not cls.is_available():
+        if not self.is_available():
             raise RuntimeError("MyFramework not initialized")
         
         # Implementation
         return result
+
+# Class method delegation (at module level)
+_original_methods = {}
+_methods_to_delegate = ['init', 'is_available', 'your_method']
+
+for method_name in _methods_to_delegate:
+    _original_methods[method_name] = getattr(MyFramework, method_name)
+
+def _make_class_method(method_name):
+    """Create a class method that delegates to the singleton instance."""
+    original_method = _original_methods[method_name]
+    
+    @classmethod
+    def class_method(cls, *args, **kwargs):
+        instance = cls.get()
+        return original_method(instance, *args, **kwargs)
+    
+    return class_method
+
+for method_name in _methods_to_delegate:
+    setattr(MyFramework, method_name, _make_class_method(method_name))
 ```
 
 ### Checklist for New Frameworks
 
-- [ ] Inherit from no base class (use class methods only)
-- [ ] Include `_initialized` class variable
-- [ ] Include `_instance_data` class variable for state
-- [ ] Implement `init()` classmethod for initialization
-- [ ] Implement `is_available()` classmethod to check status
-- [ ] All public methods are classmethods
+- [ ] Implement singleton pattern with `_instance` class variable
+- [ ] Implement `__init__()` to initialize singleton
+- [ ] Implement `get()` classmethod to get/create singleton
+- [ ] Implement `init()` instance method for initialization
+- [ ] Implement `is_available()` instance method to check status
+- [ ] All public methods are instance methods
+- [ ] Add class method delegation at module level
 - [ ] Add docstrings to all methods
 - [ ] Import in `mpos/__init__.py`
 - [ ] Add to board initialization files
@@ -321,11 +370,18 @@ class MyFramework:
 
 ## Import Pattern
 
-All frameworks are imported consistently as classes:
+All frameworks are imported consistently as classes from the main `mpos` module:
 
 ```python
 from mpos import AppearanceManager, AudioFlinger, CameraManager, ConnectivityManager, DownloadManager, SensorManager, SharedPreferences, TaskManager, WifiService, AppManager
+
+# Then use class methods directly (no .get() needed)
+AppearanceManager.init(prefs)
+AudioFlinger.play_wav("music.wav")
+SensorManager.read_sensor(accel)
 ```
+
+**Note:** Some frameworks like `AudioFlinger` and `SensorManager` use singleton patterns internally, but the API is the same - call class methods directly without needing to call `.get()`.
 
 ## Benefits of Harmonization
 
@@ -357,25 +413,26 @@ prefs.set_string("theme", "dark")
 
 ### Do's
 
-✅ Call `Framework.init()` once at system startup  
-✅ Use class methods directly without `.get()`  
-✅ Check `is_available()` before using framework  
-✅ Use class variables for state management  
-✅ Document initialization requirements  
-✅ Write tests for framework behavior  
+✅ Call `Framework.init()` once at system startup
+✅ Use class methods directly (they delegate to singleton)
+✅ Check `is_available()` before using framework
+✅ Store state in singleton instance variables
+✅ Document initialization requirements
+✅ Write tests for framework behavior
+✅ Use class method delegation pattern for clean API
 
 ### Don'ts
 
-❌ Create instances of framework classes  
-❌ Call `.get()` to access frameworks  
-❌ Mix module-level functions with class methods  
-❌ Store framework state in global variables  
-❌ Skip initialization in board files  
-❌ Use different patterns for different frameworks  
+❌ Create multiple instances of framework classes
+❌ Call `.get()` directly in app code (it's internal)
+❌ Mix instance methods with class methods in public API
+❌ Store framework state in global variables
+❌ Skip initialization in board files
+❌ Use different patterns for different frameworks
 
 ## Testing Frameworks
 
-Frameworks are easy to test due to their class method design:
+Frameworks are easy to test due to their singleton pattern:
 
 ```python
 import unittest
@@ -384,8 +441,7 @@ from mpos import MyFramework
 class TestMyFramework(unittest.TestCase):
     def setUp(self):
         """Reset framework state before each test."""
-        MyFramework._initialized = False
-        MyFramework._instance_data = {}
+        MyFramework._instance = None  # Reset singleton
     
     def test_initialization(self):
         """Test framework initialization."""
@@ -398,6 +454,10 @@ class TestMyFramework(unittest.TestCase):
         MyFramework.init()
         result = MyFramework.your_method("arg1", "arg2")
         self.assertEqual(result, expected_value)
+    
+    def tearDown(self):
+        """Clean up after each test."""
+        MyFramework._instance = None  # Reset singleton
 ```
 
 ## See Also
