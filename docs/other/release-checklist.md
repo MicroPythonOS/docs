@@ -58,6 +58,14 @@ git commit -a
 git push
 ```
 
+** Announce the release **
+
+- On the community https://chat.MicroPythonOS.com
+- In the LightningPiggy chat
+- On Nostr
+- On Twitter
+- In the Press
+
 ## Notes
 
 - Ensure all repositories are pushed before tagging.
