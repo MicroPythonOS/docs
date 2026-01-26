@@ -155,18 +155,18 @@ bar_height = AppearanceManager.get_notification_bar_height()
 primary_color = AppearanceManager.get_primary_color()
 ```
 
-### AudioFlinger
+### AudioManager
 Manages audio playback and recording.
 
 ```python
-from mpos import AudioFlinger
+from mpos import AudioManager
 
 # Initialize at startup
-AudioFlinger.init()
+AudioManager.init()
 
 # Use anywhere
-AudioFlinger.play_wav("path/to/audio.wav")
-AudioFlinger.stop()
+AudioManager.play_wav("path/to/audio.wav")
+AudioManager.stop()
 ```
 
 ### DownloadManager
@@ -253,13 +253,13 @@ Frameworks should be initialized once at system startup in the board initializat
 
 ```python
 # In board/your_board.py
-from mpos import AppearanceManager, AudioFlinger, DownloadManager, ConnectivityManager, CameraManager, SensorManager, TaskManager, AppManager
+from mpos import AppearanceManager, AudioManager, DownloadManager, ConnectivityManager, CameraManager, SensorManager, TaskManager, AppManager
 
 def init_frameworks():
     """Initialize all frameworks."""
     AppManager.refresh_apps()  # Discover all installed apps
     AppearanceManager.init(prefs)  # Requires SharedPreferences
-    AudioFlinger.init()
+    AudioManager.init()
     DownloadManager.init()
     ConnectivityManager.init()
     CameraManager.init()
@@ -373,15 +373,15 @@ for method_name in _methods_to_delegate:
 All frameworks are imported consistently as classes from the main `mpos` module:
 
 ```python
-from mpos import AppearanceManager, AudioFlinger, CameraManager, ConnectivityManager, DownloadManager, SensorManager, SharedPreferences, TaskManager, WifiService, AppManager
+from mpos import AppearanceManager, AudioManager, CameraManager, ConnectivityManager, DownloadManager, SensorManager, SharedPreferences, TaskManager, WifiService, AppManager
 
 # Then use class methods directly (no .get() needed)
 AppearanceManager.init(prefs)
-AudioFlinger.play_wav("music.wav")
+AudioManager.play_wav("music.wav")
 SensorManager.read_sensor(accel)
 ```
 
-**Note:** Some frameworks like `AudioFlinger` and `SensorManager` use singleton patterns internally, but the API is the same - call class methods directly without needing to call `.get()`.
+**Note:** Some frameworks like `AudioManager` and `SensorManager` use singleton patterns internally, but the API is the same - call class methods directly without needing to call `.get()`.
 
 ## Benefits of Harmonization
 

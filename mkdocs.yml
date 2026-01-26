@@ -49,7 +49,7 @@ nav:
       - Creating Apps: apps/creating-apps.md
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
-      - AudioFlinger: frameworks/audioflinger.md
+      - AudioManager: frameworks/audiomanager.md
       - BatteryManager: frameworks/battery-manager.md
       - BuildInfo: frameworks/build-info.md
       - ConnectivityManager: frameworks/connectivity-manager.md

@@ -485,5 +485,5 @@ async def safe_task(self):
 ## See Also
 
 - [DownloadManager](download-manager.md) - HTTP download utilities
-- [AudioFlinger](audioflinger.md) - Audio playback (uses TaskManager internally)
+- [AudioManager](audiomanager.md) - Audio playback (uses TaskManager internally)
 - [SensorManager](sensor-manager.md) - Sensor data access

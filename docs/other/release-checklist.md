@@ -13,6 +13,7 @@ git diff --stat 0.6.0 internal_filesystem/  # Check changes since last release, 
 
 **Update Changelog**:
 
+- Compare MicroPythonOS/CHANGELOG.md to the "git log" or "git log -p" or "git diff 0.6.0" to see if anything is missing since the last release tag
 - Document changes in `CHANGELOG.md`
 - Run `./scripts/changelog_to_json.sh` to make sure the CHANGELOG.md is json-friendly
 
@@ -32,7 +33,7 @@ When finished, download and extract these builds as artifacts from the [GitHub a
 **Release to Over-The-Air update**
 
 - Copy `MicroPythonOS_esp32_0.6.0.ota` to the [updates repository](https://github.com/MicroPythonOS/updates) 
-- Update the `osupdate*.json` metadata files as specified in the [README.md](https://github.com/MicroPythonOS/updates/blob/main/README.md)
+- Update the `osupdate*.json` metadata files with the new file and the output from `./scripts/changelog_to_json.sh`
 
 **Release to the web installer**
 

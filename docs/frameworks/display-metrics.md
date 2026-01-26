@@ -318,7 +318,7 @@ width = DisplayMetrics.width()  # Direct class method call
 
 ## Related Frameworks
 
-- **[AudioFlinger](audioflinger.md)** - Audio management (similar singleton pattern)
+- **[AudioManager](audiomanager.md)** - Audio management (similar singleton pattern)
 - **[ConnectivityManager](connectivity-manager.md)** - Network connectivity
 - **[SensorManager](sensor-manager.md)** - Sensor access
 

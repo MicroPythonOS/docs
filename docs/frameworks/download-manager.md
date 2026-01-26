@@ -696,7 +696,7 @@ await DownloadManager.download_url(
 
 **Location**: `/home/user/MicroPythonOS/internal_filesystem/lib/mpos/net/download_manager.py`
 
-**Pattern**: Module-level singleton (similar to AudioFlinger, SensorManager)
+**Pattern**: Module-level singleton (similar to AudioManager, SensorManager)
 
 **Key features:**
 - **Session pooling**: Single shared aiohttp.ClientSession
