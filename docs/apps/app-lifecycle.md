@@ -287,7 +287,17 @@ def on_download_complete(self, data):
 
 ### Thread-Safe UI Updates
 
-When updating UI from a background thread, use `update_ui_threadsafe_if_foreground()`:
+When updating the UI from an asyncio task/coro, there's no need for special handling, as asyncio runs in the same thread as LVGL.
+So that's the easiest way to do multitasking.
+
+But sometimes, you want to do an action in a completely new thread, created with, for example:
+
+```
+	_thread.stack_size(TaskManager.good_stack_size())
+	_thread.start_new_thread(self.background_task, (an_argument, another_one))
+```
+
+Then, to update the LVGL UI from the other thread, use `update_ui_threadsafe_if_foreground()`:
 
 ```python
 def background_task(self):
@@ -300,6 +310,11 @@ def background_task(self):
         result
     )
 ```
+
+This will schedule the function `self.display_result(result)` to be executed from the LVGL thread, using `lv.async_call()`.
+It will also check that the Activity is still running in the foreground, using `has_foreground()`.
+
+For this to work, the `onResume()` and `onPause()` functions need to run their super(), either implicitly (if you don't override them) or explicitly (if you do), as explained before.
 
 ## Complete Example
 
