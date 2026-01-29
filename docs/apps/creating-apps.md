@@ -26,8 +26,8 @@ com.micropythonos.helloworld/
 In `hello.py`, put:
 
 ```python
-from mpos import Activity
 import lvgl as lv
+from mpos import Activity
 
 class Hello(Activity):
 
@@ -75,7 +75,7 @@ The icon is a [simple 64x64 pixel PNG image](https://github.com/MicroPythonOS/Mi
 
 It's recommended to keep it as small as possible by setting compression level to 9 and not storing any metadata such as background color, resolution, creation time, comments, Exif data, XMP data, thumbnail or color profile.
 
-The size will be somewhere between 3 and 7KB.
+The size will probably be somewhere between 3 and 10KB.
 
 ## Installing the App
 
@@ -83,7 +83,7 @@ The app can be installed by copying the top-level folder `com.micropythonos.hell
 
 ### On Desktop
 
-You probably already have a clone of the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem) that you're using to run MicroPythonOS on desktop.
+You probably already have a clone of the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem) that you're using to [run MicroPythonOS on desktop](../os-development/running-on-desktop.md).
 
 Just copy or move your the top-level folder `com.micropythonos.helloworld/` (and its contents) to `internal_filesystem/apps/` and you're good to go!
 
@@ -94,6 +94,7 @@ On the ESP32, you can use MicroPython tools such as [mpremote.py](https://github
 Then connect your device with a cable and install your app using:
 
 ```
+/path/to/mpremote.py mkdir :/apps
 /path/to/mpremote.py fs cp -r com.micropythonos.helloworld/ :/apps/
 ```
 
@@ -111,5 +112,9 @@ You can also launch it manually by typing this in the MicroPython REPL:
 from mpos import AppManager
 AppManager.start_app('com.micropythonos.helloworld')
 ```
+## Further reading
 
+Now that your first app works, you could start building apps using standard LVGL for MicroPython calls for the UI and the [MicroPythonOS frameworks](../architecture/frameworks.md).
+
+But before you do, you might want to check out the [app lifecycle](app-lifecycle.md) to understand why we added an onCreate() and what other lifecycle functions are available.
 

@@ -47,6 +47,7 @@ nav:
       - Built-in Apps: apps/built-in-apps.md
       - App Store: apps/appstore.md
       - Creating Apps: apps/creating-apps.md
+      - App Lifecycle: apps/app-lifecycle.md
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
       - AppearanceManager: frameworks/appearance-manager.md
