@@ -49,6 +49,8 @@ nav:
       - Creating Apps: apps/creating-apps.md
       - Bundling Apps: apps/bundling-apps.md
   - Frameworks:
+      - AppearanceManager: frameworks/appearance-manager.md
+      - AppManager: frameworks/app-manager.md
       - AudioManager: frameworks/audiomanager.md
       - BatteryManager: frameworks/battery-manager.md
       - BuildInfo: frameworks/build-info.md
