@@ -2,7 +2,7 @@
 
 Welcome to the official documentation for **MicroPythonOS**, a lightweight and versatile operating system built entirely in MicroPython. Designed for microcontrollers like the ESP32 and desktop systems, MicroPythonOS offers a modern, Android-inspired interface with an app ecosystem, App Store, and Over-The-Air (OTA) updates.
 
-![Launcher Screenshot](assets/images/launcher.png)
+To see MicroPythonOS in action, check out the screenshots and screen video's on the [main website](https://MicroPythonOS.com).
 
 ## About MicroPythonOS
 
