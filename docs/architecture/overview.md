@@ -2,6 +2,13 @@
 
 MicroPythonOS is designed as a lightweight, app-centric operating system inspired by Android. Written entirely in MicroPython, it provides a minimal core with facilities for apps, making it easy to develop and deploy applications.
 
+## Architecture
+
+- Apps (AppStore, Launcher, OSUpdate, Settings, WiFi)
+- Frameworks: MicroPython (AppManager, AudioManager, SensorManager) and C (QRDecoder)
+- Drivers: Micropython (Display, TouchInput) and C (Camera)
+- Kernel: FreeRTOS and Linux (low level bus drivers)
+
 ## Design Principles
 
 - **Thin OS**: The core OS handles hardware initialization, multitasking, and UI, leaving most functionality to apps.
