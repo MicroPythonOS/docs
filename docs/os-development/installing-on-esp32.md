@@ -47,16 +47,22 @@ But if you need to install a version that's not available there, or you built yo
     ./scripts/install.sh
     ```
     </pre>
-    
-
-    Example:
 
     <pre>
     ```
-    ./scripts/install.sh
+    ./scripts/install.sh com.micropythonos.about # to install one single app
     ```
     </pre>
 
+    On MacOS, the install.sh script needs: `brew install --cask serial`
+
+    If you need to frequently update a small number of files, you can also update them manually, for example:
+
+    <pre>
+    ```
+    mpremote.py cp internal_filesystem/lib/mpos/device_info.py :/lib/mpos
+    ```
+    </pre>
 
 ## Notes
 
