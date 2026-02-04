@@ -70,10 +70,10 @@ nav:
       - WidgetAnimator: frameworks/widget-animator.md
       - WifiService: frameworks/wifi-service.md
   - Architecture:
-      - Overview: architecture/index.md
-      - Architecture Overview: architecture/overview.md
+      - Overview: architecture/overview.md
       - Frameworks: architecture/frameworks.md
-      - System Components: architecture/system-components.md
+      - Intents: architecture/intents.md
+      - Boot Sequence: architecture/boot-sequence.md
       - Filesystem Layout: architecture/filesystem.md
   - OS Development:
       - Overview: os-development/index.md

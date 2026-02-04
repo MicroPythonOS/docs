@@ -2,7 +2,7 @@
 
 MicroPythonOS consists of several core components that initialize and manage the system.
 
-- **MicroPythonOS/lvgl_micropython/lib/micropython/ports/esp32/modules/_boot.py**: attempts to mount the internal storage partition to / and if it fails, formats it
+- **lvgl_micropython/lib/micropython/ports/esp32/modules/_boot.py**: attempts to mount the internal storage partition to / and if it fails, formats it
 
 - **internal_filesystem/main.py**: Hands off execution to /lib/mpos/main.py by importing it
 
