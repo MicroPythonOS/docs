@@ -537,4 +537,3 @@ _REG_PARTID = 0x00
 
 - [Creating Apps](../apps/creating-apps.md) - Learn how to create MicroPythonOS apps
 - [SharedPreferences](preferences.md) - Persist app data
-- [System Components](../architecture/system-components.md) - OS architecture overview

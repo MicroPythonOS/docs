@@ -747,6 +747,6 @@ if app:
 ## See Also
 
 - [Creating Apps](../apps/creating-apps.md) - How to create MicroPythonOS apps
-- [Activity Framework](../architecture/activities.md) - Activity lifecycle and management
+- [Activity Framework](../apps/app-lifecycle.md) - Activity lifecycle and management
 - [Intent System](../architecture/intents.md) - Intent-based app communication
-- [Frameworks Overview](frameworks.md) - All available frameworks
+- [Frameworks Overview](../architecture/frameworks.md) - All available frameworks

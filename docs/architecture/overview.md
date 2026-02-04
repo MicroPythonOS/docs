@@ -22,4 +22,4 @@ MicroPythonOS is designed as a lightweight, app-centric operating system inspire
 - **App Ecosystem**: Built-in apps and an App Store for extensibility.
 - **OTA Updates**: Seamless system and app updates.
 
-See [System Components](system-components.md) for details on key files and [Filesystem Layout](filesystem.md) for the directory structure.
+See [Filesystem Layout](filesystem.md) for the directory structure.

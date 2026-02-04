@@ -463,6 +463,5 @@ class TestMyFramework(unittest.TestCase):
 ## See Also
 
 - [AppManager](../frameworks/app-manager.md): App discovery, installation, and launching
-- [System Components](system-components.md): Overview of all system components
 - [Architecture Overview](overview.md): High-level design principles
 - [App Development Guide](../apps/index.md): How to use frameworks in apps
