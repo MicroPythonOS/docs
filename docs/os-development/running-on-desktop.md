@@ -1,20 +1,8 @@
 ## Running on Linux or MacOS
 
-1. Make sure you have the software
+1. Make sure you have the `local_filesystem/` folder
 
-    Either you built your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md) or you can download a pre-built executable binary (e.g., `MicroPythonOS_amd64_Linux`, `MicroPythonOS_amd64_MacOS`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
-
-    Give it executable permissions:
-
-    ```
-    chmod +x /path/to/MicroPythonOS_executable_binary
-    ``` 
-
-2. Make sure you have the `local_filesystem/` folder
-
-    You probably already have a local clone that contains the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem).
-
-    If not, then clone it now:
+    Make a local clone that contains the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem) with:
 
     <pre>
     ```
@@ -23,22 +11,25 @@
     ```
     </pre>
 
-3. Start it from the local_filesystem/ folder:
+2. Make sure you have the software
+
+    Either you built your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/linux.md) or you can download a pre-built executable binary (e.g., `MicroPythonOS_amd64_Linux_0.7.1.elf`, `MicroPythonOS_amd64_MacOS_0.7.1.bin`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+
+    If you downloaded a pre-built binary (for example to /Users/yourname/MicroPythonOS_amd64_MacOS_0.7.1.bin) then put it in the right location, with execution rights:
 
     <pre>
     ```
-    cd internal_filesystem/ # make sure you're in the right place to find the filesystem
-    /path/to/MicroPythonOS_executable_binary -X heapsize=32M -v -i -c "$(cat boot_unix.py main.py)"
-    ```
+    mkdir -p lvgl_micropython/build
+    cp /Users/yourname/MicroPythonOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS
+    ./scripts/run_desktop.sh
+    ``` 
     </pre>
 
-    There's also a convenient `./scripts/run_desktop.sh` script that will attempt to start the latest build that you compiled yourself.
+    On MacOS, if you get an error about a missing /opt/homebrew/opt/libffi/lib/libffi.8.dylib then fix that with: `brew install libffi`
 
-### Development Workflow: Desktop vs Hardware
+## Development on Desktop
 
-**IMPORTANT**: Understanding the difference between desktop testing and hardware deployment is critical for efficient development.
-
-#### Desktop Development (Recommended for Most Development)
+This offers a quick coding cycle (modify, deploy, test) so it's the recommending starting method.
 
 When you run `./scripts/run_desktop.sh`, the OS runs **directly from `internal_filesystem/`**. This means:
 
@@ -46,29 +37,7 @@ When you run `./scripts/run_desktop.sh`, the OS runs **directly from `internal_f
 - **Instant testing** - edit a file, restart the app, see the changes
 - **Fast iteration cycle** - the recommended way to develop and test
 
-**DO NOT run `./scripts/install.sh` when testing on desktop!** That script is only for deploying to physical hardware.
-
-**Example workflow:**
-```bash
-# 1. Edit a file
-nano internal_filesystem/builtin/apps/com.micropythonos.settings/assets/settings.py
-
-# 2. Run on desktop - changes are immediately active!
-./scripts/run_desktop.sh
-
-# That's it! Your changes are live.
-```
-
-#### Hardware Deployment (Only After Desktop Testing)
-
-Once you've tested your changes on desktop and they work correctly, you can deploy to physical hardware:
-
-```bash
-# Deploy to connected ESP32 device
-./scripts/install.sh waveshare-esp32-s3-touch-lcd-2
-```
-
-The `install.sh` script copies files from `internal_filesystem/` to the device's storage partition over USB/serial.
+There's no need to run `./scripts/install.sh` when testing on desktop - that script is only for deploying everything from internal_filesystem/ to physical hardware.
 
 ### Modifying Files
 
@@ -83,7 +52,22 @@ This results in a very quick coding cycle - no compilation or installation neede
 3. Open the About app
 4. See your changes immediately!
 
-**When you DO need to rebuild:**
+
+## Development on Hardware
+
+Once you've tested your changes on desktop and they work correctly, or you're doing things you can't test on desktop, then you can deploy to physical hardware.
+
+This assumes your device was already flashed with MicroPythonOS or at least MicroPython, using something like https://install.MicroPythonOS.com/
+
+The `install.sh` script copies files from `internal_filesystem/` to the device's storage partition over USB/serial:
+
+```bash
+./scripts/install.sh
+```
+
+On MacOS, you need this for the install.sh script: `brew install --cask serial`
+
+**When you DO need to rebuild and flash the MicroPythonOS firmware:**
 
 You only need to run `./scripts/build_mpos.sh` when:
 
@@ -92,4 +76,4 @@ You only need to run `./scripts/build_mpos.sh` when:
 - Testing the frozen filesystem for production releases
 - Creating firmware for distribution
 
-For **all Python code development**, just edit files in `internal_filesystem/` and run `./scripts/run_desktop.sh`.
+For **all Python code development**, just edit files in `internal_filesystem/` and run `./scripts/run_desktop.sh` (to run on desktop) or `./scripts/install.sh` to copy your files to a device.

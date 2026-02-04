@@ -77,7 +77,6 @@ nav:
       - Filesystem Layout: architecture/filesystem.md
   - OS Development:
       - Overview: os-development/index.md
-      - Running on Desktop: os-development/running-on-desktop.md
       - On Linux: os-development/linux.md
       - On MacOS: os-development/macos.md
       - On Windows: os-development/windows.md

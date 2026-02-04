@@ -1,6 +1,6 @@
 # OS Development on MacOS
 
-Most users can just use a pre-built binary from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and install it manually or using the [web installer](https://install.MicroPythonOS.com).
+If you're looking to install MicroPythonOS on a supported device, you can probably just use a pre-built binary from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and install it on the device, either manually or with the [web installer](https://install.MicroPythonOS.com).
 
 But if for some reason that one doesn't work, or you really want to modify things under the hood, you're in the right place here!
 
