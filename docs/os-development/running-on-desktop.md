@@ -1,8 +1,8 @@
 ## Running on desktop
 
-1. Make sure you have the `local_filesystem/` folder
+1. **Make sure you have the `internal_filesystem/` folder**
 
-    If you built from source, you should already have a local clone that contains the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem).
+    If you built from source, you will already have a local clone that contains it.
 
     If you used a pre-built binary, then you need to get a local clone and change into that directory with:
 
@@ -13,20 +13,21 @@
     ```
     </pre>
 
-2. Make sure you have the software
+2. **Make sure you have the software**
 
-    If you built from source, then you will already have the software in `lvgl_micropython/build/lvgl_micropy_*`
+    If you built from source, you will already have it in `lvgl_micropython/build/lvgl_micropy_unix`
 
-    If you downloaded a pre-built binary (for example `/Users/yourname/MicroPythonOS_amd64_MacOS_0.7.1.bin`) then put it in the right location now:
+    If you downloaded a pre-built binary (like `MicroPythonOS_amd64_macOS_0.7.1.bin` or `MicroPythonOS_amd64_linux_0.7.1.elf`), then copy it to the right location:
 
     <pre>
     ```
     mkdir -p lvgl_micropython/build
-    cp /Users/yourname/MicroPythonOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS
+    cp /Users/yourname/MicroPythonOS_amd64_macOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS # for macOS
+    cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for linux
     ``` 
     </pre>
 
-3. Starting the software:
+3. **Start the software:**
     
     You're now ready to run it with:
 
