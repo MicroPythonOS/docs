@@ -15,9 +15,9 @@
 
 2. Make sure you have the software
 
-    If you built from source, then you will already have the software in lvgl_micropython/build/lvgl_micropy_*
+    If you built from source, then you will already have the software in `lvgl_micropython/build/lvgl_micropy_*`
 
-    If you downloaded a pre-built binary (for example /Users/yourname/MicroPythonOS_amd64_MacOS_0.7.1.bin) then put it in the right location now:
+    If you downloaded a pre-built binary (for example `/Users/yourname/MicroPythonOS_amd64_MacOS_0.7.1.bin`) then put it in the right location now:
 
     <pre>
     ```
@@ -38,7 +38,7 @@
 
 ### Notes on MacOS
 
-If you get an error about a missing /opt/homebrew/opt/libffi/lib/libffi.8.dylib then fix that with: `brew install libffi`
+If you get an error about a missing `/opt/homebrew/opt/libffi/lib/libffi.8.dylib` then fix that with: `brew install libffi`
 
 If you get an error about the code being unsigned, then allow it like this:
 
