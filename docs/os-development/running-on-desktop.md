@@ -42,7 +42,7 @@ If you get an error about a missing /opt/homebrew/opt/libffi/lib/libffi.8.dylib 
 
 If you get an error about the code being unsigned, then allow it like this:
 
-![Allow Anyway on MacOS](macos-allow-anyway.png)
+![Allow Anyway on MacOS](/os-development/macos-allow-anyway.png)
 
     
 
