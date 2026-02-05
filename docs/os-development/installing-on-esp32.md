@@ -38,6 +38,9 @@ But if you need to install a version that's not available there, or you built yo
 
     In development, you probably want to override the "frozen" libraries and apps that are compiled in, and replace them with source files, which you can edit.
 
+    This makes MicroPythonOS startup a lot slower, as the Python scripts have to be compiled at runtime instead of at build time.
+    But once MicroPythonOS and the code you're testing has loaded, the speed will be normal again.
+
     There's a convenient script that will do this for you.
     
     Usage:

@@ -36,9 +36,17 @@
     ```
     </pre>
 
-    On MacOS, if you get an error about a missing /opt/homebrew/opt/libffi/lib/libffi.8.dylib then fix that with: `brew install libffi`
+### Notes on MacOS
 
-## Testing on Desktop
+If you get an error about a missing /opt/homebrew/opt/libffi/lib/libffi.8.dylib then fix that with: `brew install libffi`
+
+If you get an error about the code being unsigned, then allow it like this:
+
+![Allow Anyway on MacOS](macos-allow-anyway.png)
+
+    
+
+## Making Changes on Desktop
 
 You'll notice that whenever you change a file in `internal_filesystem/`, the changes are immediately visible on desktop when you reload the file or restart the app.
 
@@ -56,7 +64,7 @@ When you run `./scripts/run_desktop.sh`, the OS runs the MicroPythonOS scripts *
 4. See your changes immediately!
 
 
-## Testing on Hardware
+## Making Changes on ESP32
 
 Once you've tested your changes on desktop and they work correctly, or you're doing things you can't test on desktop, then you can deploy to physical hardware.
 

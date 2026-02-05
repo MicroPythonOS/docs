@@ -40,7 +40,7 @@ nav:
   - Overview: overview.md
   - Getting Started:
       - Overview: getting-started/index.md
-      - Installation: getting-started/installation.md
+      - Running: getting-started/running.md
       - Supported Hardware: getting-started/supported-hardware.md
   - Apps:
       - Overview: apps/index.md
