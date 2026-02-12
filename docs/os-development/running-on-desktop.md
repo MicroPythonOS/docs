@@ -23,7 +23,7 @@
     ```
     mkdir -p lvgl_micropython/build
     cp /Users/yourname/MicroPythonOS_amd64_macOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS # for macOS
-    cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for linux
+    cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for Linux or WSL2 on Windows 11
     ``` 
     </pre>
 

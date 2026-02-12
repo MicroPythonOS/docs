@@ -12,6 +12,7 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 
 - **Linux**: Supported using SDL for display handling.
 - **MacOS**: Supported as well.
+- **Windows**: [users report](https://github.com/MicroPythonOS/MicroPythonOS/issues/31) that the Linux desktop version runs fine under WSL2 on Windows 11.
 
 ## Raspberry Pi
 
