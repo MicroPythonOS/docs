@@ -1,8 +1,10 @@
 # Running it
 
-MicroPythonOS can be installed on supported microcontrollers (e.g., ESP32) and on desktop systems (Linux, Raspberry Pi, MacOS, etc).
+MicroPythonOS can run on supported microcontrollers (e.g., ESP32) and on desktop systems (Linux, Raspberry Pi, MacOS, Windows etc).
 
-To simply install prebuilt software, read on!
+To install prebuilt software, read on!
+
+To modify low level things under the hood, consider heading to [OS Development](../os-development/index.md).
 
 ## Running on ESP32
 
