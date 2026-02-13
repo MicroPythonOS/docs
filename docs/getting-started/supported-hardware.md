@@ -18,6 +18,3 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 
 - **Raspbian and other Linux-based**: Should work!
 
-## Notes
-
-- Check [Installation](installation.md) for setup instructions.
