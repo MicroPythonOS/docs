@@ -11,8 +11,12 @@ For example:
 
 ```
 cd com.micropythonos.helloworld/
-find . -type f -exec touch -t 202501010000.00 {} \; # set fixed timestamp
+find . -type f -exec touch -t 202501010000.00 {} \; # set fixed timestamp to have a deterministic zip file
 find . -type f | sort | TZ=CET zip -X -r -0 /tmp/com.micropythonos.helloworld_0.0.2.mpk -@ # sort, -Xclude extra attributes, -recurse into directories and -0 compression
 ```
 
-Take a look at [`scripts/bundleapps.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/bundleapps.sh) to see how the MicroPythonOS default apps are bundled.
+## AppStore bundling
+
+The apps at https://apps.MicroPythonOS.com are a curated, manually reviewed, vetted collection, often created and maintainced by the MicroPythonOS core team.
+
+These are manually bundled into a [app_index.json](https://github.com/MicroPythonOS/apps/blob/main/app_index.json) using [`scripts/bundleapps.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/bundleapps.sh) and then pushed to the [apps repo](https://github.com/MicroPythonOS/apps).
