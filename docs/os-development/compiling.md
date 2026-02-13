@@ -31,12 +31,13 @@ Usage:
 ./scripts/build_mpos.sh <target system>
 ```
 
-**Target systems**: `esp32`, `unix` (= Linux) and `macOS`
+**Target systems**: `esp32`, `esp32s3`, `unix` (= Linux) and `macOS`
 
 **Examples**:
 
 ```
 ./scripts/build_mpos.sh esp32
+./scripts/build_mpos.sh esp32s3
 ./scripts/build_mpos.sh unix
 ./scripts/build_mpos.sh macOS
 ```
