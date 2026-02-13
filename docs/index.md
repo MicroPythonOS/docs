@@ -16,7 +16,7 @@ MicroPythonOS is tailored for developers and innovators building IoT devices, sm
 
 This documentation provides everything you need to get started, understand the architecture, build the system, and develop apps.
 
-## Who This Documentation Is For
+## Target Audience
 
 - **Developers**: Learn how to install, build, and extend MicroPythonOS with new apps and features.
 - **Managers**: Explore the system’s capabilities, supported hardware, and ready-to-use features for prototyping and production.
