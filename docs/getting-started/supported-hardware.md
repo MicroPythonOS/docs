@@ -4,9 +4,15 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 
 ## ESP32 Microcontrollers
 
-- [Makerfabs Matouch ESP32-S3 SPI IPS 2.8" with Camera OV3660](https://www.makerfabs.com/matouch-esp32-s3-spi-ips-2-8-with-camera-ov3660.html)
-- [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
+- [M5Stack Fire](https://docs.m5stack.com/en/core/fire): Fully Supported
+- [HardKernel ODROID-GO](https://wiki.odroid.com/odroid_go/odroid_go): Fully Supported
+
+## ESP32-S3 Microcontrollers
+
 - [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Fully Supported
+- [Fri3d Camp 2026 Badge](https://fri3d.be/badge/2026/): Experimental Support (Hardware Prototype Phase)
+- [Makerfabs Matouch ESP32-S3 SPI IPS 2.8" with Camera OV3660](https://www.makerfabs.com/matouch-esp32-s3-spi-ips-2-8-with-camera-ov3660.html): Fully Supported
+- [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
 
 ## Desktop Computers
 
