@@ -15,17 +15,19 @@
 
 2. **Make sure you have the software**
 
-    If you built from source, you will already have it in `lvgl_micropython/build/lvgl_micropy_unix`
-
-    If you downloaded a pre-built binary (like `MicroPythonOS_amd64_macOS_0.7.1.bin` or `MicroPythonOS_amd64_linux_0.7.1.elf`), then copy it to the right location:
+    The easiest is to downloaded a pre-built binary (like `MicroPythonOS_amd64_macOS_0.7.1.bin` or `MicroPythonOS_amd64_linux_0.7.1.elf`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+    
+    After downloading it, put it in the right location like this:
 
     <pre>
     ```
-    mkdir -p lvgl_micropython/build
+    mkdir -p lvgl_micropython/build # do this from within in the folder MicroPythonOS/ you cloned in step 1
     cp /Users/yourname/MicroPythonOS_amd64_macOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS # for macOS
     cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for Linux or WSL2 on Windows 11
     ``` 
     </pre>
+
+    Alternatively, instead of downloading a pre-built binary, you can [build it from source](../os-development/compiling.md), and then you will have the built binary in `lvgl_micropython/build/lvgl_micropy_XXX` where XXX is unix or macOS.
 
 3. **Start the software:**
     
