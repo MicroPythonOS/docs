@@ -67,7 +67,7 @@ dd if=MicroPythonOS_esp32_0.8.0.bin of=MicroPythonOS_esp32_0.8.0.bin.padded bs=1
 ## 3. Start QEMU
 
 ```
-./build/qemu-system-xtensa -machine esp32s3 -m 8M -drive file=MicroPythonOS_esp32_0.8.0.bin.padded,if=mtd,format=raw -nic user,model=esp32_wifi,hostfwd=tcp:127.0.0.1:10080-192.168.4.15:80,net=192.168.4.0/24,host=192.168.4.2,hostfwd=tcp:127.0.0.1:1081-192.168.4.1:80,hostfwd=tcp:127.0.0.1:7890-192.168.4.15:7890,hostfwd=tcp:127.0.0.1:7891-192.168.4.1:7890 -display default,show-cursor=on -parallel none -monitor none -serial stdio
+./build/qemu-system-xtensa -machine esp32s3 -m 8M -drive file=MicroPythonOS_esp32_0.8.0.bin.padded,if=mtd,format=raw -nic user,model=esp32_wifi,hostfwd=tcp:127.0.0.1:10080-192.168.4.15:80,net=192.168.4.0/24,host=192.168.4.2,hostfwd=tcp:127.0.0.1:10081-192.168.4.1:80,hostfwd=tcp:127.0.0.1:7890-192.168.4.15:7890,hostfwd=tcp:127.0.0.1:7891-192.168.4.1:7890 -display default,show-cursor=on -parallel none -monitor none -serial stdio
 ```
 
 The hostfwd lines forward:
