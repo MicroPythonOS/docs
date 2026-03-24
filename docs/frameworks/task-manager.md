@@ -357,13 +357,14 @@ def onCreate(self):
 ### Sensor Polling
 
 ```python
-import mpos.sensor_manager as SensorManager
-from mpos import TaskManager
+from mpos import SensorManager, TaskManager
 
 async def poll_sensors(self):
     while self.active:
-        accel = SensorManager.read_accelerometer()
-        gyro = SensorManager.read_gyroscope()
+        accel_sensor = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
+        gyro_sensor = SensorManager.get_default_sensor(SensorManager.TYPE_GYROSCOPE)
+        accel = SensorManager.read_sensor(accel_sensor)
+        gyro = SensorManager.read_sensor(gyro_sensor)
 
         self.update_display(accel, gyro)
         await TaskManager.sleep(0.1)  # 100ms = 10 Hz

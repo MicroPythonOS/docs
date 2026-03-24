@@ -156,16 +156,18 @@ primary_color = AppearanceManager.get_primary_color()
 ```
 
 ### AudioManager
-Manages audio playback and recording.
+Manages audio playback and recording with a device registry.
 
 ```python
 from mpos import AudioManager
 
-# Initialize at startup
-AudioManager.init()
+# Register devices at startup
+AudioManager.add(AudioManager.Output(name="speaker", kind="i2s", i2s_pins={"ws": 47, "sd": 16}))
+AudioManager.add(AudioManager.Input(name="mic", kind="i2s", i2s_pins={"ws": 47, "sd_in": 15}))
 
 # Use anywhere
-AudioManager.play_wav("path/to/audio.wav")
+player = AudioManager.player(file_path="path/to/audio.wav")
+player.start()
 AudioManager.stop()
 ```
 
@@ -210,7 +212,7 @@ image_data = CameraManager.capture_photo()
 ```
 
 ### SensorManager
-Manages sensor access (accelerometer, gyroscope, etc.).
+Manages sensor access (accelerometer, gyroscope, magnetometer, temperature).
 
 ```python
 from mpos import SensorManager
@@ -219,7 +221,8 @@ from mpos import SensorManager
 SensorManager.init()
 
 # Read sensor data
-accel_data = SensorManager.read_accelerometer()
+accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
+accel_data = SensorManager.read_sensor(accel)
 ```
 
 ### TaskManager
@@ -259,7 +262,9 @@ def init_frameworks():
     """Initialize all frameworks."""
     AppManager.refresh_apps()  # Discover all installed apps
     AppearanceManager.init(prefs)  # Requires SharedPreferences
-    AudioManager.init()
+    # Register AudioManager devices for this board
+    AudioManager.add(AudioManager.Output(name="speaker", kind="i2s", i2s_pins={"ws": 47, "sd": 16}))
+    AudioManager.add(AudioManager.Input(name="mic", kind="i2s", i2s_pins={"ws": 47, "sd_in": 15}))
     DownloadManager.init()
     ConnectivityManager.init()
     CameraManager.init()
@@ -377,7 +382,9 @@ from mpos import AppearanceManager, AudioManager, CameraManager, ConnectivityMan
 
 # Then use class methods directly (no .get() needed)
 AppearanceManager.init(prefs)
-AudioManager.play_wav("music.wav")
+player = AudioManager.player(file_path="music.wav")
+player.start()
+accel = SensorManager.get_default_sensor(SensorManager.TYPE_ACCELEROMETER)
 SensorManager.read_sensor(accel)
 ```
 

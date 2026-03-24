@@ -67,6 +67,7 @@ nav:
       - SettingsActivity: frameworks/settings-activity.md
       - TaskManager: frameworks/task-manager.md
       - TimeZone: frameworks/time-zone.md
+      - WebServer: frameworks/webserver.md
       - WidgetAnimator: frameworks/widget-animator.md
       - WifiService: frameworks/wifi-service.md
   - Architecture:
