@@ -31,7 +31,7 @@ But if you need to install a version that's not available there, or you built yo
     Any serial client will do, but it's convenient to use the `mpremote.py` tool that's shipped with lvgl_micropython:
     
     ```
-    lvgl_micropython/lib/micropython/tools/mpremote/mpremote.py
+    ./lvgl_micropython/lib/micropython/tools/mpremote/mpremote.py
     ```
 
 5. **Populate the filesystem** (only for development)
@@ -63,7 +63,7 @@ But if you need to install a version that's not available there, or you built yo
 
     <pre>
     ```
-    mpremote.py cp internal_filesystem/lib/mpos/device_info.py :/lib/mpos
+    ./lvgl_micropython/lib/micropython/tools/mpremote/mpremote.py cp internal_filesystem/lib/mpos/device_info.py :/lib/mpos
     ```
     </pre>
 

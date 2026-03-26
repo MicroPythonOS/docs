@@ -4,17 +4,17 @@
 
     If you built from source, you will already have a local clone that contains it.
 
-    If you used a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and extract the internal_filesystem/ folder from it.
+    If you'll be using a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and extract it.
 
 2. **Make sure you have the software**
 
-    The easiest is to downloaded a pre-built binary (like `MicroPythonOS_amd64_macOS_0.7.1.bin` or `MicroPythonOS_amd64_linux_0.7.1.elf`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+    The easiest is to downloaded a pre-built binary (like `MicroPythonOS_arm64_macOS_0.9.0.bin` or `MicroPythonOS_x64_linux_0.9.0.elf`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
     
     After downloading it, put it in the right location like this:
 
     <pre>
     ```
-    mkdir -p lvgl_micropython/build # do this from within in the folder MicroPythonOS/ you cloned in step 1
+    mkdir -p lvgl_micropython/build # do this from the top level folder MicroPythonOS from step 1
     cp /Users/yourname/MicroPythonOS_amd64_macOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS # for macOS
     cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for Linux or WSL2 on Windows 11
     ``` 

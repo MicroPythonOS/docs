@@ -91,6 +91,8 @@ Just copy or move your the top-level folder `com.micropythonos.helloworld/` (and
 
 On the ESP32, you can use MicroPython tools such as [mpremote.py](https://github.com/micropython/micropython/tree/master/tools/mpremote) to copy files and folders from-to your device using the MicroPython REPL.
 
+It's also included in the MicroPythonOS repo at `./lvgl_micropython/lib/micropython/tools/mpremote/mpremote.py`
+
 Then connect your device with a cable and install your app using:
 
 ```
