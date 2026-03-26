@@ -4,14 +4,7 @@
 
     If you built from source, you will already have a local clone that contains it.
 
-    If you used a pre-built binary, then you need to get a local clone and change into that directory with:
-
-    <pre>
-    ```
-    git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
-    cd MicroPythonOS/
-    ```
-    </pre>
+    If you used a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and extract the internal_filesystem/ folder from it.
 
 2. **Make sure you have the software**
 

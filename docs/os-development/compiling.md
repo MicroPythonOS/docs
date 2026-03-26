@@ -3,7 +3,7 @@
 Clone the repositories:
 
 ```
-git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
+git clone --recurse-submodules --depth 1 --shallow-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
 cd MicroPythonOS/
 ```
 
@@ -18,7 +18,8 @@ But if you need to save on bandwidth and time, you can instead do the following,
 ```
 cd MicroPythonOS/
 git submodule foreach --recursive 'git clean -f; git checkout .'
-git pull --recurse-submodules
+git pull --depth 1
+git submodule update --init --depth 1
 ```
 
 ## Compile the code
