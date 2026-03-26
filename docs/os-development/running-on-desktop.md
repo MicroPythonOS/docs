@@ -4,7 +4,7 @@
 
     If you built from source, you will already have a local clone that contains it.
 
-    If you'll be using a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) and extract it.
+    If you'll be using a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) or the [main branch](https://github.com/MicroPythonOS/MicroPythonOS/archive/refs/heads/main.zip) and extract it.
 
 2. **Make sure you have the software**
 
