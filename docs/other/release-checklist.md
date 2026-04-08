@@ -4,7 +4,7 @@ Follow these steps to create a new release of MicroPythonOS.
 
 **Update Version Numbers**:
 
-   - Increment `CURRENT_OS_VERSION` in `internal_filesystem/lib/mpos/info.py`.
+   - Increment `CURRENT_OS_VERSION` in `internal_filesystem/lib/mpos/build_info.py`
    - Update version numbers for modified apps:
 
 ```
@@ -23,12 +23,7 @@ This will trigger the GitHub builds at https://github.com/MicroPythonOS/MicroPyt
 
 **Download the builds**
 
-When finished, download and extract these builds as artifacts from the [GitHub actions](https://github.com/MicroPythonOS/MicroPythonOS/actions):
-
-- `MicroPythonOS_esp32_0.6.0.ota.zip`
-- `MicroPythonOS_esp32_0.6.0.bin.zip`
-- `MicroPythonOS_amd64_linux_0.6.0.elf.zip`
-- `MicroPythonOS_amd64_macOS_0.6.0.bin.zip`
+When finished, download and extract the builds as artifacts from the [GitHub actions](https://github.com/MicroPythonOS/MicroPythonOS/actions).
 
 **Release to Over-The-Air update**
 
