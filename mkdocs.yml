@@ -87,6 +87,7 @@ nav:
       - Porting Guide: os-development/porting-guide.md
   - Other:
       - Release Process: other/release-checklist.md
+      - Merge Checklist: other/merge-checklist.md
 extra:
   social:
     - icon: fontawesome/brands/github
