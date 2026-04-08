@@ -10,7 +10,7 @@ Making sure to update related things:
 Making sure the logic is sound:
 
 - if it changes a Setting's definition, will old settings be properly migrated to the new setting?
-- did you add or expand one or more unit tests to make sure your code works, in all edge cases, and future regressions are caught?
+- did you add or expand one or more [unit tests to make sure your code works](../os-development/automated-testing.md), in all edge cases, and future regressions are caught?
 
 Making sure it's easy to review:
 
