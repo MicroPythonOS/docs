@@ -467,6 +467,8 @@ class TestMyFramework(unittest.TestCase):
         MyFramework._instance = None  # Reset singleton
 ```
 
+See [Automated Testing](../os-development/automated-testing.md) for more info.
+
 ## See Also
 
 - [AppManager](../frameworks/app-manager.md): App discovery, installation, and launching
