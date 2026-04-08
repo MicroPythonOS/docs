@@ -61,6 +61,7 @@ nav:
       - DownloadManager: frameworks/download-manager.md
       - InputManager: frameworks/input-manager.md
       - LightsManager: frameworks/lights-manager.md
+      - NumberFormat: frameworks/number-format.md
       - Preferences: frameworks/preferences.md
       - SensorManager: frameworks/sensor-manager.md
       - SettingActivity: frameworks/setting-activity.md
