@@ -2,10 +2,10 @@ Before merging a pull request, we should consider the following:
 
 Making sure to update related things:
 
-- has CHANGELOG.md been updated?
-- has MAINTAINERS.md been updated?
-- has the app's version number been incremented?
-- has the [https://GitHub.com/MicroPythonOS/docs](documentation) been updated?
+- has [CHANGELOG.md](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/CHANGELOG.md) been updated?
+- has [MAINTAINERS.md](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/MAINTAINERS.md) been updated?
+- has the app's version number (META-INF/MANIFEST.JSON) been incremented?
+- has the [documentation](https://GitHub.com/MicroPythonOS/docs) been updated?
 
 Making sure the logic is sound:
 

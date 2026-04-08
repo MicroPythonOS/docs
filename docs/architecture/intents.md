@@ -265,7 +265,7 @@ After finish() in DetailActivity:
 
 The `ActivityNavigator` is the core routing engine that processes intents and launches activities. It handles both explicit and implicit intent resolution.
 
-**Location:** [`MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py`](MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py)
+**Location:** [`MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/activity_navigator.py)
 
 ### `startActivity(intent)`
 
@@ -344,7 +344,7 @@ class HomeActivity(Activity):
 
 The `AppManager` maintains a registry of activities and their associated actions, enabling implicit intent resolution.
 
-**Location:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py`](MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py)
+**Location:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/content/app_manager.py)
 
 ### `register_activity(action, activity_cls)`
 
@@ -610,7 +610,7 @@ class AppDetailActivity(Activity):
 
 ### Example 1: Settings App Navigation
 
-From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.settings/assets/settings.py`](MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.settings/assets/settings.py):
+From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.settings/assets/settings.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.settings/assets/settings.py):
 
 ```python
 from mpos import Intent, Activity
@@ -635,7 +635,7 @@ class SettingsActivity(Activity):
 
 ### Example 2: WiFi App with Result Handling
 
-From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py`](MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py):
+From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py):
 
 ```python
 from mpos import Intent, Activity
@@ -674,7 +674,7 @@ class EditNetwork(Activity):
 
 ### Example 3: Camera QR Scanning
 
-From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py`](MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py):
+From [`MicroPythonOS/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.wifi/assets/wifi.py):
 
 ```python
 from mpos import Intent, Activity
@@ -884,14 +884,13 @@ MicroPythonOS Intents are inspired by Android's Intent system but simplified for
 
 The Intent system is implemented across these core files:
 
-- **Intent Class:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/intent.py`](MicroPythonOS/internal_filesystem/lib/mpos/content/intent.py)
-- **ActivityNavigator:** [`MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py`](MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py)
-- **AppManager:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py`](MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py)
-- **Activity Integration:** [`MicroPythonOS/internal_filesystem/lib/mpos/app/activity.py`](MicroPythonOS/internal_filesystem/lib/mpos/app/activity.py)
+- **Intent Class:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/intent.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/content/intent.py)
+- **ActivityNavigator:** [`MicroPythonOS/internal_filesystem/lib/mpos/activity_navigator.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/activity_navigator.py)
+- **AppManager:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/content/app_manager.py)
+- **Activity Integration:** [`MicroPythonOS/internal_filesystem/lib/mpos/app/activity.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/app/activity.py)
 
 ## Related Documentation
 
 - [App Lifecycle](../apps/app-lifecycle.md) - Activity lifecycle and Intent basics
 - [AppManager](../frameworks/app-manager.md) - Intent resolution and activity registration
-- [Activity](../frameworks/activity.md) - Activity class and lifecycle methods
 - [SettingActivity](../frameworks/setting-activity.md) - Intent extras for settings configuration

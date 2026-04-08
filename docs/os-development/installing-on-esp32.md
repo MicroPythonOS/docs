@@ -5,7 +5,7 @@ But if you need to install a version that's not available there, or you built yo
 1. **Get the firmware**
 
     - Download a release binary (e.g., `MicroPythonOS_esp32_0.5.0.bin`)
-    - Or build your own [on MacOS](macos.md) or [Linux](linux.md)
+    - Or build your own [on MacOS](../os-development/macos.md) or [Linux](../os-development/macos.md)
 
 2. **Put the ESP32 in Bootloader Mode**
 
