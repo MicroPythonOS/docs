@@ -18,6 +18,10 @@ This documentation provides everything you need to get started, understand the a
 
 ## Target Audience
 
+MicroPythonOS is for everyone, from kids to seniors!
+
+This documentation specifically is written for:
+
 - **Developers**: Learn how to install, build, and extend MicroPythonOS with new apps and features.
 - **Managers**: Explore the system’s capabilities, supported hardware, and ready-to-use features for prototyping and production.
 
