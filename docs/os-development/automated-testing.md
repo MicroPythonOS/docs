@@ -42,6 +42,9 @@ The unit tests can also run on a physical device, like an ESP32 that's connected
 
 This takes quite some time, because it restarts the device before each test, to make sure there's no leftover state from a previous test lingering.
 
+Note that, since these tests are currently not automatically checked, some of these might have accidentally been broken without it being noticed.
+If you see something you can fix, feel free to do so, but you're not expected to clean up someone else's mess if you didn't break it yourself.
+
 The following assumes you have the MicroPythonOS REPL shell show up when you run mpremote.py, meaning this works:
 
 ```
