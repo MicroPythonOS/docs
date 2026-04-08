@@ -83,6 +83,7 @@ nav:
       - On MacOS: os-development/macos.md
       - On Windows: os-development/windows.md
       - Installing on ESP32: os-development/installing-on-esp32.md
+      - Testing: os-development/testing.md
       - Emulated ESP32: os-development/emulating-esp32-on-desktop.md
       - Porting Guide: os-development/porting-guide.md
   - Other:
