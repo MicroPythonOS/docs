@@ -36,7 +36,7 @@ class MyApp(Activity):
 
 ### Optional Properties
 - **`ui`** (string): UI type for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"activity"`
-- **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types
+- **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types. Each entry is a `(label, value)` tuple — the **label** is shown in the picker AND in the row's value label below the title; the **value** is what gets stored in SharedPreferences. See [Display Labels for `ui_options`](#display-labels-for-ui_options) below.
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`changed_callback`** (function): Callback function called when the setting value changes
 - **`should_show`** (function): Function to determine if this setting should be displayed in the list
@@ -106,6 +106,28 @@ Use a custom Activity class for advanced UI implementations.
     "activity_class": ColorPickerActivity
 }
 ```
+
+## Display Labels for `ui_options`
+
+For `radiobuttons` and `dropdown` settings, each entry in `ui_options` is a `(label, value)` tuple:
+
+```python
+"ui_options": [
+    ("Lightning Piggy", "lightningpiggy"),    # ← label  ← stored value
+    ("Lightning Penguin", "lightningpenguin"),
+    ("None", "none"),
+]
+```
+
+The settings-list row beneath each setting's title shows the **label** corresponding to the current stored value — not the raw value. So a row whose stored value is `"lightningpiggy"` displays "Lightning Piggy" below the title, matching what the user picked in the picker. This applies both on initial render and after a save.
+
+If the stored value isn't present in the current `ui_options` list (e.g. a stale pref from before the option set changed), the raw value is shown unchanged rather than collapsing to "(not set)" — so the user can still see and recover from a now-invalid value.
+
+Tips for choosing labels and values:
+
+- **Labels** should be human-readable with spaces, casing, and punctuation as you want them shown to the user ("Lightning Piggy", not "lightningpiggy").
+- **Values** should be machine-friendly identifiers — short, no spaces, stable across releases. They appear in SharedPreferences and in any export/import flows, so keep them URL-safe and ASCII when possible.
+- **Don't change values for existing options** without a migration. The label can change freely (it's a presentation concern); the value is the identity.
 
 ## Advanced Features
 

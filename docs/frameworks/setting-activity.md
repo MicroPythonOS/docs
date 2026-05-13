@@ -37,7 +37,7 @@ Each setting is defined as a dictionary with the following properties:
 
 ### Optional Properties
 - **`ui`** (string): UI type to use for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"activity"`
-- **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types
+- **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types. Each entry is a `(label, value)` tuple — the **label** appears on the radio button or dropdown row AND in the parent `SettingsActivity`'s value-label row beneath the title. The **value** is what gets stored in SharedPreferences. See [SettingsActivity → Display Labels for `ui_options`](settings-activity.md#display-labels-for-ui_options) for details.
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`default_value`** (string): Default value to select or fill in
 - **`changed_callback`** (function): Callback function called when the setting value changes
