@@ -35,12 +35,14 @@ class MyApp(Activity):
 - **`key`** (string): Unique identifier used as the SharedPreferences key
 
 ### Optional Properties
-- **`ui`** (string): UI type for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"activity"`
+- **`ui`** (string): UI type for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"slider"`, `"activity"`
 - **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`changed_callback`** (function): Callback function called when the setting value changes
 - **`should_show`** (function): Function to determine if this setting should be displayed in the list
 - **`dont_persist`** (bool): If `True`, the setting won't be saved to SharedPreferences
+- **`min`** (int): Minimum value for `"slider"` UI (default: `0`)
+- **`max`** (int): Maximum value for `"slider"` UI (default: `100`)
 - **`activity_class`** (class): Custom Activity class for `"activity"` UI type
 - **`value_label`** (widget): Internal reference to the value label (set by SettingsActivity)
 - **`cont`** (widget): Internal reference to the container (set by SettingsActivity)
@@ -94,7 +96,29 @@ Dropdown selection from a list of options.
 }
 ```
 
-### 4. Custom Activity
+### 4. Slider
+
+Slider widget for integer values with real-time value display.
+
+```python
+{
+    "title": "Volume",
+    "key": "volume",
+    "ui": "slider",
+    "default_value": "50",
+    "min": 0,
+    "max": 100,
+    "changed_callback": self.on_volume_changed
+}
+```
+
+**Keys:**
+- **`min`** (int, default `0`): Minimum value
+- **`max`** (int, default `100`): Maximum value
+
+See [`SettingActivity`](setting-activity.md) for full details.
+
+### 5. Custom Activity
 
 Use a custom Activity class for advanced UI implementations.
 
