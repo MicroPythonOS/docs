@@ -9,7 +9,6 @@ InputManager centralizes all input-related operations in a single class with cla
 - **Unified API** - Single class for all input management
 - **Clean Namespace** - No scattered functions cluttering imports
 - **Testable** - InputManager can be tested independently
-- **Focus Control** - Emulate focus on specific UI objects
 - **Pointer Access** - Get current touch/pointer coordinates
 - **Device Registration** - Register and query available input devices by type
 
@@ -66,12 +65,11 @@ if InputManager.has_pointer():
 ### Managing Focus
 
 ```python
-from mpos import InputManager
 import lvgl as lv
 
 focusgroup = lv.group_get_default()
 if focusgroup:
-    InputManager.emulate_focus_obj(focusgroup, my_button)
+    lv.group_focus_obj(my_button)
 ```
 
 ## API Reference
@@ -89,7 +87,7 @@ Check if any registered input device is a pointer/touch device.
 **Returns:** bool - True if a pointer device is registered
 
 #### `emulate_focus_obj(focusgroup, target)`
-Emulate setting focus to a specific object in the focus group.
+Deprecated compatibility shim. Use `lv.group_focus_obj(target)` directly.
 
 #### `register_indev(indev)`
 Register an input device for later querying by type.

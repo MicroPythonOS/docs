@@ -26,7 +26,7 @@ Here's a simple example of how to add it to your app, taken from [QuasiNametag](
          self.create_display_screen(container)
 @@ -263,6 +270,13 @@
          if focusgroup:
-             mpos.ui.focus_direction.emulate_focus_obj(focusgroup, self.display_screen)
+             lv.group_focus_obj(self.display_screen)
  
 +        print("Saving preferences...")
 +        editor = mpos.config.SharedPreferences("com.quasikili.quasinametag").edit()

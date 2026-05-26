@@ -331,7 +331,7 @@ else:
 
 ### Script Execution
 
-AppManager can execute arbitrary Python scripts with proper environment setup:
+AppManager can execute an app entrypoint module with proper environment setup:
 
 ```python
 from mpos import AppManager
@@ -339,16 +339,8 @@ from mpos import AppManager
 # Execute a script file
 success = AppManager.execute_script(
     script_source="assets/main.py",
-    is_file=True,
     classname="Main",
     cwd="apps/com.example.myapp/assets/"
-)
-
-# Execute inline script
-success = AppManager.execute_script(
-    script_source="print('Hello')",
-    is_file=False,
-    classname="Main"
 )
 ```
 
@@ -356,24 +348,14 @@ success = AppManager.execute_script(
 
 When executing a script, AppManager:
 
-1. **Reads the file** (if `is_file=True`)
-2. **Compiles the script** to bytecode
-3. **Sets up globals** with LVGL and other imports
-4. **Executes the script** in the prepared environment
-5. **Finds the main activity class** by name
-6. **Starts the activity** using the Activity framework
-7. **Restores sys.path** to clean up
+1. **Adds app assets path** to the front of `sys.path` (if `cwd` provided)
+2. **Imports the module** derived from `script_source` filename
+3. **Lets MicroPython choose** `.py` first, then `.mpy` in the same directory
+4. **Finds the main activity class** by name
+5. **Starts the activity** using the Activity framework
+6. **Restores sys.path** and module cache entry (`sys.modules`) to clean up
 
-The execution environment includes:
-
-```python
-script_globals = {
-    'lv': lv,  # LVGL module
-    '__name__': "__main__"
-}
-```
-
-If a `cwd` is provided, it's added to `sys.path` for relative imports.
+If a `cwd` is provided, it's temporarily placed first in `sys.path` for import resolution.
 
 ## Complete Example: App Store Integration
 
@@ -560,25 +542,24 @@ Start an app by fullname.
   3. Executes main activity script
   4. Shows/hides top menu bar based on app type
 
-**`execute_script(script_source, is_file, classname, cwd=None)`**
+**`execute_script(script_source, classname, cwd=None)`**
 
 Execute a Python script with proper environment.
 
 - **Parameters:**
-  - `script_source` (str): Script path (if `is_file=True`) or script code
-  - `is_file` (bool): `True` if script_source is a file path
+  - `script_source` (str): Script path used to derive module name (e.g., `assets/main.py` -> `main`)
   - `classname` (str): Name of main activity class to instantiate
   - `cwd` (str, optional): Working directory to add to sys.path
 
 - **Returns:** `bool` - `True` if successful
 
 - **Behavior:**
-  1. Reads file (if `is_file=True`)
-  2. Compiles script to bytecode
-  3. Executes in prepared environment
+  1. Temporarily prioritizes `cwd` in `sys.path` (if provided)
+  2. Imports module name derived from `script_source`
+  3. Uses normal MicroPython import precedence (`.py` then `.mpy`)
   4. Finds and instantiates main activity class
   5. Starts activity using Activity framework
-  6. Restores sys.path
+  6. Restores `sys.path` and the previous `sys.modules` entry for that module name
 
 ### Intent Resolution
 
