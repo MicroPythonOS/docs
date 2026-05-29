@@ -185,6 +185,10 @@ cp original.png 20x20/CODEPOINT.png
 
 2. The new emoji will be picked up automatically on next boot — no code changes needed.
 
+### Emoji reference
+
+For a canonical frequency-ordered listing of all available emoji codepoints, see [emoji_frequency_canonical.html](emoji_frequency_canonical.html).
+
 ## File Structure
 
 ```
