@@ -163,7 +163,7 @@ clean = FontManager.normalizeEmojiText("❤️")  # removes U+FE0F after ❤
 
 ## Emoji Assets
 
-Emoji PNGs are stored in `internal_filesystem/builtin/res/emojis/` and are included in the firmware image at `/builtin/res/emojis/` on the device filesystem:
+To keep firmware image size small, the OS bundles ~50 of the most frequently-used emoji codepoints. Individual apps can bundle additional emoji PNGs in their own assets directory. Emoji PNGs are stored in `internal_filesystem/builtin/res/emojis/` and are included in the firmware image at `/builtin/res/emojis/` on the device filesystem:
 
 ```
 builtin/res/emojis/
