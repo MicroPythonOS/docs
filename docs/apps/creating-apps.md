@@ -69,6 +69,34 @@ In `MANIFEST.JSON`, put:
 }
 ```
 
+### Services
+
+Apps can also declare **services** — background components that run at boot time with no user interface. Services are defined in the `"services"` array of the manifest:
+
+```json
+"services": [
+  {
+    "entrypoint": "assets/my_boot_service.py",
+    "classname": "MyBootService",
+    "intent_filters": [
+      {
+        "action": "boot_completed"
+      }
+    ]
+  }
+]
+```
+
+Each service entry has:
+
+| Field | Description |
+|-------|-------------|
+| `entrypoint` | Path to the Python file (relative to the app root) |
+| `classname` | Name of the `Service` subclass in that file |
+| `intent_filters` | Array of `{ "action": "..." }` objects. Use `"boot_completed"` to run at startup |
+
+Services that subscribe to `"boot_completed"` are started automatically during system boot, after the launcher is displayed. See the [Service documentation](../frameworks/service.md) for details on writing and using services.
+
 ## Icon
 
 The icon is a [simple 64x64 pixel PNG image](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.launcher/res/mipmap-mdpi/icon_64x64.png), which you can create with any tool, such as GIMP.

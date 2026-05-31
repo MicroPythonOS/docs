@@ -413,6 +413,45 @@ class NetworkAwareActivity(Activity):
 ❌ Don't assume the activity is still visible after async operations  
 ❌ Don't store references to LVGL objects after `onDestroy()`  
 
+## Services — Background Components
+
+Alongside Activities, MicroPythonOS provides **Services** for background work that runs without a user interface. Unlike Activities, Services have no screen lifecycle — they are created, started, and destroyed by intent actions (e.g., `boot_completed`).
+
+### Service Lifecycle
+
+```
+┌────────────┐
+│  onCreate  │  ← One-time initialization
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│  onStart   │  ← Receive intent, begin work
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│ onDestroy  │  ← Cleanup
+└────────────┘
+```
+
+### Service vs. Activity Comparison
+
+| Method | Activity | Service |
+|--------|----------|---------|
+| `onCreate()` | Build UI, set up screen | Initialize resources |
+| `onStart()` | Screen about to become visible | Start background work (receives Intent) |
+| `onDestroy()` | Activity removed from stack | Stop threads, cancel tasks |
+
+### When to Use a Service
+
+- Starting WiFi auto-connect at boot
+- Launching a background web server
+- Running a periodic update check
+- Starting an async REPL task
+
+Services are declared either programmatically (system services) or via `"services"` in the app's `MANIFEST.JSON`. See the [Service documentation](../frameworks/service.md) for a complete reference.
+
 ## Lifecycle Comparison with Android
 
 | MicroPythonOS | Android | Notes |
@@ -435,3 +474,4 @@ class NetworkAwareActivity(Activity):
 - [AppManager](../frameworks/app-manager.md) - App management and launching
 - [Intent System](../frameworks/app-manager.md#intent-resolution) - Intent-based navigation
 - [TaskManager](../frameworks/task-manager.md) - Async task management
+- [Service](../frameworks/service.md) - Background services for boot-time and long-running tasks

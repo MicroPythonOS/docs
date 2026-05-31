@@ -65,6 +65,7 @@ nav:
       - NumberFormat: frameworks/number-format.md
       - Preferences: frameworks/preferences.md
       - SensorManager: frameworks/sensor-manager.md
+      - Service: frameworks/service.md
       - SettingActivity: frameworks/setting-activity.md
       - SettingsActivity: frameworks/settings-activity.md
       - TaskManager: frameworks/task-manager.md

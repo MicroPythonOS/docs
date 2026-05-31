@@ -14,6 +14,7 @@ AppManager provides:
 - **Version management** - Compares versions and detects available updates
 - **Intent resolution** - Resolves activities that handle specific intents (Android-inspired)
 - **Launcher management** - Finds and restarts the system launcher
+- **Service management** - Registers, resolves, and starts boot services
 
 ## Quick Start
 
@@ -606,6 +607,54 @@ Stop all activities and restart launcher.
   2. Starts launcher app
   3. Useful for returning to home screen
 
+### Service Management
+
+**`register_service(action, service_cls, fullname=None)`**
+
+Register a service class to handle an intent action (programmatic registration, used by system services).
+
+- **Parameters:**
+  - `action` (str): Intent action (e.g., `"boot_completed"`)
+  - `service_cls` (type): Service subclass
+  - `fullname` (str, optional): App fullname to associate with the service
+
+- **Example:**
+  ```python
+  from mpos.content.app_manager import AppManager
+  from mpos import Service
+
+  class MyBootService(Service):
+      def onStart(self, intent):
+          print("Boot service started")
+
+  AppManager.register_service("boot_completed", MyBootService, fullname="com.example.myapp")
+  ```
+
+**`get_services_for_action(action)`**
+
+Resolve all services (manifest-declared and programmatically registered) that handle a given intent action.
+
+- **Parameters:**
+  - `action` (str): Intent action (e.g., `"boot_completed"`)
+
+- **Returns:** `list[(str, type)]` - List of `(app_fullname, ServiceClass)` tuples
+
+- **Behavior:**
+  1. Scans all installed apps' manifests for matching service entries
+  2. Imports each service module and extracts the class
+  3. Merges with programmatically registered services from `_service_registry`
+
+**`start_boot_services()`**
+
+Start all services that subscribe to the `boot_completed` intent. Called once during system boot after the launcher is displayed.
+
+- **Behavior:**
+  1. Calls `get_services_for_action("boot_completed")` to discover all boot services
+  2. For each service: instantiate, set `appFullName`, call `onCreate()`, then `onStart(boot_intent)`
+  3. Handles errors per-service so one failing service does not block others
+
+- **Called by:** `main.py` during system boot sequence
+
 ## Best Practices
 
 ### Do's
@@ -731,3 +780,4 @@ if app:
 - [Activity Framework](../apps/app-lifecycle.md) - Activity lifecycle and management
 - [Intent System](../architecture/intents.md) - Intent-based app communication
 - [Frameworks Overview](../architecture/frameworks.md) - All available frameworks
+- [Service](../frameworks/service.md) - Background services and boot-time execution

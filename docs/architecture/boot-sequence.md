@@ -12,11 +12,16 @@ MicroPythonOS consists of several core components that initialize and manage the
     - Mounts the freezefs into /builtin/
     - Loads the com.micropythonos.settings
     - Initializes the user interface.
-    - Starts the WiFi autoconnect thread
     - Launches the `launcher` app that shows the icons
-    - Starts the asyncio REPL
+    - Runs auto-start apps (`auto_start_app_early`, `auto_start_app`)
+    - Starts **boot services** — all services that subscribe to the `boot_completed` intent are instantiated and receive `onStart()`:
+        - `WifiBootService` — auto-connects WiFi in a background thread
+        - `WebServerBootService` — starts the HTTP web server
+        - `AIOReplService` — starts the asyncio REPL task
+        - App-specific services (e.g., `OSUpdateService`)
     - Marks the current boot as successful (cancel rollback)
-    - Starts the TaskManager
+    - Starts the TaskManager (asyncio event loop)
 
 See [Filesystem Layout](filesystem.md) for where apps and data are stored.
 
+See [Service](../frameworks/service.md) for details on writing boot services.
