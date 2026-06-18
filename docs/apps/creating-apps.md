@@ -12,14 +12,12 @@ Create the following file and folder structure:
 
 ```
 com.micropythonos.helloworld/
-├── assets/
-│   └── hello.py
-├── META-INF/
-│   └── MANIFEST.JSON
-└── res/
-    └── mipmap-mdpi/
-        └── icon_64x64.png
+├── MANIFEST.JSON
+├── icon_64x64.png
+└── hello.py
 ```
+
+This flat layout puts the required `MANIFEST.JSON` and app icon at the top level, alongside your Python files. Subfolders are still allowed if you want to organize larger apps, but **each directory costs about 8 KiB of storage in LittleFS**, so use them sparingly on device.
 
 ## App code
 
@@ -45,18 +43,18 @@ The code above creates a new screen, adds a label, sets the label text, centers 
 
 In `MANIFEST.JSON`, put:
 
-```
+```json
 {
-"name": "HelloWorld",
-"publisher": "MicroPythonOS",
-"short_description": "Minimal app",
-"long_description": "Demonstrates the simplest app.",
-"fullname": "com.micropythonos.helloworld",
-"version": "0.0.2",
-"category": "development",
-"activities": [
+  "name": "HelloWorld",
+  "publisher": "MicroPythonOS",
+  "short_description": "Minimal app",
+  "long_description": "Demonstrates the simplest app.",
+  "fullname": "com.micropythonos.helloworld",
+  "version": "0.0.2",
+  "category": "development",
+  "activities": [
     {
-      "entrypoint": "assets/hello.py",
+      "entrypoint": "hello.py",
       "classname": "Hello",
       "intent_filters": [
         {
@@ -76,7 +74,7 @@ Apps can also declare **services** — background components that run at boot ti
 ```json
 "services": [
   {
-    "entrypoint": "assets/my_boot_service.py",
+    "entrypoint": "my_boot_service.py",
     "classname": "MyBootService",
     "intent_filters": [
       {
@@ -99,7 +97,7 @@ Services that subscribe to `"boot_completed"` are started automatically during s
 
 ## Icon
 
-The icon is a [simple 64x64 pixel PNG image](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/builtin/apps/com.micropythonos.launcher/res/mipmap-mdpi/icon_64x64.png), which you can create with any tool, such as GIMP.
+The icon is a simple 64x64 pixel PNG image named `icon_64x64.png` in the app root, which you can create with any tool, such as GIMP.
 
 It's recommended to keep it as small as possible by setting compression level to 9 and not storing any metadata such as background color, resolution, creation time, comments, Exif data, XMP data, thumbnail or color profile.
 
@@ -111,9 +109,7 @@ The app can be installed by copying the top-level folder `com.micropythonos.hell
 
 ### On Desktop
 
-You probably already have a clone of the [internal_filesystem](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem) that you're using to [run MicroPythonOS on desktop](../os-development/running-on-desktop.md).
-
-Just copy or move your the top-level folder `com.micropythonos.helloworld/` (and its contents) to `internal_filesystem/apps/` and you're good to go!
+If you are [running MicroPythonOS on desktop](../os-development/running-on-desktop.md) from a source checkout, copy or move the top-level folder `com.micropythonos.helloworld/` (and its contents) to `internal_filesystem/apps/` and you're good to go.
 
 ### On ESP32
 

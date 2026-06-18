@@ -1,6 +1,6 @@
 # Service
 
-MicroPythonOS provides a **Service** framework for background operations that run independently of the UI, inspired by Android's Service model. Services are ideal for WiFi auto-connect, web server startup, async REPL tasks, periodic update checks, and similar boot-time or long-running background work.
+MicroPythonOS provides a **Service** framework for background operations that run independently of the UI, inspired by Android's Service model. Services are ideal for WiFi auto-connect, web server startup, async REPL tasks, periodic update checks, posting notifications, and similar boot-time or long-running background work.
 
 ## Overview
 
@@ -8,7 +8,7 @@ Services differ from Activities in key ways:
 
 - **No user interface** — A Service has no screen, no LVGL objects, and no lifecycle tied to visibility.
 - **Independent lifecycle** — Services are created, started, and destroyed by the system without user interaction.
-- **Boot-time execution** — Services can subscribe to the `boot_completed` intent to run automatically at system startup.
+- **Boot-time execution** — Services can subscribe to the `boot_completed` intent to run automatically at system startup. This is the primary way to register a "start at boot" receiver.
 - **Long-running** — A Service can run indefinitely (e.g., polling for updates) or terminate after completing a task.
 
 ```
@@ -76,7 +76,7 @@ Services can be registered in two ways:
 
 ### 1. Programmatic Registration (System Services)
 
-System services register themselves directly with `AppManager.register_service()` at module level:
+System services register themselves directly with `AppManager.register_service()` at module level. This is how the OS itself registers receivers for the `boot_completed` intent.
 
 ```python
 from mpos import Service
@@ -100,9 +100,11 @@ Parameters for `register_service()`:
 - `service_cls` (type) — The Service subclass.
 - `fullname` (str, optional) — App fullname to associate with the service. Defaults to `None`.
 
+This pattern is the "boot service receiver" mechanism: any `Service` class registered for `boot_completed` will be instantiated and started once the system has finished launching the launcher.
+
 ### 2. Manifest-Declared Services (App Services)
 
-Apps declare services in their `META-INF/MANIFEST.JSON` under a `"services"` array:
+Apps declare services in their `MANIFEST.JSON` under a `"services"` array:
 
 ```json
 {
@@ -111,7 +113,7 @@ Apps declare services in their `META-INF/MANIFEST.JSON` under a `"services"` arr
   "version": "0.1.5",
   "activities": [
     {
-      "entrypoint": "assets/osupdate.py",
+      "entrypoint": "osupdate.py",
       "classname": "OSUpdate",
       "intent_filters": [
         { "action": "main", "category": "launcher" }
@@ -120,7 +122,7 @@ Apps declare services in their `META-INF/MANIFEST.JSON` under a `"services"` arr
   ],
   "services": [
     {
-      "entrypoint": "assets/osupdate_boot_service.py",
+      "entrypoint": "osupdate_boot_service.py",
       "classname": "OSUpdateService",
       "intent_filters": [
         { "action": "boot_completed" }
@@ -141,7 +143,7 @@ Each service entry requires:
 The corresponding service code:
 
 ```python
-# assets/osupdate_boot_service.py
+# osupdate_boot_service.py
 from mpos import Service, ConnectivityManager, TaskManager
 
 class OSUpdateService(Service):
@@ -169,14 +171,16 @@ class OSUpdateService(Service):
 
 ## Boot Services
 
-Services that subscribe to the `boot_completed` intent are started automatically during system boot. The current boot-time service set includes:
+Services that subscribe to the `boot_completed` intent are started automatically during system boot. This applies both to system services registered programmatically with `AppManager.register_service()` and to services declared in an app's `MANIFEST.JSON`.
+
+The current boot-time service set includes:
 
 | Service | App | Purpose |
 |---------|-----|---------|
 | `WifiBootService` | `com.micropythonos.system` | Auto-connects WiFi in a background thread |
 | `WebServerBootService` | `com.micropythonos.system` | Starts the HTTP web server if enabled |
 | `AIOReplService` | `com.micropythonos.system` | Starts the asyncio REPL task for interactive debugging |
-| `OSUpdateService` | `com.micropythonos.osupdate` | Periodically checks network connectivity for OTA updates |
+| `OSUpdateService` | `com.micropythonos.osupdate` | Periodically checks for OTA updates |
 
 ### Boot Order
 
@@ -188,7 +192,7 @@ Services are started after the launcher is displayed, in this sequence:
 4. **Boot services are started** — all `boot_completed` services are instantiated and `onStart()` is called
 5. `TaskManager.start()` runs the asyncio event loop
 
-The order among boot services is non-deterministic.
+The order among boot services is non-deterministic. Each service is isolated: a failure in one service does not prevent other services from starting.
 
 ## Complete Example
 
@@ -221,14 +225,10 @@ AppManager.register_service("boot_completed", BootLogger, fullname="com.example.
 
 ```
 com.example.myapp/
-├── META-INF/
-│   └── MANIFEST.JSON      # Contains "services" array
-├── assets/
-│   ├── main.py            # Activity entry point
-│   └── my_service.py      # Service entry point
-└── res/
-    └── mipmap-mdpi/
-        └── icon_64x64.png
+├── MANIFEST.JSON          # Contains "services" array
+├── icon_64x64.png
+├── main.py                # Activity entry point
+└── my_service.py          # Service entry point
 ```
 
 ## Service vs. Activity
@@ -240,6 +240,7 @@ com.example.myapp/
 | Persistence | Exists only while in the activity stack | Can run indefinitely after boot |
 | Foreground state | Tracked via `has_foreground()` | Not applicable |
 | Thread usage | UI runs on main LVGL thread | May spawn threads or use asyncio tasks |
+| Typical use | Interactive screens | Boot receivers, background work, notifications |
 
 ## Best Practices
 
@@ -264,4 +265,5 @@ com.example.myapp/
 - [App Lifecycle](../apps/app-lifecycle.md) — Activity lifecycle for UI apps
 - [Boot Sequence](../architecture/boot-sequence.md) — Detailed boot flow
 - [TaskManager](../frameworks/task-manager.md) — Async task management for services
+- [NotificationManager](notification-manager.md) — Posting notifications from services
 - [Creating Apps](../apps/creating-apps.md) — How to add services to your app's manifest

@@ -46,6 +46,7 @@ Each setting is defined as a dictionary with the following properties:
 - **`min`** (int): Minimum value for `"slider"` UI (default: `0`)
 - **`max`** (int): Maximum value for `"slider"` UI (default: `100`)
 - **`activity_class`** (class): Custom Activity class for `"activity"` UI type
+- **`note`** (string): Optional short informational text shown below the input widget (useful for context, caveats, or privacy nudges)
 - **`value_label`** (widget): Internal reference to the value label (set by SettingsActivity)
 - **`cont`** (widget): Internal reference to the container (set by SettingsActivity)
 
@@ -196,6 +197,26 @@ setting = {
 - Must provide `activity_class` parameter
 - The custom Activity receives the setting and prefs via Intent extras
 - Must call `self.finish()` to return to the previous screen
+
+## Adding an informational note
+
+Use the optional `note` field to display a short explanation below the input widget. This is useful for privacy nudges, hardware caveats, or any context that doesn't fit in the title or placeholder.
+
+**Example:**
+```python
+setting = {
+    "title": "Wallet Type",
+    "key": "wallet_type",
+    "ui": "radiobuttons",
+    "ui_options": [
+        ("On-chain xpub", "xpub"),
+        ("Single address", "address")
+    ],
+    "note": "Tip: reusing one address erodes on-chain privacy."
+}
+```
+
+The note is rendered as small, muted, wrapping text below the radio buttons, dropdown, slider, or textarea and above the Cancel/Save row. Settings without a `note` look identical to before.
 
 ## Callbacks and Advanced Features
 

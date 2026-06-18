@@ -12,7 +12,11 @@ Just use the [WebSerial installer at install.micropythonos.com](https://install.
 
 For advanced usage, such as installing development builds without any files, see [Installing on ESP32](../os-development/installing-on-esp32.md).
 
-{!os-development/running-on-desktop.md!}
+## Running on desktop
+
+MicroPythonOS desktop builds do not require a full git clone. A single pre-built binary contains the frozen filesystem, so you can download it, make it executable, and run it.
+
+For detailed steps, see [Running on Desktop](../os-development/running-on-desktop.md).
 
 ## Next Steps
 

@@ -121,14 +121,13 @@ Each app must have this directory structure:
 
 ```
 apps/com.example.myapp/
-├── META-INF/
-│   └── MANIFEST.JSON          # App metadata
-├── assets/
-│   ├── main.py                # Main activity entry point
-│   ├── icon.png               # App icon
-│   └── ...                    # Other assets
-└── ...
+├── MANIFEST.JSON              # App metadata
+├── icon_64x64.png             # App icon
+├── main.py                    # Main activity entry point
+└── ...                        # Other files and (optional) subfolders
 ```
+
+This flat layout keeps `MANIFEST.JSON` and `icon_64x64.png` at the app root. Subfolders are still allowed for larger apps, but remember that **each directory uses roughly 8 KiB of storage in LittleFS**, so use them sparingly on device.
 
 The `MANIFEST.JSON` file contains app metadata:
 
@@ -138,10 +137,15 @@ The `MANIFEST.JSON` file contains app metadata:
   "name": "My App",
   "version": "1.0.0",
   "description": "A sample app",
-  "main_launcher_activity": {
-    "entrypoint": "assets/main.py",
-    "classname": "Main"
-  }
+  "activities": [
+    {
+      "entrypoint": "main.py",
+      "classname": "Main",
+      "intent_filters": [
+        { "action": "main", "category": "launcher" }
+      ]
+    }
+  ]
 }
 ```
 
@@ -339,9 +343,9 @@ from mpos import AppManager
 
 # Execute a script file
 success = AppManager.execute_script(
-    script_source="assets/main.py",
+    script_source="main.py",
     classname="Main",
-    cwd="apps/com.example.myapp/assets/"
+    cwd="apps/com.example.myapp/"
 )
 ```
 
@@ -548,7 +552,7 @@ Start an app by fullname.
 Execute a Python script with proper environment.
 
 - **Parameters:**
-  - `script_source` (str): Script path used to derive module name (e.g., `assets/main.py` -> `main`)
+  - `script_source` (str): Script path used to derive module name (e.g., `main.py` -> `main`)
   - `classname` (str): Name of main activity class to instantiate
   - `cwd` (str, optional): Working directory to add to sys.path
 

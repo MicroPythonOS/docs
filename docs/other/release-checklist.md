@@ -8,7 +8,7 @@ Follow these steps to create a new release of MicroPythonOS.
    - Update version numbers for modified apps:
 
 ```
-git diff --stat 0.6.0 internal_filesystem/  # Check changes since last release, make sure each app change is accompanied by a META-INF/MANIFEST.json change
+git diff --stat 0.6.0 internal_filesystem/  # Check changes since last release, make sure each app change is accompanied by a MANIFEST.json change
 ```
 
 **Update Changelog**:

@@ -44,6 +44,7 @@ class MyApp(Activity):
 - **`min`** (int): Minimum value for `"slider"` UI (default: `0`)
 - **`max`** (int): Maximum value for `"slider"` UI (default: `100`)
 - **`activity_class`** (class): Custom Activity class for `"activity"` UI type
+- **`note`** (string): Optional short informational text shown when editing the individual setting (see [SettingActivity](setting-activity.md#adding-an-informational-note))
 - **`value_label`** (widget): Internal reference to the value label (set by SettingsActivity)
 - **`cont`** (widget): Internal reference to the container (set by SettingsActivity)
 

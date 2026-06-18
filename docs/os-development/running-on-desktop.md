@@ -1,36 +1,39 @@
 ## Running on desktop
 
-1. **Make sure you have the `internal_filesystem/` folder**
+Desktop builds of MicroPythonOS can run without a local source checkout. The `internal_filesystem/` is frozen into the binary at build time, so a single pre-built executable is enough to try the OS.
 
-    If you built from source, you will already have a local clone that contains it.
+### Download a pre-built binary
 
-    If you'll be using a pre-built binary, you can download the accompanying "Source code" zip from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases) or the [main branch](https://github.com/MicroPythonOS/MicroPythonOS/archive/refs/heads/main.zip) and extract it.
+1. Go to the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+2. Download the binary for your platform:
+   - Linux / WSL2 on Windows: `lvgl_micropy_unix`
+   - macOS (Apple Silicon or Intel): `lvgl_micropy_macOS`
+3. Make it executable:
 
-2. **Make sure you have the software**
+```
+chmod +x lvgl_micropy_unix
+```
 
-    The easiest is to downloaded a pre-built binary (like `MicroPythonOS_arm64_macOS_0.9.0.bin` or `MicroPythonOS_x64_linux_0.9.0.elf`) from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
-    
-    After downloading it, put it in the right location like this:
+4. Place it where `scripts/run_desktop.sh` expects it. The script looks for:
+   - `lvgl_micropython/build/lvgl_micropy_unix` on Linux
+   - `lvgl_micropython/build/lvgl_micropy_macOS` on macOS
 
-    <pre>
-    ```
-    mkdir -p lvgl_micropython/build # do this from the top level folder MicroPythonOS from step 1
-    cp /Users/yourname/MicroPythonOS_amd64_macOS_0.7.1.bin lvgl_micropython/build/lvgl_micropy_macOS # for macOS
-    cp /home/yourname/MicroPythonOS_amd64_linux_0.7.1.elf lvgl_micropython/build/lvgl_micropy_unix # for Linux or WSL2 on Windows 11
-    ``` 
-    </pre>
+You can create that folder and copy the binary there:
 
-    Alternatively, instead of downloading a pre-built binary, you can [build it from source](../os-development/compiling.md), and then you will have the built binary in `lvgl_micropython/build/lvgl_micropy_XXX` where XXX is unix or macOS.
+```
+mkdir -p lvgl_micropython/build
+cp /path/to/downloaded/lvgl_micropy_unix lvgl_micropython/build/lvgl_micropy_unix
+```
 
-3. **Start the software:**
-    
-    You're now ready to run it with:
+5. Run it:
 
-    <pre>
-    ```
-    ./scripts/run_desktop.sh
-    ```
-    </pre>
+```
+./scripts/run_desktop.sh
+```
+
+### Build from source
+
+If you want to modify the OS itself or run the very latest code, you can [build it from source](compiling.md). The built binary will already be in `lvgl_micropython/build/lvgl_micropy_XXX` where `XXX` is `unix` or `macOS`.
 
 ### Notes on MacOS
 
@@ -43,9 +46,7 @@ If you get an error about the code being unsigned, then allow it like this:
 
 ## Making Changes on Desktop
 
-You'll notice that whenever you change a file in `internal_filesystem/`, the changes are immediately visible on desktop when you reload the file or restart the app.
-
-When you run `./scripts/run_desktop.sh`, the OS runs the MicroPythonOS scripts **directly from `internal_filesystem/`**. This means:
+If you do have a source checkout, you can still run the OS directly from `internal_filesystem/`. When you run `./scripts/run_desktop.sh`, the OS runs the MicroPythonOS scripts **directly from `internal_filesystem/`**. This means:
 
 - **All changes to Python files are immediately active** - no build or install needed
 - **Instant testing** - edit a file, restart the app, see the changes
@@ -64,5 +65,4 @@ When you run `./scripts/run_desktop.sh`, the OS runs the MicroPythonOS scripts *
 Once you've tested your changes on desktop and they work correctly, or you're doing things you can't test on desktop, then you can deploy to physical hardware.
 
 {!os-development/installing-on-esp32.md!}
-
 

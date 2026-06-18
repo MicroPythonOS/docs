@@ -62,6 +62,7 @@ nav:
       - DownloadManager: frameworks/download-manager.md
       - InputManager: frameworks/input-manager.md
       - LightsManager: frameworks/lights-manager.md
+      - NotificationManager: frameworks/notification-manager.md
       - NumberFormat: frameworks/number-format.md
       - Preferences: frameworks/preferences.md
       - SensorManager: frameworks/sensor-manager.md
