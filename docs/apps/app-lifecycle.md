@@ -140,6 +140,32 @@ def onPause(self, screen):
 
 **Important:** Call `super().onPause(screen)` to properly track foreground state.
 
+### onBackPressed(screen)
+
+Called when the user performs the back/close gesture (e.g. swiping from the left edge) **before** the activity is paused. This is the right place to ask the user for confirmation when there is unsaved work.
+
+Return `True` to consume the event and keep the activity in the foreground. In that case the activity is responsible for calling `finish()` later when it is ready to close. Return `False` (the default) to let the framework finish the activity normally.
+
+```python
+def onBackPressed(self, screen):
+    if self._has_unsaved_changes():
+        # Show a dialog; return True so the activity stays alive
+        self._show_exit_confirm()
+        return True
+    return False
+```
+
+In the dialog callback, call `self.finish()` to actually close the activity:
+
+```python
+def _on_exit_confirmed(self, dialog):
+    dialog.close()
+    self._save_changes()
+    self.finish()
+```
+
+**Important:** `finish()` does **not** call `onBackPressed()` again, so your dialog callbacks can safely call it.
+
 ### onStop(screen)
 
 Called when the activity is no longer visible (fully covered by another activity).
@@ -189,7 +215,7 @@ Activity Stack:
 
 1. **Starting a new activity:** Current activity receives `onPause()` → `onStop()`, new activity receives `onCreate()` → `onStart()` → `onResume()`
 
-2. **Going back:** Current activity receives `onPause()` → `onStop()` → `onDestroy()`, previous activity receives `onResume()`
+2. **Going back:** Framework first calls `onBackPressed()`. If it returns `True`, the activity stays foreground and must call `finish()` itself when ready. If it returns `False`, the current activity receives `onPause()` → `onStop()` → `onDestroy()`, and the previous activity receives `onResume()`
 
 ## Starting Activities
 
@@ -404,6 +430,8 @@ class NetworkAwareActivity(Activity):
 ✅ Check `has_foreground()` before updating UI from async operations  
 ✅ Use `setContentView()` at the end of `onCreate()`  
 ✅ Clean up resources in `onDestroy()`  
+✅ Use `onBackPressed()` to ask before discarding unsaved changes  
+
 
 ### Don'ts
 
@@ -412,6 +440,8 @@ class NetworkAwareActivity(Activity):
 ❌ Don't update UI from background threads without `update_ui_threadsafe_if_foreground()`  
 ❌ Don't assume the activity is still visible after async operations  
 ❌ Don't store references to LVGL objects after `onDestroy()`  
+❌ Don't show back-navigation confirmation dialogs in `onPause()` - use `onBackPressed()` instead  
+
 
 ## Services — Background Components
 
@@ -460,6 +490,7 @@ Services are declared either programmatically (system services) or via `"service
 | `onStart(screen)` | `onStart()` | MicroPythonOS passes screen |
 | `onResume(screen)` | `onResume()` | MicroPythonOS passes screen |
 | `onPause(screen)` | `onPause()` | MicroPythonOS passes screen |
+| `onBackPressed(screen)` | `onBackPressed()` | MicroPythonOS passes screen; called before `onPause()` on back gesture |
 | `onStop(screen)` | `onStop()` | MicroPythonOS passes screen |
 | `onDestroy(screen)` | `onDestroy()` | MicroPythonOS passes screen |
 | `finish()` | `finish()` | Same purpose |

@@ -11,6 +11,10 @@ App discovery is currently done by downloading the app list from [apps.micropyth
 - **Image Viewer**: Displays images stored in `/data/images/`.
 - **IMU**: Visualize data from the Intertial Measurement Unit, also known as the accellerometer.
 
+## Image Viewer
+
+The **Image Viewer** app displays images stored in `/data/images/`. See [Supported File Formats](../other/supported-file-formats.md) for the list of image formats the OS can decode.
+
 ## Screenshots
 
 <div class="grid">

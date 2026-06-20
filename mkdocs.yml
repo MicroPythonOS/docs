@@ -92,6 +92,7 @@ nav:
   - Other:
       - Release Process: other/release-checklist.md
       - Merge Checklist: other/merge-checklist.md
+      - Supported File Formats: other/supported-file-formats.md
 extra:
   social:
     - icon: fontawesome/brands/github

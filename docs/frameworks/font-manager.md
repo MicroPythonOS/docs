@@ -1,13 +1,13 @@
 # FontManager
 
-FontManager is a singleton framework for loading, caching, and composing LVGL fonts — including built-in bitmap fonts, TrueType fonts, and emoji image fonts. It uses LVGL's imgfont fallback mechanism to render 20×20 emoji PNGs inline with text, with nearest-neighbour scaling to match any font size.
+FontManager is a singleton framework for loading, caching, and composing LVGL fonts — including built-in bitmap fonts, TrueType fonts, and emoji image fonts. It uses LVGL's imgfont fallback mechanism to render 32×32 emoji PNGs inline with text, with nearest-neighbour scaling to match any font size.
 
 ## Overview
 
 FontManager centralizes all font concerns in a single class:
 
 - **Unified API** - One call (`getFont`) to get any font, with or without emoji support
-- **Emoji Compositing** - Transparently layers 20×20 emoji PNGs via LVGL's imgfont fallback, with nearest-neighbour scaling to match any font size
+- **Emoji Compositing** - Transparently layers 32×32 emoji PNGs via LVGL's imgfont fallback, with nearest-neighbour scaling to match any font size
 - **Lazy Caching** - Fonts and scaled image descriptors are cached on first use; no redundant work on subsequent calls
 - **Android-Inspired** - Follows the same singleton/class-method pattern as other MicroPythonOS frameworks
 
@@ -29,9 +29,13 @@ ttf_font = FontManager.getFont(size=42, ttf="M:apps/com.myapp/assets/MyFont.ttf"
 for info in FontManager.listFonts():
     print(info["name"], info["size"])
 
-# Get all available emoji codepoints
+# Get all available emoji codepoints (base codepoints only)
 for cp in FontManager.getEmojiCodepoints():
     print(hex(cp))
+
+# Get all available emoji strings (full sequences, including flag pairs)
+for s in FontManager.getEmojiStrings():
+    print(s)
 ```
 
 ## Architecture
@@ -56,9 +60,9 @@ Emoji PNGs are stored in `builtin/res/emojis/`:
 
 | Directory | Used for |
 |-----------|----------|
-| `20x20/`  | All fonts — emoji are rendered at 20×20 px and nearest-neighbour scaled up or down by LVGL as needed |
+| `32x32/`  | All fonts — emoji are rendered at 32×32 px and nearest-neighbour scaled up or down by LVGL as needed |
 
-`_imgfont_path_cb` receives the rendering font's pixel height and returns the 20×20 emoji source. LVGL's software renderer performs nearest-neighbour scaling to fit the target font size.
+`_imgfont_path_cb` receives the rendering font's pixel height and returns the 32×32 emoji source. LVGL's software renderer performs nearest-neighbour scaling to fit the target font size.
 
 ### Caching layers
 
@@ -66,7 +70,8 @@ Emoji PNGs are stored in `builtin/res/emojis/`:
 |-------|-----|-------|
 | `_composed_font_cache` | `(font_id, emoji_size)` | Composed imgfont object |
 | `_ttf_font_cache` | `(path, size)` | `lv.tiny_ttf_create_file` result |
-| `_emoji_maps` | `dir_name` | `{codepoint: src_path}` dict |
+| `_emoji_map` | (none) | `{codepoint: src_path}` dict |
+| `_emoji_strings` | (none) | Sorted list of complete emoji strings |
 | `_imgfont_scaled_src_cache` | `(src, target_height)` | Scaled `lv.image_dsc_t` or original src |
 | `_imgfont_source_size_cache` | `src` | `(width, height)` tuple |
 | `_imgfont_empty_src_cache` | `target_height` | 1×h transparent `lv.image_dsc_t` |
@@ -128,7 +133,9 @@ for info in FontManager.listFonts(emojis=True):
 
 ### `getEmojiCodepoints()`
 
-Return a sorted list of all available emoji codepoints.
+Return a sorted list of the base emoji codepoints available in the emoji map.
+
+For multi-codepoint emoji such as flag sequences (e.g. `"🇸🇻"`), only the first codepoint is returned. Use `getEmojiStrings()` when you need complete, renderable emoji sequences.
 
 **Returns:** list of int
 
@@ -139,6 +146,25 @@ from mpos import FontManager
 
 for cp in FontManager.getEmojiCodepoints():
     print(hex(cp), chr(cp))
+```
+
+---
+
+### `getEmojiStrings()`
+
+Return a sorted list of all available, complete emoji strings.
+
+Unlike `getEmojiCodepoints()`, this returns full sequences: flag emoji include both regional indicators, and emoji with variation selectors keep their trailing selector. This is the preferred API for building a visual list of every supported emoji.
+
+**Returns:** list of str
+
+**Example:**
+
+```python
+from mpos import FontManager
+
+for s in FontManager.getEmojiStrings():
+    print(s)
 ```
 
 ---
@@ -167,20 +193,21 @@ To keep firmware image size small, the OS bundles ~50 of the most frequently-use
 
 ```
 builtin/res/emojis/
-└── 20x20/       # Pre-rendered at 20×20 px
+└── 32x32/       # Pre-rendered at 32×32 px
     ├── 1F600.png
-    ├── 263A.png
+    ├── 1F3CE-FE0F.png
+    ├── 1F1F8-1F1FB.png
     └── ...
 ```
 
-Files are named by their Unicode codepoint in uppercase hex (e.g. `1F600.png` for 😀). FontManager scans the directory at runtime and builds a `{codepoint: path}` map.
+Files are named by their Unicode codepoint(s) in uppercase hex, with multiple codepoints joined by `-` (e.g. `1F600.png` for 😀, `1F3CE-FE0F.png` for 🏎️, `1F1F8-1F1FB.png` for 🇸🇻). FontManager scans the directory at runtime and builds a `{codepoint: path}` map.
 
 ### Adding new emoji
 
-1. Add a PNG named `<CODEPOINT_HEX>.png` to `20x20/`:
+1. Add a PNG named `<CODEPOINT_HEX>.png` to `32x32/`:
 
 ```bash
-cp original.png 20x20/CODEPOINT.png
+cp original.png 32x32/CODEPOINT.png
 ```
 
 2. The new emoji will be picked up automatically on next boot — no code changes needed.
@@ -196,7 +223,7 @@ internal_filesystem/
 ├── lib/mpos/ui/
 │   └── font_manager.py      # FontManager class
 └── builtin/res/emojis/
-    └── 20x20/               # 20×20 px emoji PNGs
+    └── 32x32/               # 32×32 px emoji PNGs
 ```
 
 ## Related Frameworks
