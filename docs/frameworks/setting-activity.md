@@ -4,7 +4,9 @@
 
 ## Overview
 
-`SettingActivity` displays a single setting that the user can modify. The setting is passed via Intent extras and can be configured with different UI types. When the user saves the setting, it's automatically persisted to SharedPreferences (unless `dont_persist` is set to true).
+`SettingActivity` is a thin wrapper around [`InputActivity`](input-activity.md). It passes the setting metadata and current value to `InputActivity`, waits for the user to save or cancel, then persists the returned value to `SharedPreferences` (unless `dont_persist` is set to true). It also updates the value label in `SettingsActivity` and fires `changed_callback` when the value changes.
+
+If you only need the input UI without persistence (for example, a WiFi password prompt), use [`InputActivity`](input-activity.md) directly.
 
 ## Basic Usage
 
@@ -393,3 +395,14 @@ class AppStore(Activity):
 5. **Provide meaningful placeholders**: Help users understand what format is expected with clear placeholder text.
 
 6. **Consider conditional visibility**: Use `should_show` in SettingsActivity to hide settings that don't apply based on other settings.
+
+## How it works
+
+When `SettingActivity` is launched, it:
+
+1. Reads the current value from `SharedPreferences`.
+2. Starts [`InputActivity`](input-activity.md) with the setting metadata and current value.
+3. Receives the new value when the user saves.
+4. Persists the value, updates the settings row label, and calls `changed_callback`.
+
+The `SettingActivity` API visible to apps is unchanged; existing settings code continues to work exactly as before.

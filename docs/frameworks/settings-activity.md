@@ -4,7 +4,7 @@
 
 ## Overview
 
-`SettingsActivity` displays a list of settings that users can browse and edit. When a user taps on a setting, it opens a [`SettingActivity`](setting-activity.md) for editing that individual setting. After editing, the value is automatically saved to SharedPreferences and the list is updated.
+`SettingsActivity` displays a list of settings that users can browse and edit. When a user taps on a setting, it opens a [`SettingActivity`](setting-activity.md) for editing that individual setting. `SettingActivity` internally uses [`InputActivity`](input-activity.md) for the actual input UI, then persists the returned value to `SharedPreferences` and updates the list.
 
 ## Basic Usage
 
@@ -396,4 +396,5 @@ SettingsActivity displays settings in a scrollable list with the following layou
 ## See Also
 
 - [`SettingActivity`](setting-activity.md) - For editing a single setting
+- [`InputActivity`](input-activity.md) - Generic input UI used by `SettingActivity`
 - [`SharedPreferences`](preferences.md) - For persisting settings
