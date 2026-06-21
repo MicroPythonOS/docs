@@ -198,6 +198,33 @@ if ConnectivityManager.is_online():
     print("Connected to network")
 ```
 
+### FileExplorerActivity
+Reusable file browser and picker activity. Can browse the filesystem or return selected files to the caller via `startActivityForResult`.
+
+```python
+from mpos import Intent, FileExplorerActivity, Activity
+
+class MyActivity(Activity):
+    def pick_file(self):
+        intent = Intent(action="pick_file")
+        intent.putExtra("mode", "pick")
+        intent.putExtra("path_pattern", [".wav"])
+        self.startActivityForResult(intent, self.on_file_picked)
+```
+
+See [FileExplorerActivity](../frameworks/file-explorer-activity.md) for details.
+
+### Focus Borders
+Provides a single helper, `add_focus_border`, for drawing a focus border around any widget. It replaces the duplicated `FOCUSED`/`DEFOCUSED` handlers that used to exist in many apps.
+
+```python
+from mpos import add_focus_border
+
+add_focus_border(button, width=2)
+```
+
+See [Focus Borders](../frameworks/focus.md) for details.
+
 ### CameraManager
 Provides access to camera hardware.
 

@@ -95,6 +95,61 @@ Each service entry has:
 
 Services that subscribe to `"boot_completed"` are started automatically during system boot, after the launcher is displayed. See the [Service documentation](../frameworks/service.md) for details on writing and using services.
 
+## Handling the view action
+
+Apps can register themselves as file viewers by declaring an `intent_filter` with `action: "view"` and a `pathPattern` list in `MANIFEST.JSON`. This lets other apps (and the built-in `FileExplorerActivity`) open files with your app.
+
+### Manifest example
+
+```json
+{
+  "fullname": "com.example.imageviewer",
+  "name": "Image Viewer",
+  "version": "1.0.0",
+  "activities": [
+    {
+      "entrypoint": "imageview.py",
+      "classname": "ImageView",
+      "intent_filters": [
+        { "action": "main", "category": "launcher" },
+        { "action": "view", "mimeType": "image/*", "pathPattern": [".png", ".jpg", ".jpeg"] }
+      ]
+    }
+  ]
+}
+```
+
+`pathPattern` entries are matched case-insensitively against the file extension. A leading `*` is optional. `mimeType` is recorded for documentation but is not used for matching.
+
+### Receiving the file
+
+When the system opens your activity via the `view` action, the file path is available in `intent.data` and also in the `filename` extra:
+
+```python
+from mpos import Activity
+
+class ImageView(Activity):
+    def onResume(self, screen):
+        super().onResume(screen)
+        path = self.getIntent().extras.get("filename") or self.getIntent().data
+        if path:
+            self.open_image(path)
+```
+
+### Opening a file from your app
+
+To open a file in whatever app is registered for it, send a `view` intent:
+
+```python
+from mpos import Intent, Activity
+
+class MyActivity(Activity):
+    def on_file_click(self, path):
+        self.startActivity(Intent(action="view", data=path))
+```
+
+If multiple apps can handle the file type, MicroPythonOS automatically shows an "Open with" chooser.
+
 ## Icon
 
 The icon is a simple 64x64 pixel PNG image named `icon_64x64.png` in the app root, which you can create with any tool, such as GIMP.

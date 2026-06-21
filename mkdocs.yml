@@ -60,6 +60,8 @@ nav:
       - DisplayMetrics: frameworks/display-metrics.md
       - FontManager: frameworks/font-manager.md
       - DownloadManager: frameworks/download-manager.md
+      - FileExplorerActivity: frameworks/file-explorer-activity.md
+      - Focus: frameworks/focus.md
       - InputManager: frameworks/input-manager.md
       - LightsManager: frameworks/lights-manager.md
       - NotificationManager: frameworks/notification-manager.md

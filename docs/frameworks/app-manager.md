@@ -12,7 +12,7 @@ AppManager provides:
 - **App uninstallation** - Removes user-installed apps (preserves built-in apps)
 - **App launching** - Starts apps with proper environment setup and activity management
 - **Version management** - Compares versions and detects available updates
-- **Intent resolution** - Resolves activities that handle specific intents (Android-inspired)
+- **Intent resolution** - Resolves activities that handle specific intents, including manifest-declared file-type handlers (Android-inspired)
 - **Launcher management** - Finds and restarts the system launcher
 - **Service management** - Registers, resolves, and starts boot services
 
@@ -250,11 +250,21 @@ AppManager.uninstall_app("com.example.myapp")
 
 ## Intent Resolution
 
-AppManager implements Android-inspired intent resolution for activity discovery:
+AppManager implements Android-inspired intent resolution for activity discovery. It supports both programmatic registration and manifest-declared file-type handlers.
+
+### HandlerInfo
+
+`resolve_activity()` and `query_intent_activities()` return a list of `HandlerInfo` objects:
+
+```python
+class HandlerInfo:
+    activity_class  # Activity subclass that can handle the intent
+    app_fullname    # Owning app fullname, or None for framework handlers
+```
 
 ### Registering Activities
 
-Activities register themselves with AppManager to handle specific intents:
+Activities can be registered programmatically. This is commonly used by framework components:
 
 ```python
 from mpos import AppManager
@@ -267,23 +277,57 @@ class ShareActivity(Activity):
 AppManager.register_activity("android.intent.action.SEND", ShareActivity)
 ```
 
+Apps can also declare handlers in `MANIFEST.JSON` so they are discovered during `refresh_apps()`:
+
+```json
+{
+  "activities": [
+    {
+      "entrypoint": "imageview.py",
+      "classname": "ImageView",
+      "intent_filters": [
+        { "action": "view", "pathPattern": [".png", ".jpg", ".jpeg"] }
+      ]
+    }
+  ]
+}
+```
+
 ### Resolving Intents
 
 ```python
 from mpos import AppManager, Intent
 
-# Create an intent
+# Generic action: find all registered handlers
 intent = Intent(action="android.intent.action.SEND")
+handlers = AppManager.resolve_activity(intent)
 
-# Find all activities that handle this intent
-activities = AppManager.resolve_activity(intent)
-
-# Or use the Android-like method name
-activities = AppManager.query_intent_activities(intent)
-
-for activity_class in activities:
-    print(f"Activity: {activity_class.__name__}")
+for handler in handlers:
+    print(f"Handler: {handler.activity_class.__name__}")
+    if handler.app_fullname:
+        print(f"  from app: {handler.app_fullname}")
 ```
+
+When `intent.data` is a string path, MicroPythonOS preferentially returns manifest handlers whose `pathPattern` matches the file extension. If no file handler matches, it falls back to generic handlers registered for that action.
+
+```python
+from mpos import AppManager, Intent
+
+# File-type intent: resolved to matching manifest handler(s)
+intent = Intent(action="view", data="/data/photo.jpg")
+handlers = AppManager.resolve_activity(intent)
+
+if not handlers:
+    print("No handler for this file")
+elif len(handlers) == 1:
+    print(f"Opening with {handlers[0].activity_class.__name__}")
+else:
+    print(f"Multiple handlers; ChooserActivity will be shown")
+```
+
+### pathPattern matching
+
+`pathPattern` may be a string or a list of strings. Matching is case-insensitive and suffix-based. A leading `*` is optional, so `".wav"` and `"*.wav"` are equivalent.
 
 ## Launcher Management
 
@@ -532,19 +576,20 @@ Check if user app overrides a built-in app.
 
 ### App Execution
 
-**`start_app(fullname)`**
+**`start_app(fullname, intent=None)`**
 
 Start an app by fullname.
 
 - **Parameters:**
   - `fullname` (str): App fullname
+  - `intent` (Intent, optional): Intent to deliver to the app's main launcher activity
 
 - **Returns:** `bool` - `True` if successful
 
 - **Behavior:**
   1. Sets app as foreground
   2. Loads app metadata
-  3. Executes main activity script
+  3. Executes main activity script with the provided intent
   4. Shows/hides top menu bar based on app type
 
 **`execute_script(script_source, classname, cwd=None)`**
@@ -570,7 +615,7 @@ Execute a Python script with proper environment.
 
 **`register_activity(action, activity_cls)`**
 
-Register activity to handle intent action.
+Register an activity programmatically to handle an intent action.
 
 - **Parameters:**
   - `action` (str): Intent action (e.g., `"android.intent.action.SEND"`)
@@ -578,12 +623,17 @@ Register activity to handle intent action.
 
 **`resolve_activity(intent)`**
 
-Find activities that handle intent.
+Find handlers that can handle the intent.
 
 - **Parameters:**
   - `intent` (Intent): Intent object with `action` attribute
 
-- **Returns:** `list[type]` - List of Activity classes
+- **Returns:** `list[HandlerInfo]` - List of handler descriptors
+
+- **Behavior:**
+  1. If `intent.data` is a string path, searches installed app manifests for matching `pathPattern` filters.
+  2. Returns matching manifest handlers if any are found.
+  3. Otherwise returns all generic handlers registered for the action.
 
 **`query_intent_activities(intent)`**
 
@@ -592,7 +642,16 @@ Same as `resolve_activity()` (Android-like naming).
 - **Parameters:**
   - `intent` (Intent): Intent object
 
-- **Returns:** `list[type]` - List of Activity classes
+- **Returns:** `list[HandlerInfo]` - List of handler descriptors
+
+**`get_handler_display_name(activity_class)`**
+
+Return a human-readable name for a resolved handler class. For manifest handlers this is the owning app's display name; for framework handlers it is the class name.
+
+- **Parameters:**
+  - `activity_class` (type): Activity class from a `HandlerInfo`
+
+- **Returns:** `str` - Display name
 
 ### Launcher Management
 

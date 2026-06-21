@@ -80,6 +80,61 @@ class HomeActivity(Activity):
         # Or launches directly if only one handler
 ```
 
+### File-type intents and the view action
+
+A common implicit intent is the `view` action, which asks the system to open a file with the most appropriate app. Apps declare which file types they can open by adding an `intent_filter` with `action: "view"` and a `pathPattern` list to their manifest. `pathPattern` entries are matched case-insensitively against the file extension; a leading `*` is optional.
+
+**Example manifest declaring an image viewer:**
+
+```json
+{
+  "fullname": "com.example.imageviewer",
+  "name": "Image Viewer",
+  "version": "1.0.0",
+  "activities": [
+    {
+      "entrypoint": "imageview.py",
+      "classname": "ImageView",
+      "intent_filters": [
+        { "action": "main", "category": "launcher" },
+        { "action": "view", "mimeType": "image/*", "pathPattern": [".png", ".jpg", ".jpeg", ".raw"] }
+      ]
+    }
+  ]
+}
+```
+
+**Opening a file from another app:**
+
+```python
+from mpos import Intent, Activity
+
+class GalleryActivity(Activity):
+    def on_photo_selected(self, path):
+        self.startActivity(Intent(action="view", data=path))
+```
+
+**Receiving a file in the target app:**
+
+```python
+from mpos import Activity
+
+class ImageView(Activity):
+    def onResume(self, screen):
+        path = self.getIntent().extras.get("filename") or self.getIntent().data
+        if path:
+            self.load_image(path)
+```
+
+When a `view` intent is fired:
+
+1. `AppManager.resolve_activity()` looks for installed apps whose manifest `pathPattern` matches the file path.
+2. If one or more specific handlers match, those handlers are returned.
+3. If multiple handlers match, `ChooserActivity` shows an "Open with" dialog.
+4. If no specific handler matches, the system falls back to generic handlers registered for `view`, such as the framework's built-in `ViewActivity`.
+
+The framework `ViewActivity` provides a last-resort preview for unknown files by reading and displaying the first 512 bytes as text.
+
 ## Intent Class Reference
 
 ### Constructor
@@ -342,13 +397,24 @@ class HomeActivity(Activity):
 
 ## AppManager Intent Resolution
 
-The `AppManager` maintains a registry of activities and their associated actions, enabling implicit intent resolution.
+The `AppManager` maintains a registry of activities and their associated actions, enabling implicit intent resolution. Resolution works for both programmatically registered handlers and handlers declared in app manifests.
 
 **Location:** [`MicroPythonOS/internal_filesystem/lib/mpos/content/app_manager.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/lib/mpos/content/app_manager.py)
 
+### HandlerInfo
+
+`resolve_activity()` returns a list of `HandlerInfo` objects rather than raw activity classes:
+
+| Attribute | Type | Purpose |
+|-----------|------|---------|
+| `activity_class` | `type` | The `Activity` subclass that can handle the intent. |
+| `app_fullname` | `str` or `None` | The owning app's fullname for manifest-declared handlers, or `None` for framework handlers. |
+
+Use `handler.activity_class` when inspecting a resolved handler and `handler.app_fullname` when you need to know which installed app provided it.
+
 ### `register_activity(action, activity_cls)`
 
-Register an activity to handle a specific action.
+Register an activity programmatically to handle a specific action. This is useful for framework activities and dynamic handlers.
 
 **Parameters:**
 
@@ -363,35 +429,58 @@ from mpos import AppManager
 # Register handlers for SEND action
 AppManager.register_activity("android.intent.action.SEND", ShareActivity)
 AppManager.register_activity("android.intent.action.SEND", EmailActivity)
-
-# Register handler for VIEW action
-AppManager.register_activity("android.intent.action.VIEW", BrowserActivity)
 ```
+
+### Manifest-based file handlers
+
+Apps declare file-type handlers in `MANIFEST.JSON`. When an implicit intent carries a string `data` payload (usually a file path), MicroPythonOS preferentially returns handlers whose `pathPattern` matches the path.
+
+```json
+{
+  "activities": [
+    {
+      "entrypoint": "player.py",
+      "classname": "Player",
+      "intent_filters": [
+        { "action": "view", "mimeType": "audio/wav", "pathPattern": [".wav"] }
+      ]
+    }
+  ]
+}
+```
+
+- `pathPattern` may be a single string or a list of strings.
+- Matching is case-insensitive and suffix-based; `"*.wav"` and `".wav"` are equivalent.
+- `mimeType` is recorded but is not currently used for matching.
 
 ### `resolve_activity(intent)`
 
-Find all activities that handle an intent's action.
+Find all handlers that can handle an intent's action, with file-type preference when `intent.data` is a path.
 
 **Parameters:**
 
-- `intent` (Intent): Intent with action attribute
+- `intent` (Intent): Intent with `action` attribute
 
-**Returns:** List of Activity classes (empty if no handlers)
+**Returns:** List of `HandlerInfo` objects (empty if no handlers)
+
+**Resolution order:**
+
+1. If `intent.data` is a string and one or more manifest file handlers match its extension, return only those handlers.
+2. If no file handler matches, return all generic handlers registered for the action.
+3. If the list contains multiple handlers, the framework shows `ChooserActivity`.
 
 **Example:**
 
 ```python
 from mpos import Intent, AppManager
 
-intent = Intent(action="android.intent.action.SEND")
+intent = Intent(action="view", data="/data/audio/song.wav")
 handlers = AppManager.resolve_activity(intent)
 
-if len(handlers) == 0:
-    print("No handler for SEND action")
-elif len(handlers) == 1:
-    print(f"Single handler: {handlers[0]}")
-else:
-    print(f"Multiple handlers: {handlers}")
+for handler in handlers:
+    print(f"Handler: {handler.activity_class.__name__}")
+    if handler.app_fullname:
+        print(f"  from app: {handler.app_fullname}")
 ```
 
 ### `query_intent_activities(intent)`
@@ -400,16 +489,16 @@ Android-compatible alias for `resolve_activity()`. Identical behavior.
 
 **Parameters:**
 
-- `intent` (Intent): Intent with action attribute
+- `intent` (Intent): Intent object with `action` attribute
 
-**Returns:** List of Activity classes
+**Returns:** List of `HandlerInfo` objects
 
 **Example:**
 
 ```python
 from mpos import Intent, AppManager
 
-intent = Intent(action="android.intent.action.SEND")
+intent = Intent(action="view", data="/data/notes.txt")
 handlers = AppManager.query_intent_activities(intent)
 ```
 
@@ -548,7 +637,37 @@ class HomeActivity(Activity):
 
 ---
 
-### Pattern 5: Method Chaining
+### Pattern 5: Open a File with the View Action
+
+Use the `view` action to open a file in the app that is registered for its type. If more than one app can handle the type, the system shows an "Open with" chooser.
+
+```python
+from mpos import Intent, Activity
+
+class FileListActivity(Activity):
+    def on_file_click(self, path):
+        self.startActivity(Intent(action="view", data=path))
+```
+
+In the receiving app, read the file path from `intent.data` or from the `filename` extra:
+
+```python
+class ImageView(Activity):
+    def onResume(self, screen):
+        path = self.getIntent().extras.get("filename") or self.getIntent().data
+        if path:
+            self.load_image(path)
+```
+
+**Key Points:**
+- The file path is passed in `intent.data`.
+- Apps declare supported extensions in `MANIFEST.JSON` with `action: "view"` and `pathPattern`.
+- `ChooserActivity` is shown automatically when multiple handlers exist.
+- The framework provides a fallback `ViewActivity` for unhandled file types.
+
+---
+
+### Pattern 6: Method Chaining
 
 Use fluent API for readable intent construction.
 
@@ -573,7 +692,7 @@ class HomeActivity(Activity):
 
 ---
 
-### Pattern 6: Complex Data Passing
+### Pattern 7: Complex Data Passing
 
 Pass complex objects and references between activities.
 
@@ -797,12 +916,29 @@ item_id = intent.extras["item_id"]  # KeyError if missing
 
 Register implicit intent handlers during app initialization.
 
+**Programmatic registration** is useful for framework activities and dynamic handlers:
+
 ```python
 # In app initialization
 from mpos import AppManager
 
 AppManager.register_activity("android.intent.action.SEND", ShareActivity)
-AppManager.register_activity("android.intent.action.VIEW", BrowserActivity)
+```
+
+**Manifest registration** is preferred for file-type handlers. Add the `intent_filters` to `MANIFEST.JSON` so `AppManager.refresh_apps()` discovers the handler automatically:
+
+```json
+{
+  "activities": [
+    {
+      "entrypoint": "player.py",
+      "classname": "Player",
+      "intent_filters": [
+        { "action": "view", "pathPattern": [".wav"] }
+      ]
+    }
+  ]
+}
 ```
 
 ---
@@ -852,9 +988,9 @@ MicroPythonOS Intents are inspired by Android's Intent system but simplified for
 | **Implicit Intents** | ✅ Supported | ✅ Supported | Action-based routing |
 | **Intent Extras** | ✅ Dict-based | ✅ Bundle-based | MicroPythonOS simpler |
 | **Intent Flags** | ⚠️ Partial | ✅ Full | Limited flag support |
-| **Intent Filters** | ❌ Programmatic only | ✅ In manifest | No manifest-based registration |
+| **Intent Filters** | ✅ Manifest + programmatic | ✅ In manifest | File-type filters in `MANIFEST.JSON`, generic handlers via code |
 | **Categories** | ❌ Not supported | ✅ Supported | Simplified routing |
-| **Data Types** | ❌ Not matched | ✅ MIME types | No type filtering |
+| **Data Types** | ⚠️ Path patterns | ✅ MIME types | `pathPattern` suffix matching; `mimeType` is stored but not used for matching |
 | **URI Schemes** | ❌ Not matched | ✅ Supported | No scheme filtering |
 | **Chooser UI** | ✅ ChooserActivity | ✅ Intent chooser | Custom implementation |
 | **Result Callbacks** | ✅ Callback-based | ✅ onActivityResult() | Different mechanism |
@@ -864,9 +1000,9 @@ MicroPythonOS Intents are inspired by Android's Intent system but simplified for
 
 **Simplified Intent Filters:**
 
-- MicroPythonOS uses programmatic registration via `AppManager.register_activity()`
-- Android uses manifest-based intent filters
-- MicroPythonOS approach is more flexible for dynamic app loading
+- MicroPythonOS supports both programmatic registration via `AppManager.register_activity()` and manifest-based file-type filters in `MANIFEST.JSON`
+- Android uses manifest-based intent filters exclusively
+- MicroPythonOS approach is more flexible for dynamic app loading while still allowing apps to declare file handlers declaratively
 
 **Callback-Based Results:**
 
@@ -893,4 +1029,6 @@ The Intent system is implemented across these core files:
 
 - [App Lifecycle](../apps/app-lifecycle.md) - Activity lifecycle and Intent basics
 - [AppManager](../frameworks/app-manager.md) - Intent resolution and activity registration
+- [FileExplorerActivity](../frameworks/file-explorer-activity.md) - Browsing files and sending `view` intents
+- [Focus Borders](../frameworks/focus.md) - Reusable focus highlighting for intent-driven UIs
 - [SettingActivity](../frameworks/setting-activity.md) - Intent extras for settings configuration

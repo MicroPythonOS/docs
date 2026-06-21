@@ -6,7 +6,8 @@ MicroPythonOS includes essential apps to bootstrap the system, located in [`/bui
 - **WiFi**: Configures WiFi connections.
 - **AppStore**: Downloads and installs new apps.
 - **OSUpdate**: Manages Over-The-Air (OTA) system updates.
-- **Settings**: Configuration for MicroPythonOS
+- **Settings**: Configuration for MicroPythonOS.
+- **File Manager**: Browses the filesystem and opens files with the appropriate viewer.
 
 ## Screenshots
 
