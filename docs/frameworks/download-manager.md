@@ -85,7 +85,7 @@ This means you can use the same API in both async and sync code without any wrap
 ```python
 def download_url(url, outfile=None, total_size=None,
                  progress_callback=None, chunk_callback=None,
-                 headers=None, speed_callback=None)
+                 headers=None, speed_callback=None, redact_url=False)
 ```
 
 **Note:** This method works in both async and sync contexts. When called from an async function, it returns a coroutine. When called from a sync function, it runs synchronously.
@@ -101,6 +101,7 @@ def download_url(url, outfile=None, total_size=None,
 | `chunk_callback` | async function | Callback for streaming chunks (optional) |
 | `headers` | dict | Custom HTTP headers (optional) |
 | `speed_callback` | async function | Callback for download speed (optional) |
+| `redact_url` | bool | Opt-in: hide the URL in log output when it carries an auth secret in its path or query string. Default `False` keeps existing debug output for public URLs. See [Redacting Sensitive URLs](#redacting-sensitive-urls) below. |
 
 **Returns:**
 - **Memory mode**: `bytes` on success
@@ -143,6 +144,34 @@ if resume_from > 0:
 else:
     await DownloadManager.download_url(url, outfile=outfile)
 ```
+
+## Redacting Sensitive URLs
+
+`DownloadManager.download_url` prints the request URL three times per download (start, finished, exception path) plus the full response-headers dict — useful debug output for typical callers fetching public URLs (app icons, OS updates, weather data), but it silently leaks any auth secret embedded in the URL.
+
+Common cases where a URL carries a secret:
+
+- **API-key-in-URL** auth: `https://api.example.com/v1/data?api_key=ABC123`
+- **OAuth-token-in-URL**: `https://service.example.com/resource?access_token=eyJhbGci…`
+- **Wallet xpubs** in indexer URLs: `https://btc1.trezor.io/api/v2/xpub/zpub6q…`
+- **LNBits readkey** in URL path on some endpoints
+
+A leaked secret-bearing URL ends up in serial / REPL output, screenshots of debug logs, and anywhere those logs are shared. Pass `redact_url=True` to scrub it:
+
+```python
+await DownloadManager.download_url(
+    "https://btc1.trezor.io/api/v2/xpub/zpub6q…",
+    redact_url=True,
+)
+```
+
+When `redact_url=True`:
+
+- The URL is logged as `scheme://host[:port]/...REDACTED...` (path + query stripped). The host is intentionally kept so failure triage (DNS, connectivity, wrong endpoint) is still possible.
+- The response-headers dump is suppressed entirely (`<redacted>`). Response headers often contain `set-cookie`, `cf-ray`, and other tokens that correlate to the secret-bearing request.
+- Exception messages have any embedded URL substring scrubbed (aiohttp's `ClientConnectorError` typically embeds the URL).
+
+Default `False` is deliberate — most callers fetch public URLs and want the full log line for diagnostics. Opt-in is per call.
 
 ## Common Patterns
 
