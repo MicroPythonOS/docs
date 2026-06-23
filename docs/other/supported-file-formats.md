@@ -6,6 +6,7 @@ MicroPythonOS uses LVGL's built-in image decoders and its own audio stack. The f
 
 | Format | Extensions | Notes |
 |--------|------------|-------|
+| BMP | `.bmp` | Supports RGB565 and RGB888 |
 | PNG | `.png` | Fully supported via LodePNG. |
 | Baseline JPEG | `.jpg`, `.jpeg` | Fully supported via TJpgD. |
 | Progressive JPEG | `.jpg`, `.jpeg` | **Not supported.** Files will decode as `0x0` and appear blank. |

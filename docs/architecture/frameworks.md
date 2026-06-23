@@ -207,7 +207,6 @@ from mpos import Intent, FileExplorerActivity, Activity
 class MyActivity(Activity):
     def pick_file(self):
         intent = Intent(action="pick_file")
-        intent.putExtra("mode", "pick")
         intent.putExtra("path_pattern", [".wav"])
         self.startActivityForResult(intent, self.on_file_picked)
 ```

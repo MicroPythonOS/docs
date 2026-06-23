@@ -9,11 +9,13 @@ The activity is registered for the `pick_file` action, so any app can ask the us
 Two modes are supported:
 
 - **`browse`** (default): navigate directories, open files, rename or delete them.
-- **`pick`**: select one or more files and return them to the caller.
+- **`pick`**: select one or more files and return them to the caller. The `pick_file` action automatically uses pick mode, so callers do not need to set the `"mode"` extra.
 
 ## Launching
 
 ### Pick files with `startActivityForResult`
+
+Using the `pick_file` action automatically opens `FileExplorerActivity` in pick mode, so you do **not** need to set the `"mode"` extra.
 
 ```python
 from mpos import Intent, Activity
@@ -21,7 +23,6 @@ from mpos import Intent, Activity
 class MyActivity(Activity):
     def _open_file_clicked(self, event):
         intent = Intent(action="pick_file")
-        intent.putExtra("mode", "pick")
         intent.putExtra("start_dir", "/data/audio")
         intent.putExtra("path_pattern", [".wav"])
         self.startActivityForResult(intent, self._on_file_picked)
@@ -49,7 +50,7 @@ class MyActivity(Activity):
 
 | Extra | Type | Default | Description |
 |-------|------|---------|-------------|
-| `mode` | `str` | `"browse"` | `"browse"` or `"pick"`. |
+| `mode` | `str` | `"browse"` (or `"pick"` when action is `"pick_file"`) | `"browse"` or `"pick"`. Only needed when launching `FileExplorerActivity` directly; the `"pick_file"` action implies picker mode automatically. |
 | `start_dir` | `str` | `"."` | Directory to open. Non-existent paths are walked up to the first existing parent, falling back to `"/"`. |
 | `path_pattern` | `str` or `list` | `[]` | File extensions to accept in pick mode, e.g. `[".png", ".jpg"]`. Strings may include a leading `*` (`"*.wav"`). An empty list accepts all files. |
 
@@ -114,7 +115,6 @@ class GalleryLauncher(Activity):
 
     def _choose_image(self, event):
         intent = Intent(action="pick_file")
-        intent.putExtra("mode", "pick")
         intent.putExtra("start_dir", "/data/images")
         intent.putExtra("path_pattern", [".png", ".jpg", ".jpeg", ".raw"])
         self.startActivityForResult(intent, self._on_image_picked)
