@@ -44,6 +44,19 @@ if focusgroup:
 
 `add_focus_border` only draws the visual feedback; it does **not** add the widget to the focus group.
 
+### Touch-aware behavior
+
+On devices that are primarily controlled with a touchscreen, the focus border is intentionally hidden until the user first navigates with a directional input (keyboard, hardware buttons, or a rotary encoder). This keeps touch-only screens clean while still making focused elements obvious once physical navigation begins.
+
+If you want a widget to reveal the focus border immediately, ensure it is added to the default focus group and focus it programmatically:
+
+```python
+focusgroup = lv.group_get_default()
+if focusgroup:
+    focusgroup.add_obj(btn)
+    focusgroup.focus_obj(btn)
+```
+
 ## Examples
 
 ### Basic usage

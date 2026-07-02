@@ -91,6 +91,8 @@ Return a font object suitable for use with `set_style_text_font()`.
 
 **Returns:** `lv.font_t` — the requested font, possibly wrapped with emoji support.
 
+If the requested `family` is not available, FontManager falls back to Montserrat, then to the first available built-in font, and finally to `lv.font_montserrat_12`.
+
 **Example:**
 
 ```python
@@ -201,6 +203,10 @@ builtin/res/emojis/
 ```
 
 Files are named by their Unicode codepoint(s) in uppercase hex, with multiple codepoints joined by `-` (e.g. `1F600.png` for 😀, `1F3CE-FE0F.png` for 🏎️, `1F1F8-1F1FB.png` for 🇸🇻). FontManager scans the directory at runtime and builds a `{codepoint: path}` map.
+
+### Missing emoji fallback
+
+If the exact PNG for an emoji is not bundled, FontManager tries visually similar emoji before giving up. For example, several kissing-face variants can substitute for each other. This keeps text readable even when only a small emoji set is included in the firmware.
 
 ### Adding new emoji
 

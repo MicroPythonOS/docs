@@ -63,6 +63,29 @@ Notification.PRIORITY_MAX     =  3
 
 The drawer sorts notifications by priority, then by most recent update time.
 
+## Notification sounds
+
+When a new notification arrives, the system can play a short RTTTL ringtone on the device's buzzer output. The sound is stored as an RTTTL string in the Settings app's `SharedPreferences` under the key `notification_sound`.
+
+Available sounds:
+
+| Label | RTTTL string |
+|-------|--------------|
+| `None` | (empty string, no sound) |
+| `Coin` | `coin:d=8,o=6,b=200:16b5,e6` |
+| `Scale up` | `scale_up:d=32,o=5,b=100:c,c#,d#,e,f#,g#,a#,b` |
+| `Superhappy` | `superhappy:d=8,o=5,b=635:c,e,g,c,e,g,c,e,g,c6,e6,g6,c6,e6,g6,c7,e7,g7,c7,e7,g7,c7,e7,g7` |
+
+The default sound is `Coin`. If no buzzer output is available, the notification posts silently. Apps can change the sound programmatically:
+
+```python
+from mpos import SharedPreferences
+
+prefs = SharedPreferences("com.micropythonos.settings")
+prefs.put_string("notification_sound", "coin:d=8,o=6,b=200:16b5,e6")
+prefs.commit()
+```
+
 ## NotificationManager API
 
 All methods are class methods. `NotificationManager` initializes itself lazily on first use.

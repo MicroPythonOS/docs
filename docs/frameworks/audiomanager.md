@@ -121,6 +121,27 @@ AudioManager.record_wav_adc(
 )
 ```
 
+### Desktop WAV Playback
+
+On Linux and macOS desktop builds, WAV playback uses an external audio player subprocess instead of I2S hardware. `AudioManager` automatically detects one of the following players in order of preference:
+
+1. `ffplay` (FFmpeg)
+2. `aplay` (ALSA)
+3. `paplay` (PulseAudio)
+4. `afplay` (macOS)
+
+If none is installed, the player still runs in "timing simulation" mode so apps can test playback flow without sound.
+
+```bash
+# Ubuntu/Debian
+sudo apt install ffmpeg
+
+# macOS
+# afplay is pre-installed
+```
+
+Priority and volume controls apply conceptually on desktop, although the external player handles the actual output.
+
 ## Audio Focus Priority
 
 AudioManager implements a 3-tier priority-based audio focus system inspired by Android:
@@ -240,7 +261,7 @@ Set or get the global volume (0–100).
 | **Fri3d 2024 Badge** | ✅ | ✅ | ❌ | ✅ | Full audio support |
 | **Fri3d 2026 Badge** | ✅ | ❌ | ✅ | ✅ | ADC mic via `adc_mic` |
 | **Waveshare ESP32-S3** | ✅ | ❌ | ❌ | ❌ | I2S output only |
-| **Linux/macOS** | ❌ | ✅ (simulated) | ✅ (simulated) | ❌ | Simulated recording for testing |
+| **Linux/macOS** | ✅ (external player) | ✅ (simulated) | ✅ (simulated) | ❌ | WAV playback via `ffplay`/`aplay`/`paplay`/`afplay` |
 
 ## Troubleshooting
 

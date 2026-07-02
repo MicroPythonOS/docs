@@ -99,6 +99,13 @@ The system then resolves the file to the appropriate viewer using the manifest-d
 
 Long-pressing a file or folder opens an action bar with **Delete**, **Rename**, and **Cancel** options. Delete shows a confirmation dialog; Rename launches `RenameActivity`.
 
+### Deleting directories
+
+Deleting a folder removes it recursively, including all files and subdirectories inside it. A confirmation dialog is shown before any deletion begins.
+
+!!! warning
+    Directory deletion cannot be undone. Use the confirmation dialog carefully, especially when deleting paths under `/data/` or `/apps/`.
+
 ## Example: image picker
 
 ```python
