@@ -13,8 +13,8 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 ## ESP32-S3 Microcontrollers
 
 - [DFRobot UniHiker K10](https://www.dfrobot.com/product-2676.html): Fully Supported
-- [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Fully Supported
-- [Fri3d Camp 2026 Badge](https://fri3d.be/badge/2026/): Experimental Support (Hardware Prototype Phase)
+- [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Fully Supported (including Communicator Add-On)
+- [Fri3d Camp 2026 Badge](https://fri3d.be/badge/2026/): Fully Supported (including Communicator Add-On)
 - [Freenove ESP32-S3 Display](https://github.com/Freenove/Freenove_ESP32_S3_Display): Fully Supported
 - [LilyGo T-Display S3](https://lilygo.cc/products/t-display-s3): Fully Supported
 - [LilyGo T-HMI](https://lilygo.cc/en-us/products/t-hmi): Fully Supported

@@ -6,7 +6,7 @@ MicroPythonOS can run entirely in a web browser thanks to a WebAssembly build. T
 
 The latest `main` branch is automatically built and published to GitHub Pages:
 
-**https://micropythonos.github.io/MicroPythonOS/**
+**[MicroPythonOS.github.io/MicroPythonOS](https://MicroPythonOS.github.io/MicroPythonOS/)**
 
 Open that link in a modern desktop browser and the OS will boot directly into the launcher.
 
