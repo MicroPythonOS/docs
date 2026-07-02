@@ -36,8 +36,10 @@ The AppManager uses the latest release's download URL to fetch the `.mpk`.
 
 1. Build your `.mpk` following the [Bundling Apps](bundling-apps.md) guide. The top-level folder in the ZIP must match the app's `fullname` exactly.
 2. Ensure the archive contains a valid `MANIFEST.JSON`.
-3. Upload the `.mpk` to your BadgeHub project.
-4. MicroPythonOS will detect the new release the next time the AppStore refreshes the BadgeHub backend.
+3. If it's the first time, fill out the "Create Project" form on BadgeHub.eu after logging in
+4. Make sure you select **`mpos_api_0`** under "Badge" to indicate your app is built for MicroPythonOS
+5. Upload the `.mpk` to your BadgeHub project.
+6. MicroPythonOS will detect the new release the next time the AppStore refreshes the BadgeHub backend.
 
 ## Version handling
 
