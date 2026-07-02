@@ -94,6 +94,9 @@ nav:
       - Automated Testing: os-development/automated-testing.md
       - Emulated ESP32: os-development/emulating-esp32-on-desktop.md
       - Porting Guide: os-development/porting-guide.md
+  - Web Port:
+      - Using the Web Port: web-port/using.md
+      - Developer Info: web-port/developer.md
   - Other:
       - Release Process: other/release-checklist.md
       - Merge Checklist: other/merge-checklist.md
