@@ -19,7 +19,10 @@ MicroPythonOS validates this layout while extracting, and rejects packages that 
 
 ## Creating an .mpk
 
-From the parent directory that contains your app folder, create a stored (uncompressed) ZIP that includes the top-level folder. It's recommended to make the `.mpk` deterministic by setting file timestamps to a fixed value, sorting entries, and excluding extra file attributes:
+From the parent directory that contains your app folder, create a ZIP that includes the top-level folder.
+You can usually do that by just right-clicking the folder (like `com.example.yourapp`) in your file explorer and choosing "Add to .zip" or "Compress".
+
+Although you don't have to, it's recommended to make the `.mpk` deterministic by setting file timestamps to a fixed value, sorting entries, and excluding extra file attributes. That way, your .mpk will only change if the actual contents changed. Here's a script to do that:
 
 ```bash
 cd internal_filesystem/apps/
