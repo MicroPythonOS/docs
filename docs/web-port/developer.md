@@ -9,7 +9,7 @@ This section describes how MicroPythonOS runs in the browser, how to build and s
 #    The build auto-activates ../emsdk or ../../emsdk if emcc is not on PATH.
 
 # 2. Build the web target.
-scripts/build_mpos_web.sh
+scripts/build_mpos.sh web
 
 # 3. Build (if needed) and serve locally at http://localhost:8080/
 scripts/run_web.sh
@@ -21,7 +21,7 @@ Output artifacts land in `web/`: `micropython.{html,js,wasm,data}`, plus copies 
 
 ## Prerequisites
 
-- **Emscripten SDK** (tested with **6.0.0**). Either have `emcc` on `PATH`, or place an activated `emsdk` checkout one or two directories above this repo (`../emsdk` or `../../emsdk`). `scripts/build_mpos_web.sh` sources `emsdk_env.sh` automatically when `emcc` is missing.
+- **Emscripten SDK** (tested with **6.0.0**). Either have `emcc` on `PATH`, or place an activated `emsdk` checkout one or two directories above this repo (`../emsdk` or `../../emsdk`). `scripts/build_mpos.sh web` sources `emsdk_env.sh` automatically when `emcc` is missing.
 - Standard host toolchain to build `mpy-cross` (built with the host compiler, not emcc) and the usual MicroPython build dependencies (`python3`, `make`).
 - The git submodules must be checked out (`git submodule update --init --recursive`). A **clean** submodule checkout is fine — the build re-applies the web changes every time.
 
@@ -40,7 +40,7 @@ cd MicroPythonOS
 #    (emcc on PATH, or an activated emsdk at ../emsdk or ../../emsdk).
 
 # 3. Build and serve.
-scripts/build_mpos_web.sh
+scripts/build_mpos.sh web
 scripts/run_web.sh
 ```
 
@@ -89,7 +89,6 @@ Key design points:
 | Path | Purpose |
 | --- | --- |
 | [`scripts/build_mpos.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) | Central build orchestration. The `web` target branch does all web-specific work (patching the submodule, staging the FS, injecting shims, invoking `make.py web`, collecting artifacts). |
-| [`scripts/build_mpos_web.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos_web.sh) | Convenience wrapper: activates emsdk then runs `build_mpos.sh web`. |
 | [`scripts/run_web.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/run_web.sh) | Build (optional) + serve `web/` with `python3 -m http.server`. |
 | [`scripts/web_port/web.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/web.py) | The Emscripten build backend. Copied into `lvgl_micropython/builder/web.py` at build time; consumed by `make.py web`. |
 | [`scripts/web_port/sdl_bus.h.patch`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/sdl_bus.h.patch) | C struct-layout fix applied to the `lcd_bus` SDL bus (see "Submodule patches"). |
@@ -134,7 +133,7 @@ To verify reproducibility, revert the submodule files and rebuild — the build 
     && rm -f builder/web.py ext_mod/lcd_bus/sdl_bus/sdl_bus.h.rej \
     && rm -rf ext_mod/_webnet )
 ( cd lvgl_micropython/lib/micropython && git checkout -- ports/unix/gccollect.c )
-scripts/build_mpos_web.sh
+scripts/build_mpos.sh web
 ```
 
 The two C patches were verified to apply cleanly (`patch --forward`, exit 0, no `.rej`) against the pinned commits listed in *Build from a fresh clone*.
@@ -213,7 +212,7 @@ Notes / limitations:
 
 ## Making changes — common scenarios
 
-- **Change MPOS Python code / apps:** edit under `internal_filesystem/` as usual, then rebuild (`scripts/build_mpos_web.sh`). The staged FS is rebuilt every time, so changes are picked up. (Most of the FS is baked into `micropython.data` at link time; a rebuild is required — there is no live file mount. `/data` and `/apps` are the exception: they persist in IndexedDB across reloads — see "Persistence".)
+- **Change MPOS Python code / apps:** edit under `internal_filesystem/` as usual, then rebuild (`scripts/build_mpos.sh web`). The staged FS is rebuilt every time, so changes are picked up. (Most of the FS is baked into `micropython.data` at link time; a rebuild is required — there is no live file mount. `/data` and `/apps` are the exception: they persist in IndexedDB across reloads — see "Persistence".)
 - **Change the HTML/JS shell:** edit `web/shell.html`, rebuild. `index.html` and `mpos.html` are regenerated from it.
 - **Change build/link flags:** edit `scripts/web_port/web.py`, rebuild.
 - **Change a patched submodule C file:** see "Updating a submodule patch".
