@@ -1,68 +1,120 @@
 ## Running on desktop
 
-Desktop builds of MicroPythonOS can run without a local source checkout. The `internal_filesystem/` is frozen into the binary at build time, so a single pre-built executable is enough to try the OS.
+MicroPythonOS runs on Linux, macOS and Raspberry Pi desktops. The desktop build is a single executable that contains the whole OS, so you usually do not need to compile anything.
 
-### Download a pre-built binary
+Pick the level that matches what you want to do.
 
-1. Go to the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases).
-2. Download the binary for your platform:
-   - Linux / WSL2 on Windows: `lvgl_micropy_unix`
-   - macOS (Apple Silicon or Intel): `lvgl_micropy_macOS`
-3. Make it executable:
+---
 
-```
+### Level 1: Just want to run it?
+
+Grab a pre-built binary and launch it.
+
+1. Download the binary for your platform from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases):
+   - **Linux, Raspberry Pi, WSL2 on Windows:** `lvgl_micropy_unix`
+   - **macOS (Apple Silicon or Intel):** `lvgl_micropy_macOS`
+2. Make it executable:
+
+```bash
 chmod +x lvgl_micropy_unix
 ```
 
-4. Place it where `scripts/run_desktop.sh` expects it. The script looks for:
-   - `lvgl_micropython/build/lvgl_micropy_unix` on Linux
-   - `lvgl_micropython/build/lvgl_micropy_macOS` on macOS
+3. Run it. From a terminal:
 
-You can create that folder and copy the binary there:
-
+```bash
+./lvgl_micropy_unix
 ```
+
+Or double-click it in your file manager. You may want to rename it to `MicroPythonOS` first.
+
+---
+
+### Level 2: Want to develop an app but use a prebuilt OS?
+
+You can use a downloaded OS binary with a full source checkout so you can edit apps and see changes immediately.
+
+1. Clone the repository:
+
+```bash
+git clone --recurse-submodules https://github.com/MicroPythonOS/MicroPythonOS.git
+cd MicroPythonOS
+```
+
+2. Download the binary for your platform from the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases). Rename it and put it where the runner script expects it:
+   - Linux / Raspberry Pi / WSL2 → `lvgl_micropython/build/lvgl_micropy_unix`
+   - macOS → `lvgl_micropython/build/lvgl_micropy_macOS`
+
+```bash
 mkdir -p lvgl_micropython/build
-cp /path/to/downloaded/lvgl_micropy_unix lvgl_micropython/build/lvgl_micropy_unix
+cp /path/to/downloaded/binary lvgl_micropython/build/lvgl_micropy_unix
+chmod +x lvgl_micropython/build/lvgl_micropy_unix
 ```
 
-5. Run it:
+3. Run it with the helper script:
 
-```
+```bash
 ./scripts/run_desktop.sh
 ```
 
-### Build from source
+`scripts/run_desktop.sh` launches the OS using the Python files in `internal_filesystem/` directly, so any edit you make there appears the next time you restart the app. No rebuild is needed.
 
-If you want to modify the OS itself or run the very latest code, you can [build it from source](compiling.md). The built binary will already be in `lvgl_micropython/build/lvgl_micropy_XXX` where `XXX` is `unix` or `macOS`.
-
-### Notes on MacOS
-
-If you get an error about a missing `/opt/homebrew/opt/libffi/lib/libffi.8.dylib` then fix that with: `brew install libffi`
-
-If you get an error about the code being unsigned, then allow it like this:
-
-![Allow Anyway on MacOS](/os-development/macos-allow-anyway.png)
-
-
-## Making Changes on Desktop
-
-If you do have a source checkout, you can still run the OS directly from `internal_filesystem/`. When you run `./scripts/run_desktop.sh`, the OS runs the MicroPythonOS scripts **directly from `internal_filesystem/`**. This means:
-
-- **All changes to Python files are immediately active** - no build or install needed
-- **Instant testing** - edit a file, restart the app, see the changes
-- **Fast iteration cycle** - the recommended way to develop and test
-
-**Try it yourself:**
+**Try it:**
 
 1. Edit `internal_filesystem/builtin/apps/com.micropythonos.about/assets/about.py`
 2. Run `./scripts/run_desktop.sh`
 3. Open the About app
-4. See your changes immediately!
+4. See your change immediately
 
+Once your app works on desktop, deploy it to a physical device with [Installing on ESP32](installing-on-esp32.md).
 
-## Making Changes on ESP32
+---
 
-Once you've tested your changes on desktop and they work correctly, or you're doing things you can't test on desktop, then you can deploy to physical hardware.
+### Level 3: Want to build the OS yourself?
+
+If you need to change the OS itself, add C extensions, modify MicroPython/LVGL bindings, or run the very latest code, build from source. The binary will already land in `lvgl_micropython/build/lvgl_micropy_XXX` where `XXX` is `unix` or `macOS`.
+
+```bash
+./scripts/build_mpos.sh unix     # Linux, Raspberry Pi, WSL2
+./scripts/build_mpos.sh macOS    # macOS
+```
+
+See [Compiling](compiling.md) for the full instructions, including cloning and dependencies.
+
+---
+
+## Known issues and fixes
+
+### Linux: "No such file or directory" when running the binary
+
+Make sure it is executable:
+
+```bash
+chmod +x lvgl_micropy_unix
+```
+
+### macOS: missing `libffi.8.dylib`
+
+Install libffi:
+
+```bash
+brew install libffi
+```
+
+### macOS: "cannot be opened because the developer cannot be verified"
+
+The prebuilt binary is not signed. Open **System Settings → Privacy & Security** and click **Allow Anyway** next to the blocked item, then run it again.
+
+![Allow Anyway on MacOS](/os-development/macos-allow-anyway.png)
+
+### Windows
+
+Native Windows builds are not supported. [Users report](https://github.com/MicroPythonOS/MicroPythonOS/issues/31) that the Linux desktop binary works under WSL2 on Windows 11. Alternatively, you can try the [web port](../web-port/using.md), which runs a desktop build in the browser.
+
+---
+
+## Deploying to hardware
+
+Once your app works on desktop, install it on a supported ESP32 device.
 
 {!os-development/installing-on-esp32.md!}
 

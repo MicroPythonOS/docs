@@ -14,9 +14,9 @@ For advanced usage, such as installing development builds without any files, see
 
 ## Running on desktop
 
-MicroPythonOS desktop builds do not require a full git clone. A single pre-built binary contains the frozen filesystem, so you can download it, make it executable, and run it.
+On desktop you can choose how deep you want to go: run a pre-built binary, develop apps using a pre-built binary with a source checkout, or build the operating system from source.
 
-For detailed steps, see [Running on Desktop](../os-development/running-on-desktop.md).
+See [Running on Desktop](../os-development/running-on-desktop.md) for detailed steps.
 
 ## Next Steps
 
