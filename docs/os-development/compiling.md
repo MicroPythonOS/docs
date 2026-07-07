@@ -32,7 +32,7 @@ Usage:
 ./scripts/build_mpos.sh <target system>
 ```
 
-**Target systems**: `esp32`, `esp32s3`, `unix` (= Linux) and `macOS`
+**Target systems**: `esp32`, `esp32s3`, `unix` (= Linux), `macOS` and `web` (= WebAssembly)
 
 **Examples**:
 

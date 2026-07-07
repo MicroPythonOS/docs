@@ -1,6 +1,6 @@
 # Running it
 
-MicroPythonOS can run on supported microcontrollers (e.g., ESP32) and on desktop systems (Linux, Raspberry Pi, MacOS, Windows etc).
+MicroPythonOS can run on supported microcontrollers (e.g., ESP32), on desktop systems (Linux, Raspberry Pi, MacOS, Windows), and in a web browser via WebAssembly.
 
 To install prebuilt software, read on!
 
@@ -17,6 +17,12 @@ For advanced usage, such as installing development builds without any files, see
 On desktop you can choose how deep you want to go: run a pre-built binary, develop apps using a pre-built binary with a source checkout, or build the operating system from source.
 
 See [Running on Desktop](../os-development/running-on-desktop.md) for detailed steps.
+
+## Running in the browser
+
+Open **[web.micropythonos.com](https://web.micropythonos.com/)** for the latest release, or **[micropythonos.github.io/MicroPythonOS](https://micropythonos.github.io/MicroPythonOS/)** for the bleeding-edge main branch. No install required.
+
+See [Using the Web Port](../web-port/using.md) for details and limitations.
 
 ## Next Steps
 

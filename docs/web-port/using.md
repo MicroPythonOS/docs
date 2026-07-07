@@ -15,9 +15,11 @@ Open that link in a modern desktop browser and the OS will boot directly into th
 The web port stores writable data (`/data` and `/apps`) in the browser's IndexedDB. The read-only system files are baked into the WebAssembly preload. If you want a completely clean start — for example, after a major upstream change or to clear stale app data — you need to wipe the stored filesystem:
 
 1. Open the developer tools (`F12`).
-2. Go to **Application** → **Storage** → **Local Storage / IndexedDB** (or the equivalent in your browser).
-3. Clear site data / delete everything for `micropythonos.github.io`.
-4. Close the tab or press `F5` to reload the page.
+2. Go to **Application** → **Storage** (Chromium) or **Storage** → **IndexedDB** (Firefox).
+3. Clear site data for the origin (e.g. `micropythonos.github.io` or `web.micropythonos.com`).
+4. Reload the page.
+
+Alternatively, you can update installed apps through the built-in App Store without clearing storage.
 
 After the reload the OS will boot with a fresh filesystem. The bundled demo apps will be re-seeded on first run.
 

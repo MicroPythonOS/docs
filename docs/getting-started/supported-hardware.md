@@ -23,6 +23,14 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 - [SQUiXL](https://squixl.io): Fully Supported
 - [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
 
+## WebAssembly (Browser)
+
+- **Latest release**: [web.micropythonos.com](https://web.micropythonos.com/)
+- **Main branch CI**: [micropythonos.github.io/MicroPythonOS](https://micropythonos.github.io/MicroPythonOS/)
+- Runs entirely in a modern desktop browser — no install, no flash.
+- Built from source with `./scripts/build_mpos.sh web` (requires [Emscripten SDK](../web-port/developer/#prerequisites)).
+- See [CI config](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/.github/workflows/web-pages.yml) for automated build details.
+
 ## Desktop Computers
 
 - **Linux**: Supported using SDL for display handling.
