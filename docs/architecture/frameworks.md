@@ -232,10 +232,10 @@ See [Focus Highlight](../frameworks/focus.md) for details.
 Controls NeoPixel RGB LEDs on supported hardware. Provides buffered LED control, predefined notification colors, and frame-based animation support.
 
 ```python
-from mpos import lights
+from mpos import LightsManager
 
-lights.set_all(0, 0, 255)
-lights.write()
+LightsManager.set_all(0, 0, 255)
+LightsManager.write()
 ```
 
 See [LightsManager](../frameworks/lights-manager.md) for details.
