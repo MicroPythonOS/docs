@@ -11,9 +11,23 @@ LightsManager provides:
 - **Hardware abstraction** - Same API works across all boards
 - **Predefined colors** - Quick access to common notification colors
 - **Frame-based animations** - Integrate with TaskHandler for smooth animations
-- **Low overhead** - Lightweight singleton pattern
+- **Low overhead** - Module-level functions (no singleton class)
 
 ⚠️ **Note**: LightsManager provides primitives for LED control, not built-in animations. Apps implement custom animations using the `update_frame()` pattern.
+
+## Import
+
+```python
+from mpos import lights
+```
+
+You can also use the submodule import if preferred:
+
+```python
+import mpos.lights as LightsManager
+```
+
+All examples below use the recommended `from mpos import lights` style.
 
 ## Hardware Support
 
@@ -28,13 +42,12 @@ LightsManager provides:
 ### Check Availability
 
 ```python
-from mpos import Activity
-import mpos.lights as LightsManager
+from mpos import Activity, lights
 
 class MyActivity(Activity):
     def onCreate(self):
-        if LightsManager.is_available():
-            print(f"LEDs available: {LightsManager.get_led_count()}")
+        if lights.is_available():
+            print(f"LEDs available: {lights.get_led_count()}")
         else:
             print("No LED hardware on this device")
 ```
@@ -42,17 +55,19 @@ class MyActivity(Activity):
 ### Control Individual LEDs
 
 ```python
+from mpos import lights
+
 # Set LED 0 to red (buffered)
-LightsManager.set_led(0, 255, 0, 0)
+lights.set_led(0, 255, 0, 0)
 
 # Set LED 1 to green (buffered)
-LightsManager.set_led(1, 0, 255, 0)
+lights.set_led(1, 0, 255, 0)
 
 # Set LED 2 to blue (buffered)
-LightsManager.set_led(2, 0, 0, 255)
+lights.set_led(2, 0, 0, 255)
 
 # Apply all changes to hardware
-LightsManager.write()
+lights.write()
 ```
 
 **Important**: LEDs are **buffered**. Changes won't appear until you call `write()`.
@@ -60,13 +75,15 @@ LightsManager.write()
 ### Control All LEDs
 
 ```python
+from mpos import lights
+
 # Set all LEDs to blue
-LightsManager.set_all(0, 0, 255)
-LightsManager.write()
+lights.set_all(0, 0, 255)
+lights.write()
 
 # Turn off all LEDs
-LightsManager.clear()
-LightsManager.write()
+lights.clear()
+lights.write()
 ```
 
 ### Notification Colors
@@ -74,14 +91,16 @@ LightsManager.write()
 Quick shortcuts for common colors:
 
 ```python
+from mpos import lights
+
 # Convenience method (sets all LEDs + calls write())
-LightsManager.set_notification_color("red")     # Success/Error
-LightsManager.set_notification_color("green")   # Success
-LightsManager.set_notification_color("blue")    # Info
-LightsManager.set_notification_color("yellow")  # Warning
-LightsManager.set_notification_color("orange")  # Alert
-LightsManager.set_notification_color("purple")  # Special
-LightsManager.set_notification_color("white")   # General
+lights.set_notification_color("red")     # Error
+lights.set_notification_color("green")   # Success
+lights.set_notification_color("blue")    # Info
+lights.set_notification_color("yellow")  # Warning
+lights.set_notification_color("orange")  # Alert
+lights.set_notification_color("purple")  # Special
+lights.set_notification_color("white")   # General
 ```
 
 ## Custom Animations
@@ -94,19 +113,19 @@ Simple on/off blinking:
 
 ```python
 import time
-import mpos.lights as LightsManager
+from mpos import lights
 
 def blink_pattern():
     """Blink all LEDs red 5 times."""
     for _ in range(5):
         # Turn on
-        LightsManager.set_all(255, 0, 0)
-        LightsManager.write()
+        lights.set_all(255, 0, 0)
+        lights.write()
         time.sleep_ms(200)
 
         # Turn off
-        LightsManager.clear()
-        LightsManager.write()
+        lights.clear()
+        lights.write()
         time.sleep_ms(200)
 ```
 
@@ -115,6 +134,8 @@ def blink_pattern():
 Display a rainbow pattern across all LEDs:
 
 ```python
+from mpos import lights
+
 def rainbow_cycle():
     """Set each LED to a different rainbow color."""
     colors = [
@@ -126,9 +147,9 @@ def rainbow_cycle():
     ]
 
     for i, color in enumerate(colors):
-        LightsManager.set_led(i, *color)
+        lights.set_led(i, *color)
 
-    LightsManager.write()
+    lights.write()
 ```
 
 ### Chase Effect
@@ -137,25 +158,26 @@ LEDs light up in sequence:
 
 ```python
 import time
+from mpos import lights
 
 def chase_effect(color=(0, 255, 0), delay_ms=100, loops=3):
     """Light up LEDs in sequence."""
-    led_count = LightsManager.get_led_count()
+    led_count = lights.get_led_count()
 
     for _ in range(loops):
         for i in range(led_count):
             # Clear all
-            LightsManager.clear()
+            lights.clear()
 
             # Light current LED
-            LightsManager.set_led(i, *color)
-            LightsManager.write()
+            lights.set_led(i, *color)
+            lights.write()
 
             time.sleep_ms(delay_ms)
 
     # Clear after animation
-    LightsManager.clear()
-    LightsManager.write()
+    lights.clear()
+    lights.write()
 ```
 
 ### Pulse/Breathing Effect
@@ -164,6 +186,7 @@ Fade LEDs in and out smoothly:
 
 ```python
 import time
+from mpos import lights
 
 def pulse_effect(color=(0, 0, 255), duration_ms=2000):
     """Pulse LEDs with breathing effect."""
@@ -177,8 +200,8 @@ def pulse_effect(color=(0, 0, 255), duration_ms=2000):
         g = int(color[1] * brightness)
         b = int(color[2] * brightness)
 
-        LightsManager.set_all(r, g, b)
-        LightsManager.write()
+        lights.set_all(r, g, b)
+        lights.write()
         time.sleep_ms(delay)
 
     # Fade out
@@ -188,13 +211,13 @@ def pulse_effect(color=(0, 0, 255), duration_ms=2000):
         g = int(color[1] * brightness)
         b = int(color[2] * brightness)
 
-        LightsManager.set_all(r, g, b)
-        LightsManager.write()
+        lights.set_all(r, g, b)
+        lights.write()
         time.sleep_ms(delay)
 
     # Clear
-    LightsManager.clear()
-    LightsManager.write()
+    lights.clear()
+    lights.write()
 ```
 
 ### Random Sparkle
@@ -204,10 +227,11 @@ Random LEDs flash briefly:
 ```python
 import time
 import random
+from mpos import lights
 
 def sparkle_effect(duration_ms=5000):
     """Random LEDs sparkle."""
-    led_count = LightsManager.get_led_count()
+    led_count = lights.get_led_count()
     start_time = time.ticks_ms()
 
     while time.ticks_diff(time.ticks_ms(), start_time) < duration_ms:
@@ -220,19 +244,19 @@ def sparkle_effect(duration_ms=5000):
         b = random.randint(0, 255)
 
         # Flash on
-        LightsManager.clear()
-        LightsManager.set_led(led, r, g, b)
-        LightsManager.write()
+        lights.clear()
+        lights.set_led(led, r, g, b)
+        lights.write()
         time.sleep_ms(100)
 
         # Flash off
-        LightsManager.clear()
-        LightsManager.write()
+        lights.clear()
+        lights.write()
         time.sleep_ms(50)
 
     # Clear after animation
-    LightsManager.clear()
-    LightsManager.write()
+    lights.clear()
+    lights.write()
 ```
 
 ## Frame-Based LED Animations
@@ -240,9 +264,8 @@ def sparkle_effect(duration_ms=5000):
 For smooth, real-time animations that integrate with the game loop, use the **TaskHandler event system**:
 
 ```python
-from mpos import Activity
+from mpos import Activity, lights
 import mpos.ui
-import mpos.lights as LightsManager
 import time
 
 class LEDAnimationActivity(Activity):
@@ -260,8 +283,8 @@ class LEDAnimationActivity(Activity):
     def onPause(self, screen):
         """Stop animation and clear LEDs when app pauses."""
         mpos.ui.task_handler.remove_event_cb(self.update_frame)
-        LightsManager.clear()
-        LightsManager.write()
+        lights.clear()
+        lights.write()
 
     def update_frame(self, a, b):
         """Called every frame - update animation."""
@@ -273,20 +296,21 @@ class LEDAnimationActivity(Activity):
             self.last_time = current_time
 
             # Clear all LEDs
-            LightsManager.clear()
+            lights.clear()
 
             # Light up current LED
-            LightsManager.set_led(self.led_index, 0, 255, 0)
-            LightsManager.write()
+            lights.set_led(self.led_index, 0, 255, 0)
+            lights.write()
 
             # Move to next LED
-            self.led_index = (self.led_index + 1) % LightsManager.get_led_count()
+            self.led_index = (self.led_index + 1) % lights.get_led_count()
 ```
 
 ### Smooth Color Cycle Animation
 
 ```python
 import math
+from mpos import lights
 
 class ColorCycleActivity(Activity):
     def onCreate(self):
@@ -301,8 +325,8 @@ class ColorCycleActivity(Activity):
 
     def onPause(self, screen):
         mpos.ui.task_handler.remove_event_cb(self.update_frame)
-        LightsManager.clear()
-        LightsManager.write()
+        lights.clear()
+        lights.write()
 
     def update_frame(self, a, b):
         current_time = time.ticks_ms()
@@ -318,8 +342,8 @@ class ColorCycleActivity(Activity):
         r, g, b = self.hsv_to_rgb(self.hue, 1.0, 1.0)
 
         # Update all LEDs
-        LightsManager.set_all(r, g, b)
-        LightsManager.write()
+        lights.set_all(r, g, b)
+        lights.write()
 
     def hsv_to_rgb(self, h, s, v):
         """Convert HSV to RGB (h: 0-360, s: 0-1, v: 0-1)."""
@@ -414,17 +438,21 @@ Set all LEDs to a predefined color and immediately apply (convenience method).
 
 **❌ Bad** - Calling `write()` after each LED:
 ```python
+from mpos import lights
+
 for i in range(5):
-    LightsManager.set_led(i, 255, 0, 0)
-    LightsManager.write()  # 5 hardware updates!
+    lights.set_led(i, 255, 0, 0)
+    lights.write()  # 5 hardware updates!
 ```
 
 **✅ Good** - Set all LEDs then write once:
 ```python
-for i in range(5):
-    LightsManager.set_led(i, 255, 0, 0)
+from mpos import lights
 
-LightsManager.write()  # 1 hardware update
+for i in range(5):
+    lights.set_led(i, 255, 0, 0)
+
+lights.write()  # 1 hardware update
 ```
 
 ### Update Rate Recommendations
@@ -445,7 +473,7 @@ def update_frame(self, a, b):
     if delta_time >= UPDATE_INTERVAL:
         self.last_time = current_time
         # Update LEDs here
-        LightsManager.write()
+        lights.write()
 ```
 
 ### Cleanup in onPause()
@@ -458,8 +486,8 @@ def onPause(self, screen):
     mpos.ui.task_handler.remove_event_cb(self.update_frame)
 
     # Clear LEDs
-    LightsManager.clear()
-    LightsManager.write()
+    lights.clear()
+    lights.write()
 ```
 
 This prevents LEDs from staying lit after your app exits.
@@ -476,11 +504,11 @@ This prevents LEDs from staying lit after your app exits.
 
 ```python
 # ❌ Wrong - no write()
-LightsManager.set_all(255, 0, 0)
+lights.set_all(255, 0, 0)
 
 # ✅ Correct
-LightsManager.set_all(255, 0, 0)
-LightsManager.write()
+lights.set_all(255, 0, 0)
+lights.write()
 ```
 
 ### Flickering LEDs
@@ -493,14 +521,14 @@ LightsManager.write()
    ```python
    # ❌ Bad - updating every frame (60 Hz)
    def update_frame(self, a, b):
-       LightsManager.set_all(random_color())
-       LightsManager.write()  # Too frequent!
+       lights.set_all(random_color())
+       lights.write()  # Too frequent!
 
    # ✅ Good - rate limited to 20 Hz
    def update_frame(self, a, b):
        if delta_time >= 0.05:  # 50ms = 20 Hz
-           LightsManager.set_all(random_color())
-           LightsManager.write()
+           lights.set_all(random_color())
+           lights.write()
    ```
 
 2. **Inconsistent timing**
@@ -527,8 +555,8 @@ def onPause(self, screen):
     mpos.ui.task_handler.remove_event_cb(self.update_frame)
 
     # Clear LEDs
-    LightsManager.clear()
-    LightsManager.write()
+    lights.clear()
+    lights.write()
 ```
 
 ### No LEDs on Waveshare Board
@@ -540,7 +568,9 @@ def onPause(self, screen):
 **Solution**:
 - Check hardware before using LEDs:
   ```python
-  if LightsManager.is_available():
+  from mpos import lights
+
+  if lights.is_available():
       # Use LEDs
   else:
       # Fallback to screen indicators or sounds
@@ -554,25 +584,24 @@ def onPause(self, screen):
 
 1. **RGB order confusion** - Make sure you're using (R, G, B) order:
    ```python
-   LightsManager.set_led(0, 255, 0, 0)  # Red (R=255, G=0, B=0)
-   LightsManager.set_led(1, 0, 255, 0)  # Green (R=0, G=255, B=0)
-   LightsManager.set_led(2, 0, 0, 255)  # Blue (R=0, G=0, B=255)
+   lights.set_led(0, 255, 0, 0)  # Red (R=255, G=0, B=0)
+   lights.set_led(1, 0, 255, 0)  # Green (R=0, G=255, B=0)
+   lights.set_led(2, 0, 0, 255)  # Blue (R=0, G=0, B=255)
    ```
 
 2. **Value out of range** - RGB values must be 0-255:
    ```python
    # ❌ Wrong - values > 255 wrap around
-   LightsManager.set_led(0, 300, 0, 0)
+   lights.set_led(0, 300, 0, 0)
 
    # ✅ Correct - clamp to 0-255
-   LightsManager.set_led(0, min(300, 255), 0, 0)
+   lights.set_led(0, min(300, 255), 0, 0)
    ```
 
 ## Complete Example: LED Status Indicator
 
 ```python
-from mpos import Activity
-import mpos.lights as LightsManager
+from mpos import Activity, lights
 import lvgl as lv
 
 class StatusIndicatorActivity(Activity):
@@ -624,25 +653,25 @@ class StatusIndicatorActivity(Activity):
 
     def show_status(self, status_type):
         """Show visual status with LEDs."""
-        if not LightsManager.is_available():
+        if not lights.is_available():
             print("No LEDs available")
             return
 
         if status_type == "success":
-            LightsManager.set_notification_color("green")
+            lights.set_notification_color("green")
         elif status_type == "error":
-            LightsManager.set_notification_color("red")
+            lights.set_notification_color("red")
         elif status_type == "warning":
-            LightsManager.set_notification_color("yellow")
+            lights.set_notification_color("yellow")
         elif status_type == "clear":
-            LightsManager.clear()
-            LightsManager.write()
+            lights.clear()
+            lights.write()
 
     def onPause(self, screen):
         # Clear LEDs when leaving app
-        if LightsManager.is_available():
-            LightsManager.clear()
-            LightsManager.write()
+        if lights.is_available():
+            lights.clear()
+            lights.write()
 ```
 
 ## See Also

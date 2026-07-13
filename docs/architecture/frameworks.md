@@ -213,16 +213,32 @@ class MyActivity(Activity):
 
 See [FileExplorerActivity](../frameworks/file-explorer-activity.md) for details.
 
-### Focus Borders
-Provides a single helper, `add_focus_border`, for drawing a focus border around any widget. It replaces the duplicated `FOCUSED`/`DEFOCUSED` handlers that used to exist in many apps.
+### Focus Highlight
+Provides a single helper, `add_focus_highlight`, for drawing a focus border or background tint around any widget. It replaces the duplicated `FOCUSED`/`DEFOCUSED` handlers that used to exist in many apps.
 
 ```python
-from mpos import add_focus_border
+from mpos import add_focus_highlight
 
-add_focus_border(button, width=2)
+# Border mode (default)
+add_focus_highlight(button, width=2)
+
+# Background mode (keep existing border intact)
+add_focus_highlight(button, mode="bg")
 ```
 
-See [Focus Borders](../frameworks/focus.md) for details.
+See [Focus Highlight](../frameworks/focus.md) for details.
+
+### LightsManager
+Controls NeoPixel RGB LEDs on supported hardware. Provides buffered LED control, predefined notification colors, and frame-based animation support.
+
+```python
+from mpos import lights
+
+lights.set_all(0, 0, 255)
+lights.write()
+```
+
+See [LightsManager](../frameworks/lights-manager.md) for details.
 
 ### CameraManager
 Provides access to camera hardware.

@@ -39,7 +39,7 @@ class MyApp(Activity):
 - **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`changed_callback`** (function): Callback function called when the setting value changes
-- **`should_show`** (function): Function to determine if this setting should be displayed in the list
+- **`should_show`** (function): Boolean or function to determine if this setting should be displayed in the list
 - **`dont_persist`** (bool): If `True`, the setting won't be saved to SharedPreferences
 - **`min`** (int): Minimum value for `"slider"` UI (default: `0`)
 - **`max`** (int): Maximum value for `"slider"` UI (default: `100`)
@@ -136,7 +136,7 @@ Use a custom Activity class for advanced UI implementations.
 
 ### Conditional Visibility with should_show
 
-The `should_show` function allows you to conditionally display settings based on other settings or app state.
+The `should_show` boolean or callable function allows you to conditionally display settings based on other settings or app state.
 
 **Function signature:**
 ```python
@@ -371,7 +371,7 @@ SettingsActivity displays settings in a scrollable list with the following layou
 
 1. **Load prefs once in onCreate()**: Load SharedPreferences in your main Activity's `onCreate()` and pass it to SettingsActivity. This is faster than loading it multiple times.
 
-2. **Use should_show for conditional settings**: Hide settings that don't apply based on other settings using the `should_show` function. This keeps the UI clean and prevents confusion.
+2. **Use should_show for conditional settings**: Hide settings that don't apply based on other settings using the `should_show` boolean/function. This keeps the UI clean and prevents confusion.
 
 3. **Use changed_callback for side effects**: If changing a setting requires reloading data or updating the UI, use `changed_callback` instead of checking the value on resume.
 
