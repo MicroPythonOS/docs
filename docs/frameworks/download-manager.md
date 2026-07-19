@@ -131,6 +131,25 @@ except Exception as e:
 - Error codes: `-110` (ETIMEDOUT), `-113` (ECONNABORTED), `-104` (ECONNRESET), `-118` (EHOSTUNREACH), `-202` (DNS error)
 - Error messages: "connection reset", "connection aborted", "broken pipe", "network unreachable", "host unreachable"
 
+### `DownloadManager.post_url()`
+
+```python
+def post_url(url, data=None, headers=None, redact_url=False)
+```
+
+**Note:** Works in both async and sync contexts, same as `download_url`.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | str | URL to POST to (required) |
+| `data` | bytes | Request body (optional, default `None` = POST with empty body) |
+| `headers` | dict | Custom HTTP headers (optional) |
+| `redact_url` | bool | Redact URL from log output (default `False`) |
+
+**Returns:** `bytes` — response body on success, `None` on failure.
+
 ### `DownloadManager.get_resume_position(outfile)`
 
 Get the current size of a partially downloaded file.

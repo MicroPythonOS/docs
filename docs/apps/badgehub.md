@@ -16,6 +16,7 @@ The BadgeHub backend uses API version 3:
 
 - `https://badgehub.eu/api/v3/project-summaries` — list of all published projects with summary metadata.
 - `https://badgehub.eu/api/v3/projects/<slug>` — full project details, including releases, icons, and descriptions.
+- `https://badgehub.eu/api/v3/projects/<slug>/rev<revision>/report/install` — POST to report successful app installation. Includes device MAC and its SHA1 hash as query parameters.
 
 Each project maps to one MicroPythonOS app package. The project's slug becomes the app identifier in the store.
 
