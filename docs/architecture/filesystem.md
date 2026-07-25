@@ -4,6 +4,7 @@ MicroPythonOS uses a structured filesystem to organize apps, data, and resources
 
 - **apps/**: Directory for downloaded and installed apps. Cleaned up when the app is uninstalled.
     - **com.micropythonos.helloworld/**: Installation directory for HelloWorld App. See [Creating Apps](../apps/creating-apps.md).
+    - **org.yourdomain.yourapp/**: Installation directory for the "Your App" app, created by yourdomain.org
 - **builtin/**: Read-only filesystem compiled into the OS, mounted at boot by `main.py`.
     - **apps/**: See [Built-in Apps](../apps/built-in-apps.md).
     - **res/**: Resources (icons, fonts, etc.).
