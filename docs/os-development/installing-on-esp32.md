@@ -57,6 +57,13 @@ But if you need to install a version that's not available there, or you built yo
     ```
     </pre>
 
+    Make sure there is enough free space on the device (~3-4 MB) to fit the files. If needed, free up space from the REPL:
+
+    ```
+    import shutil ; shutil.rmtree("/roms")
+    import shutil ; shutil.rmtree("/cache")
+    ```
+
     On MacOS, the install.sh script needs: `brew install --cask serial`
 
     If you need to frequently update a small number of files, you can also update them manually, for example:
