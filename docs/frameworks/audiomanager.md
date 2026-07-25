@@ -9,7 +9,7 @@ AudioManager provides:
 - **Priority-based audio focus** - Higher priority streams interrupt lower priority ones
 - **Device registry** - Register I2S outputs, PWM buzzers, and microphone inputs
 - **Session control** - Player/Recorder sessions with start/stop/pause/resume
-- **WAV file support** - 8/16/24/32-bit PCM, mono/stereo, auto-upsampling
+- **WAV file support** - 8/16/24/32-bit PCM, IMA ADPCM (4-bit), mono/stereo, auto-upsampling
 - **WAV recording** - 16-bit mono PCM from I2S or ADC microphone
 - **RTTTL ringtone support** - Full Ring Tone Text Transfer Language parser
 - **Thread-safe** - Safe for concurrent access
@@ -78,9 +78,10 @@ player.start()
 ```
 
 **Supported formats:**
-- **Encoding**: PCM (8/16/24/32-bit)
+- **Encoding**: PCM (8/16/24/32-bit), IMA ADPCM (4-bit)
 - **Channels**: Mono or stereo
 - **Sample rate**: Any rate (auto-upsampled to ≥8000 Hz)
+- **Repeat**: Pass `repeat_count` to loop playback N times
 
 ### Playing RTTTL Ringtones
 
@@ -141,6 +142,20 @@ sudo apt install ffmpeg
 ```
 
 Priority and volume controls apply conceptually on desktop, although the external player handles the actual output.
+
+### ADPCM WAV Encoding
+
+IMA ADPCM compresses 16-bit PCM to 4 bits per sample, roughly quartering WAV file size with minimal quality loss — ideal for storage-constrained devices.
+
+`ffmpeg` can encode ADPCM (`-acodec adpcm_ima_wav`) but has two drawbacks: it prepends silence that lengthens the file, and it only supports the default 4-bit depth. MicroPythonOS currently decodes 4-bit IMA ADPCM only. For better encoding results than `ffmpeg`, use [adpcm-xq](https://github.com/dbry/adpcm-xq), which avoids the silence padding and additionally supports 2 and 3-bit ADPCM (still good quality, even smaller files). If there's demand for it, 2 and 3-bit ADPCM decoding support could be added to MicroPythonOS too.
+
+```bash
+# ffmpeg (adds silence, 4-bit only)
+ffmpeg -i input.wav -acodec adpcm_ima_wav output.wav
+
+# adpcm-xq (clean, supports 3-bit and 4-bit)
+adpcm-xq -e 3 input.wav output.wav
+```
 
 ## Audio Focus Priority
 
@@ -279,8 +294,8 @@ Set or get the global volume (0–100).
 ### WAV File Not Playing
 
 **Requirements:**
-- **Encoding**: PCM only (not MP3, AAC)
-- **Bit depth**: 8, 16, 24, or 32-bit
+- **Encoding**: PCM or IMA ADPCM (not MP3, AAC)
+- **Bit depth**: 8, 16, 24, or 32-bit (PCM); 4-bit (ADPCM)
 - **Channels**: Mono or stereo
 - **Sample rate**: Any (auto-upsampled to ≥8000 Hz)
 
