@@ -154,7 +154,7 @@ IMA ADPCM compresses 16-bit PCM to 4 bits per sample, roughly quartering WAV fil
 ffmpeg -i input.wav -acodec adpcm_ima_wav output.wav
 
 # adpcm-xq (clean, supports 3-bit and 4-bit)
-adpcm-xq -e 3 input.wav output.wav
+adpcm-xq input.wav output.wav
 ```
 
 ## Audio Focus Priority
