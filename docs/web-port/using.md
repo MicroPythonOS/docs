@@ -4,11 +4,19 @@ MicroPythonOS can run entirely in a web browser thanks to a WebAssembly build. T
 
 ## Live demo
 
-The latest `main` branch is automatically built and published to GitHub Pages:
+The latest release is published at:
+
+**[web.micropythonos.com](https://web.micropythonos.com/)**
+
+The bleeding-edge `main` branch is also automatically built and published to GitHub Pages:
 
 **[MicroPythonOS.github.io/MicroPythonOS](https://MicroPythonOS.github.io/MicroPythonOS/)**
 
-Open that link in a modern desktop browser and the OS will boot directly into the launcher.
+Open either link in a modern desktop browser and the OS will boot directly into the launcher.
+
+## Pull request previews
+
+Every pull request targeting `main` gets an automatic preview deployment via Netlify. A bot comments the preview URL on the PR (e.g. `https://deploy-preview-N--micropythonos.netlify.app`), so you can test changes in the browser without building locally.
 
 ## Refreshing the filesystem
 

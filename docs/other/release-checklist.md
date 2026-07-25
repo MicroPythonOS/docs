@@ -29,12 +29,22 @@ When finished, download and extract the builds as artifacts from the [GitHub act
 
 - Copy `MicroPythonOS_esp32_0.6.0.ota` to the [updates repository](https://github.com/MicroPythonOS/updates) 
 - Update the `osupdate*.json` metadata files with the new file and the output from `./scripts/changelog_to_json.sh`
+- Commit and push
+- Run ../upload_updates.sh
 
 **Release to the web installer**
 
 - Copy `MicroPythonOS_esp32_0.6.0.bin` file to the [web installer](https://github.com/MicroPythonOS/install)
 - Update the [manifest.json metadata file](https://github.com/MicroPythonOS/install/blob/master/manifests/esp32/MicroPythonOS_esp32_0.6.x.json)
 - Update `index.html` if necessary (for example, if you added a new metadata.json you need to update the 2 references)
+- Commit and push
+- Run ../upload_install.sh
+
+**Release web version**
+
+- Download the web release .zip from github
+- Extract it to ../web/
+- Run ../upload_web.sh
 
 **Release to GitHub**
 
@@ -47,16 +57,21 @@ When finished, download and extract the builds as artifacts from the [GitHub act
 
 ```
 ./scripts/bundle_apps.sh
-pushd ../apps/
+cd ../apps/
 git add apps/
 git commit -a
 git push
+cd ../badgehub/
+./synchronize_badgehub.py
+cd ..
+./upload_apps.sh
 ```
 
 ** Announce the release **
 
 - On the community https://chat.MicroPythonOS.com
 - In the LightningPiggy chat
+- In the Fri3d Camp chat
 - On Nostr
 - On Twitter
 - In the Press
