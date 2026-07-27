@@ -4,22 +4,30 @@ You can intercept the boot sequence to drop into a raw REPL shell instead of sta
 
 ## How to Hijack the Boot Sequence
 
-Basically, you have to create a file /lib/mpos/main.py
-Any code you place there, will be executed by the built-in main.py
+Essentially, you have to create a file `/lib/mpos/main.py` on the filesystem.
+
+Code you place there will be executed. If an exception is thrown, it will be printed on the serial port and a REPL shell will be started.
 
 ## The one-liner
 
 ```python
-__import__("os").mkdir("/lib") or True; __import__("os").mkdir("/lib/mpos") or True; open("/lib/mpos/main.py","w").write('raise RuntimeError("/lib/mpos/main.py: dropping to REPL shell. To resume boot, do: import mpos.main")\n')
+__import__("os").mkdir("/lib") or True; __import__("os").mkdir("/lib/mpos") or True; open("/lib/mpos/main.py","w").write('raise RuntimeError("/lib/mpos/main.py: starting REPL shell. To resume boot, do: import mpos.main")\n')
 ```
 
 Copy-paste this into your device's REPL (e.g. over serial) and hit enter. The `or True` handles the case where the directories already exist.
 
-## What it does
+There are other ways to create this file:
 
-`/lib/mpos/main.py` is MicroPythonOS's entry point, imported by the frozen `internal_filesystem/main.py`.
+- use mpremote.py to mkdir and then cp the new main.py or
+- use a Web IDE like https://fri3dcamp.github.io/Fri3d-IDE/ which have file managers that can create and edit files and folders
 
-When the firmware boots, it looks for `main.py` on the filesystem — if found, it runs it first. This one-liner writes a stub that raises an error instead, which means:
+## How this works
+
+When the firmware boots, the built-in `main.py` (from `internal_filesystem/main.py` in the repo) adds `/lib` to the start of sys.path and then executes `import mpos.main`.
+
+Since the internal filesystem's `/lib` is on the sys.path _before_ the .frozen library folder, placing `mpos/main.py` in `/lib` will take precedence and will get executed.
+
+The one-liner above writes a stub that raises an exception, which means:
 
 1. The device boots into a clean MicroPython REPL.
 2. No MicroPythonOS code (LVGL, apps, frameworks) is loaded.
@@ -37,10 +45,8 @@ This runs the full boot sequence (LVGL init, app loading, launcher) as if nothin
 
 ## Undoing the hijack
 
-To restore normal boot on every power-on, delete the stub:
+To restore normal boot on every power-on, delete the override and its containing folder:
 
 ```python
-__import__("os").remove("/lib/mpos/main.py")
-import shutil
-shutil.rmtree("/lib/mpos")
+import shutil ; shutil.rmtree("/lib/mpos")
 ```
