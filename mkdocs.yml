@@ -57,6 +57,7 @@ nav:
       - AudioManager: frameworks/audiomanager.md
       - BatteryManager: frameworks/battery-manager.md
       - BuildInfo: frameworks/build-info.md
+      - CameraManager: frameworks/camera-manager.md
       - ConnectivityManager: frameworks/connectivity-manager.md
       - DeviceInfo: frameworks/device-info.md
       - DisplayMetrics: frameworks/display-metrics.md

@@ -246,12 +246,13 @@ Provides access to camera hardware.
 ```python
 from mpos import CameraManager
 
-# Initialize at startup
-CameraManager.init()
-
-# Capture image
-image_data = CameraManager.capture_photo()
+if CameraManager.has_camera():
+    cam = CameraManager.get_cameras()[0]
+    cam_obj = cam.init(320, 240, "RGB565")
+    image_data = cam.capture(cam_obj)
+    cam.deinit(cam_obj)
 ```
+See [CameraManager](../frameworks/camera-manager.md) for details.
 
 ### SensorManager
 Manages sensor access (accelerometer, gyroscope, magnetometer, temperature).
