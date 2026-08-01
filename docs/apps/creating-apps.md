@@ -51,7 +51,7 @@ In `MANIFEST.JSON`, put:
   "long_description": "Demonstrates the simplest app.",
   "fullname": "com.micropythonos.helloworld",
   "version": "0.0.2",
-  "category": "development",
+  "categories": ["Development"],
   "activities": [
     {
       "entrypoint": "hello.py",
@@ -66,6 +66,10 @@ In `MANIFEST.JSON`, put:
   ]
 }
 ```
+
+Use `"categories"` (always a list, even for a single category). Each category string is normalized to title case automatically.
+
+The deprecated single-string `"category"` field is still supported but may be removed in a future release. Apps should migrate to `"categories"`.
 
 ### Services
 
