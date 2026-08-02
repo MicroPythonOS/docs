@@ -8,16 +8,22 @@ More advanced examples are available in the [source code repository](https://git
 
 ## Structure
 
-Create the following file and folder structure:
+Create a git repo with the following file and folder structure:
 
 ```
-com.micropythonos.helloworld/
+.gitignore
+CHANGELOG.md
+LICENSE
+README.md
+com.yourdomain.appname/
 ├── MANIFEST.JSON
 ├── icon_64x64.png
 └── hello.py
 ```
 
-This flat layout puts the required `MANIFEST.JSON` and app icon at the top level, alongside your Python files. Subfolders are still allowed if you want to organize larger apps, but **each directory costs about 8 KiB of storage in LittleFS**, so use them sparingly on device.
+The `com.yourdomain.appname/` folder and everything in it is the actual app that will be installed. All the rest is support materials, tests, info, etc.
+
+For most apps, this relatively flat layout with the required `MANIFEST.JSON` and app icon alongside the Python files, is recommended. Subfolders are allowed if you want to organize larger apps, but **each directory costs about 8 KiB of storage in LittleFS**, so use them sparingly.
 
 ## App code
 
@@ -49,7 +55,7 @@ In `MANIFEST.JSON`, put:
   "publisher": "MicroPythonOS",
   "short_description": "Minimal app",
   "long_description": "Demonstrates the simplest app.",
-  "fullname": "com.micropythonos.helloworld",
+  "fullname": "com.yourdomain.appname",
   "version": "0.0.2",
   "categories": ["Development"],
   "activities": [
@@ -164,11 +170,11 @@ The size will probably be somewhere between 3 and 10KB.
 
 ## Installing the App
 
-The app can be installed by copying the top-level folder `com.micropythonos.helloworld/` (and its contents) to the `/apps/` folder.
+The app can be installed by copying the top-level folder `com.yourdomain.appname/` (and its contents) to the `/apps/` folder.
 
 ### On Desktop
 
-If you are [running MicroPythonOS on desktop](../os-development/running-on-desktop.md) from a source checkout, copy or move the top-level folder `com.micropythonos.helloworld/` (and its contents) to `internal_filesystem/apps/` and you're good to go.
+If you are [running MicroPythonOS on desktop](../os-development/running-on-desktop.md) from a source checkout, copy or move the top-level folder `com.yourdomain.appname/` (and its contents) to `internal_filesystem/apps/` and you're good to go.
 
 ### On ESP32
 
@@ -180,7 +186,7 @@ Then connect your device with a cable and install your app using:
 
 ```
 /path/to/mpremote.py mkdir :/apps
-/path/to/mpremote.py fs cp -r com.micropythonos.helloworld/ :/apps/
+/path/to/mpremote.py fs cp -r com.yourdomain.appname/ :/apps/
 ```
 
 Take a look at [`scripts/install.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/install.sh) for convenient "install everything" or "install one app" scripting.
@@ -195,7 +201,7 @@ You can also launch it manually by typing this in the MicroPython REPL:
 
 ```python
 from mpos import AppManager
-AppManager.start_app('com.micropythonos.helloworld')
+AppManager.start_app('com.yourdomain.appname')
 ```
 ## Further reading
 
