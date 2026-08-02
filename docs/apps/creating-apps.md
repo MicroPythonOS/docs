@@ -8,7 +8,7 @@ More advanced examples are available in the [source code repository](https://git
 
 ## Structure
 
-Create a git repo with the following file and folder structure:
+Create a git repository with the following file and folder structure:
 
 ```
 .gitignore
