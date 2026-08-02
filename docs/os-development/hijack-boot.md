@@ -50,3 +50,37 @@ To restore normal boot on every power-on, delete the override and its containing
 ```python
 import shutil ; shutil.rmtree("/lib/mpos")
 ```
+
+## Overriding Board Detection
+
+If `DeviceInfo.hardware_id` is already set before `import mpos.main`, the normal board detection is skipped entirely. This lets you force a specific board file or do custom initialization without modifying the firmware.
+
+### Force a known board
+
+```python
+from mpos import DeviceInfo
+DeviceInfo.set_hardware_id("linux")
+import mpos.main
+```
+
+The matching `mpos/board/linux.py` will be imported as usual.
+
+### Custom/new device (no board file)
+
+Set a hardware ID that has no corresponding `mpos/board/*.py` file. Put any init code (display, touch, etc.) directly in `/lib/mpos/main.py` before the import:
+
+```python
+from mpos import DeviceInfo
+from mpos import DisplayMetrics
+import lvgl as lv
+
+# Custom init for a new board
+DisplayMetrics.set_resolution(480, 320)
+DisplayMetrics.set_dpi(160)
+# ... more init as needed ...
+
+DeviceInfo.set_hardware_id("my_new_board")
+import mpos.main
+```
+
+`mpos.main` will log a warning about the missing board file and continue booting. This is useful when adding support for a new device using a prebuilt image — you can prototype the board init in `/lib/mpos/main.py` without rebuilding the firmware. Once stable, create `mpos/board/my_new_board.py` and include it in the next firmware build.
