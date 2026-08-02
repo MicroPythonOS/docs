@@ -8,6 +8,25 @@ Of course, porting is always quite a technical undertaking, so if you want to ma
 
 If you prefer to have the porting work done for you and you're open to making a donation, be sure to [reach out](mailto:info@MicroPythonOS.com) and we'll get it done!
 
+## Overriding Board Detection
+
+MicroPythonOS detects your board at boot by probing unique IDs and I2C addresses in `lib/mpos/main.py:detect_board()`. When porting to a new board, you can skip modifying that detection logic entirely by pre-setting the hardware ID before `mpos.main` is imported:
+
+```python
+from mpos.device_info import DeviceInfo
+DeviceInfo.set_hardware_id("myboard")
+
+import mpos.main  # skips detection, imports mpos.board.myboard directly
+```
+
+This is useful when:
+- You're using a generic build (`ESP32_GENERIC_S3`) and don't want to create a custom build.
+- You just want to deploy your board init file alongside an override — no frozen-code changes.
+
+You don't need a `mpos/board/myboard.py` file at all — the import is optional (`ImportError` is caught). You can initialize your display and peripherals inline instead, right in the same script that sets the hardware ID. Place the override in your own `main.py` on the internal storage (it runs before `mpos.main`), or in `_boot.py` before the standard `main.py` is reached.
+
+If `DeviceInfo.hardware_id` is still `"missing-hardware-info"` (its default), `mpos.main` falls through to normal detection.
+
 ## What to write
 
 By design, the only device-specific code for MicroPythonOS is found in the ```internal_filesystem/lib/mpos/board/<boardname>.py``` files.
