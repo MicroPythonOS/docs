@@ -192,6 +192,35 @@ Create and schedule a background task.
 TaskManager.create_task(self.background_work())
 ```
 
+#### `TaskManager.create_supervised_task(coroutine_factory, restart_delay_ms=200)`
+
+Create a background task that is automatically restarted if it dies unexpectedly. Used by the OS for long-lived services that must never stay down, such as the asyncio REPL console.
+
+**Parameters:**
+
+- `coroutine_factory` - A **callable returning a fresh coroutine** (not a coroutine object), because a new one is needed for every restart
+- `restart_delay_ms` (int) - Delay before each restart, in milliseconds
+
+**Returns:**
+
+- Task object for the supervisor (cancel it to stop supervision)
+
+**Restart behavior:**
+
+- Task raises `Exception` or `KeyboardInterrupt` → logged and restarted after `restart_delay_ms`
+- Task returns normally → supervision ends (a clean exit is treated as intentional)
+- Supervisor task is cancelled → supervision ends, no restart
+
+**Example:**
+```python
+def make_listener():
+    return my_service.listen_forever()
+
+TaskManager.create_supervised_task(make_listener)
+```
+
+Note the factory: passing `create_supervised_task(my_service.listen_forever())` would hand over a single coroutine object that cannot be re-run after it dies.
+
 ### Sleep Operations
 
 #### `TaskManager.sleep(seconds)`
@@ -474,9 +503,14 @@ async def safe_task(self):
 
 **Key features:**
 - `create_task()` - Wraps `asyncio.create_task()`
+- `create_supervised_task()` - Restarts a task that dies from an exception or KeyboardInterrupt
 - `sleep()` / `sleep_ms()` - Wrap `asyncio.sleep()`
 - `wait_for()` - Wraps `asyncio.wait_for()` with timeout handling
 - `notify_event()` - Creates `asyncio.Event()` objects
+
+**KeyboardInterrupt resilience:**
+
+MicroPython's `run_until_complete()` only catches `CancelledError` and `Exception`, so a `KeyboardInterrupt` raised inside any task (for example from a stray Ctrl-C sent by a host connecting over serial) escapes the event loop and would otherwise terminate every running task while the LVGL UI keeps running on its hardware timer. `TaskManager.start()` catches this and re-enters `asyncio.run()`; the task queue survives the unwind, so the remaining tasks resume.
 
 **Thread model:**
 - All async tasks run on main asyncio event loop
