@@ -217,6 +217,37 @@ Activity Stack:
 
 2. **Going back:** Framework first calls `onBackPressed()`. If it returns `True`, the activity stays foreground and must call `finish()` itself when ready. If it returns `False`, the current activity receives `onPause()` → `onStop()` → `onDestroy()`, and the previous activity receives `onResume()`
 
+### Disabling Navigation Globally
+
+Apps that need full control over the back and menu buttons can disable the system-level actions globally via `InputManager`:
+
+```python
+from mpos.ui.input_manager import InputManager
+
+# Disable back-screen navigation (hardware back button, swipe-back gesture)
+InputManager.set_back_screen_disabled(True)
+
+# Disable top-menu drawer opening (hardware menu button, swipe-down gesture)
+InputManager.set_drawer_open_disabled(True)
+
+# Query current state
+if not InputManager.is_back_screen_disabled():
+    InputManager.set_back_screen_disabled(True)
+```
+
+The same functions are also available as top-level `mpos` imports:
+
+```python
+import mpos
+mpos.set_back_screen_disabled(True)
+mpos.set_drawer_open_disabled(True)
+```
+
+- `close_drawer()` still works when drawer opening is disabled — you can close an already-open drawer.
+- `finish_current_activity()` (called directly) is not gated, only `back_screen()`.
+- All paths — hardware key handlers, gesture navigation, and programmatic calls — funnel through `back_screen()` and `open_drawer()`/`toggle_drawer()`, so a single call gates every trigger.
+- When disabled, the back-screen and drawer-open actions invoke optional callbacks passed to `set_back_screen_disabled(True, cb=...)` and `set_drawer_open_disabled(True, cb=...)`. The callbacks receive no arguments. If no callback is set, the action is silently consumed.
+
 ## Starting Activities
 
 ### Basic Navigation

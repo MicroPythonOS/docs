@@ -21,9 +21,34 @@ git diff --stat 0.6.0 internal_filesystem/  # Check changes since last release, 
 
 This will trigger the GitHub builds at https://github.com/MicroPythonOS/MicroPythonOS/actions
 
-**Download the builds**
+**Tag the commit**
 
-When finished, download and extract the builds as artifacts from the [GitHub actions](https://github.com/MicroPythonOS/MicroPythonOS/actions).
+When finished, check to make sure the tests were green.
+
+Then, tag the freshly built commit with something like:
+
+`git tag 0.17.0 64b8597713`
+
+In the example above, 0.17.0 is the CURRENT_OS_VERSION and 64b8597713 is the commit that was built.
+
+**Push the tag**
+
+Run:
+
+`git push --tags`
+
+This will trigger the github "release.yml" workflow, which will create a [draft release](https://github.com/MicroPythonOS/MicroPythonOS/releases).
+
+**Test the draft release**
+
+Make sure it's all good to go.
+
+**Publish the draft release**
+
+Edit the draft release on GitHub.
+
+- Copy-paste the list from `CHANGELOG.md` into it
+- Click "Publish"
 
 **Release to Over-The-Air update**
 
@@ -45,13 +70,6 @@ When finished, download and extract the builds as artifacts from the [GitHub act
 - Download the web release .zip from github
 - Extract it to ../web/
 - Run ../upload_web.sh
-
-**Release to GitHub**
-
-- Upload the builds a [new GitHub release](https://github.com/MicroPythonOS/MicroPythonOS/releases/new)
-- Fill in the new tag (e.g. 0.6.0)
-- Copy-paste the list from `CHANGELOG.md` in it
-- Add the "What to do" section at the bottom
 
 **Bundle and publish apps**:
 
