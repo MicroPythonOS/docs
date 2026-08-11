@@ -71,6 +71,7 @@ nav:
       - NotificationManager: frameworks/notification-manager.md
       - NumberFormat: frameworks/number-format.md
       - Preferences: frameworks/preferences.md
+      - SDCardManager: frameworks/sdcard-manager.md
       - SensorManager: frameworks/sensor-manager.md
       - Service: frameworks/service.md
       - SettingActivity: frameworks/setting-activity.md
