@@ -221,6 +221,46 @@ class RetroLauncher(Activity):
 
 ([View on GitHub](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/internal_filesystem/apps/com.micropythonos.doom_launcher/retrogo_launcher.py#L122))
 
+### Handling Mount Failures
+
+When `mount()` returns `False`, you may want to ask the user before attempting a destructive format:
+
+```python
+from mpos import SDCardManager
+import lvgl as lv
+
+
+def ensure_sd_mounted():
+    """Mount SD card, with confirmation dialog for format on failure."""
+    if SDCardManager.mount():
+        return True
+
+    mbox = lv.msgbox()
+    mbox.add_title("SD Card Error")
+    mbox.add_text("Could not mount SD card.\n\nFormat it now?\nAll data will be lost.")
+
+    no_btn = mbox.add_footer_button("No")
+    no_btn.add_event_cb(lambda e: mbox.close(), lv.EVENT.CLICKED, None)
+
+    def _on_format_yes(e):
+        mbox.close()
+        if SDCardManager.mount(format=True):
+            ok = lv.msgbox()
+            ok.add_text("SD card formatted and mounted.")
+            close = ok.add_footer_button("OK")
+            close.add_event_cb(lambda e2: ok.close(), lv.EVENT.CLICKED, None)
+        else:
+            err = lv.msgbox()
+            err.add_text("Format failed. Check the SD card.")
+            close = err.add_footer_button("OK")
+            close.add_event_cb(lambda e2: err.close(), lv.EVENT.CLICKED, None)
+
+    yes_btn = mbox.add_footer_button("Yes")
+    yes_btn.add_event_cb(_on_format_yes, lv.EVENT.CLICKED, None)
+
+    return False
+```
+
 ### SPI Board Configuration
 
 ```python
