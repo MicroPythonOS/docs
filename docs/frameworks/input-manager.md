@@ -153,6 +153,30 @@ Disable or enable the top-menu drawer open action. When `disabled=True`, drawer-
 #### `is_drawer_open_disabled()`
 **Returns:** bool — True if drawer opening is currently disabled.
 
+### Real-World Example
+
+The [Emoji Sort](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/internal_filesystem/apps/com.micropythonos.sorter) app (`com.micropythonos.sorter`) uses navigation gating for two purposes:
+
+```python
+from mpos.ui.input_manager import InputManager
+
+class Sorter(Activity):
+    def onResume(self, screen):
+        # Back button → exit confirmation dialog
+        InputManager.set_back_screen_disabled(True, cb=self._show_exit_confirm)
+        # Menu/drawer button → show solution guide
+        InputManager.set_drawer_open_disabled(True, cb=lambda: self.on_help(None))
+
+    def onPause(self, screen):
+        InputManager.set_back_screen_disabled(False)
+        InputManager.set_drawer_open_disabled(False)
+        super().onPause(screen)
+```
+
+- **Back button** — shows "Exit the game?" confirmation dialog instead of navigating back.
+- **Menu/drawer-open button** — displays the level solution (step-by-step move instructions) instead of opening the system menu drawer.
+- Disabled state is cleared in `onPause()` so the gating only applies while the app is in the foreground.
+
 ## Related Frameworks
 
 - **[DisplayMetrics](display-metrics.md)** - Display properties and pointer coordinates (uses InputManager)
