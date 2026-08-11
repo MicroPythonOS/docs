@@ -104,11 +104,10 @@ class AppStoreActivity(Activity):
     async def download_app_index(self):
         try:
             data = await DownloadManager.download_url(
-                "https://apps.micropythonos.com/app_index.json"
+                "https://download.com/"
             )
             if data:
-                parsed = json.loads(data)
-                self.update_ui(parsed)
+                self.update_ui(data)
         except Exception as e:
             print(f"Download failed: {e}")
 ```

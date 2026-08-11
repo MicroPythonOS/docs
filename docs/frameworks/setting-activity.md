@@ -339,7 +339,6 @@ from mpos import Activity, Intent, SettingActivity, SharedPreferences
 class AppStore(Activity):
     BACKENDS = [
         ("MPOS GitHub", "github,https://apps.micropythonos.com/app_index.json"),
-        ("BadgeHub Test", "badgehub,https://badgehub.p1m.nl/api/v3"),
         ("BadgeHub Prod", "badgehub,https://badge.why2025.org/api/v3")
     ]
     

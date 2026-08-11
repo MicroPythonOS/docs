@@ -7,7 +7,6 @@ The MicroPythonOS App Store allows users to download and install new apps to ext
 The AppStore app can pull apps from more than one source:
 
 - **BadgeHub.eu** — the community appstore for event badges and community-built apps at [badgehub.eu](https://badgehub.eu). On supported firmware builds this is the default backend. See [BadgeHub Apps](badgehub.md) for details on publishing there.
-- **MicroPythonOS Apps** — the curated, manually reviewed app index at [apps.micropythonos.com](https://apps.micropythonos.com).
 
 Use the backend selector in the AppStore UI to switch between sources.
 

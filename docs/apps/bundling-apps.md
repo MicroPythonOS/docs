@@ -68,12 +68,8 @@ from .nostr_service import NostrService
 
 Apps can include native C/C++ extension modules compiled as MicroPython `.native.mpy` files. Place the compiled `.mpy` in the app folder and import it like a normal module. For build instructions and an example, see [Native C/C++ Apps](native-apps.md).
 
-## AppStore bundling
+## Publishing apps
 
-The apps at https://apps.MicroPythonOS.com are a curated, manually reviewed, vetted collection, often created and maintained by the MicroPythonOS core team.
+MicroPythonOS currently supports the [BadgeHub.eu](https://badgehub.eu) appstore backend, with plans to add more options.
 
-These are bundled into an [`app_index.json`](https://github.com/MicroPythonOS/apps/blob/main/app_index.json) using [`scripts/bundle_apps.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/bundle_apps.sh) and then pushed to the [apps repo](https://github.com/MicroPythonOS/apps).
-
-## BadgeHub.eu publishing
-
-For community and event-badge publishing, MicroPythonOS also supports the [BadgeHub.eu](https://badgehub.eu) appstore backend. See [BadgeHub Apps](badgehub.md) for how to publish an `.mpk` there.
+See [BadgeHub Apps](badgehub.md) for how to publish an `.mpk` there.
