@@ -11,6 +11,8 @@ InputManager centralizes all input-related operations in a single class with cla
 - **Testable** - InputManager can be tested independently
 - **Pointer Access** - Get current touch/pointer coordinates
 - **Device Registration** - Register and query available input devices by type
+- **Navigation Gating** - Disable system-level back and drawer-open actions globally
+- **Touch Feedback** - Attach haptic/touch-feedback callbacks to pointer devices
 
 ## Architecture
 
@@ -87,16 +89,69 @@ Check if any registered input device is a pointer/touch device.
 **Returns:** bool - True if a pointer device is registered
 
 #### `emulate_focus_obj(focusgroup, target)`
-Deprecated compatibility shim. Use `lv.group_focus_obj(target)` directly.
+**Deprecated.** Compatibility shim. Use `lv.group_focus_obj(target)` directly.
 
 #### `register_indev(indev)`
-Register an input device for later querying by type.
+Register an input device for later querying by type. Called by board initialization code.
+
+#### `unregister_indev(indev)`
+Unregister an input device. Disables the device (`indev.enable(False)`) and removes it from the registry.
 
 #### `list_indevs()`
 Get list of all registered input devices.
 
 #### `has_indev_type(indev_type)`
-Check if any registered input device has the specified type.
+Check if any registered input device has the specified type (e.g., `lv.INDEV_TYPE.KEYPAD`, `lv.INDEV_TYPE.POINTER`).
+
+#### `has_haptic_feedback()`
+Check whether touch feedback (haptic) has been set up on pointer devices.
+
+**Returns:** bool
+
+#### `set_touch_feedback_cb(cb)`
+Attach a callback `cb(event)` to every registered pointer input device on `LV_EVENT.CLICKED`. LVGL sends `CLICKED` on touch release only when the press did not scroll a scrollable parent, so the callback fires on taps but not on swipes. Call once at boot; calling again re-registers the callback.
+
+## Navigation Gating
+
+Apps that need full control over the back and menu buttons can disable system-level navigation actions globally via InputManager:
+
+```python
+from mpos.ui.input_manager import InputManager
+import mpos
+
+InputManager.set_back_screen_disabled(True)
+InputManager.set_drawer_open_disabled(True)
+
+if not InputManager.is_back_screen_disabled():
+    InputManager.set_back_screen_disabled(True)
+```
+
+The same functions are also available as top-level `mpos` imports:
+
+```python
+import mpos
+mpos.set_back_screen_disabled(True)
+mpos.set_drawer_open_disabled(True)
+```
+
+- `close_drawer()` still works when drawer opening is disabled — you can close an already-open drawer.
+- `finish_current_activity()` (called directly) is not gated, only `back_screen()`.
+- All paths — hardware key handlers, gesture navigation, and programmatic calls — funnel through `back_screen()` and `open_drawer()`/`toggle_drawer()`, so a single call gates every trigger.
+- When disabled, the back-screen and drawer-open actions invoke optional callbacks passed to `set_back_screen_disabled(True, cb=...)` and `set_drawer_open_disabled(True, cb=...)`. The callbacks receive no arguments. If no callback is set, the action is silently consumed.
+
+### Navigation Gating API
+
+#### `set_back_screen_disabled(disabled, cb=None)`
+Disable or enable the back-screen navigation action. When `disabled=True`, back-screen actions are consumed (optionally invoking `cb`).
+
+#### `is_back_screen_disabled()`
+**Returns:** bool — True if back-screen navigation is currently disabled.
+
+#### `set_drawer_open_disabled(disabled, cb=None)`
+Disable or enable the top-menu drawer open action. When `disabled=True`, drawer-open actions are consumed (optionally invoking `cb`).
+
+#### `is_drawer_open_disabled()`
+**Returns:** bool — True if drawer opening is currently disabled.
 
 ## Related Frameworks
 
