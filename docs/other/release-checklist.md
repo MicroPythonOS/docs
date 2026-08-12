@@ -35,7 +35,7 @@ In the example above, 0.17.0 is the CURRENT_OS_VERSION and 64b8597713 is the com
 
 Run:
 
-`git push --tags`
+`git push origin tag 0.17.0 --force # --force is only needed if you already pushed that tag before`
 
 This will trigger the github "release.yml" workflow, which will create a [draft release](https://github.com/MicroPythonOS/MicroPythonOS/releases).
 
@@ -49,6 +49,11 @@ Edit the draft release on GitHub.
 
 - Copy-paste the list from `CHANGELOG.md` into it
 - Click "Publish"
+
+**Optional: build and test dependent projects**
+
+Projects like https://github.com/fri3dcamp/badge_firmware_Micropythonos rely on MicroPythonOS releases,
+so you might want to re-build those as well, either now or after finalizing the steps below.
 
 **Release to Over-The-Air update**
 
