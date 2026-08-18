@@ -41,6 +41,7 @@ nav:
   - Getting Started:
       - Overview: getting-started/index.md
       - Running: getting-started/running.md
+      - Updating: getting-started/updating.md
       - Supported Hardware: getting-started/supported-hardware.md
   - Apps:
       - Overview: apps/index.md
