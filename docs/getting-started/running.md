@@ -10,6 +10,8 @@ To modify low level things under the hood, consider heading to [OS Development](
 
 Just use the [WebSerial installer at install.micropythonos.com](https://install.micropythonos.com).
 
+Note that the web installer is for **first-time installs**: to update a device that already runs MicroPythonOS, use the built-in OSUpdate app instead — see [Updating](updating.md). Reflashing an already-installed device can erase your apps and settings.
+
 For advanced usage, such as installing development builds without any files, see [Installing on ESP32](../os-development/installing-on-esp32.md).
 
 ## Running on desktop
