@@ -76,7 +76,11 @@ Available sounds:
 | `Scale up` | `scale_up:d=32,o=5,b=100:c,c#,d#,e,f#,g#,a#,b` |
 | `Superhappy` | `superhappy:d=8,o=5,b=635:c,e,g,c,e,g,c,e,g,c6,e6,g6,c6,e6,g6,c7,e7,g7,c7,e7,g7,c7,e7,g7` |
 
-The default sound is `Coin`. If no buzzer output is available, the notification posts silently. Apps can change the sound programmatically:
+The default sound is `Coin`.
+
+On macOS desktop builds the notification buzzer sound is skipped because it was causing `tests/test_graphical_topmenu_drawer.py` to hang on the GitHub test workflow, possibly because the GitHub CI server doesn't have a sound card. It would be better to only skip this on the CI server, or only skip it if there's no sound card.
+
+On other platforms, if no buzzer output is available, the notification posts silently. Apps can change the sound programmatically:
 
 ```python
 from mpos import SharedPreferences

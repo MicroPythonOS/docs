@@ -63,4 +63,29 @@ To run all unit tests, do:
 ./tests/unittest.sh --ondevice # this takes a long time
 ```
 
+## Test Runner Flags
+
+The `test_runner.py` script (used by `unittest.sh` internally) supports these additional flags:
+
+| Flag | Description |
+|------|-------------|
+| `--no-install-test-apps` | Skip automatic installation of test apps before on-device runs. By default, `--ondevice` runs call `install_test_apps.sh` automatically. |
+| `--logserial <filename>` | Write raw serial output to a file for debugging communication issues. |
+| `--coverage` | Enable code coverage tracking on desktop builds (requires a coverage build — see `./scripts/build_mpos.sh unix coverage`). |
+| `--coverage-save <file.json>` | Save coverage data to a JSON file for later aggregation or HTML report generation. |
+| `--coverage-load <file.json>` | Load previously saved coverage data to merge with the current run. |
+
+### Coverage Example
+
+```
+# Build with coverage support
+./scripts/build_mpos.sh unix coverage
+
+# Run tests with coverage and save results
+python3 scripts/test_runner.py --coverage --coverage-save cov.json tests/test_a.py tests/test_b.py
+
+# Generate an HTML report
+python3 scripts/coverage_report.py cov.json -o coverage/index.html
+```
+
 

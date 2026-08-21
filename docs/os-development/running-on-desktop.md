@@ -112,6 +112,16 @@ Native Windows builds are not supported. [Users report](https://github.com/Micro
 
 ---
 
+## Keyboard shortcuts
+
+The desktop emulator supports these keyboard shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+Shift+S (Cmd+Shift+S on macOS) | Save a screenshot as BMP in the working directory |
+
+Screenshots are saved with a timestamped filename like `screenshot-YYYYMMDD-HHMMSS.bmp`. The path is printed to the console so you know exactly where the file was written.
+
 ## Deploying to hardware
 
 Once your app works on desktop, install it on a supported ESP32 device.

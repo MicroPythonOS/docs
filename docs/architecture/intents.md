@@ -814,6 +814,78 @@ class WiFiActivity(Activity):
 
 **Pattern:** Method chaining with `startActivityForResult()` for specialized camera modes.
 
+---
+
+## Deep Links & URL Handling
+
+MicroPythonOS supports opening URLs (e.g., from QR codes) through a deep-link mechanism. The system parses the URL and either opens the App Store on a linked app or dispatches an intent to a third-party URL handler.
+
+### Official Store Links
+
+QR codes can point directly to an app in the App Store using these link formats:
+
+```
+https://apps.micropythonos.com/app/<app_id>[?v=<min_version>&s=<source>]
+microPythonOS://app/<app_id>[?...]
+mpos://app/<app_id>[?...]
+```
+
+All three forms are equivalent and case-insensitive (`MPOS://APP/COM.EXAMPLE.PAINT` works too). The link only carries the app's identity — never a download URL — so the App Store resolves it against its trusted catalog.
+
+Opening a store link launches the App Store on the linked app's detail page:
+
+```python
+from mpos.content.deeplink import open_url
+
+open_url("https://apps.micropythonos.com/app/com.example.myapp")
+```
+
+### Third-Party URL Handlers
+
+Apps can register URL handlers in their `MANIFEST.JSON` via a `urlPattern` in an activity's `intent_filters`:
+
+```json
+{
+  "activities": [
+    {
+      "entrypoint": "main.py",
+      "classname": "MainActivity",
+      "intent_filters": [
+        { "action": "view_url", "urlPattern": "https://store.acme.example/app/*" }
+      ]
+    }
+  ]
+}
+```
+
+Rules for `urlPattern`:
+
+- Must look like `scheme://host/...` with a literal host (no wildcards in host).
+- A trailing `*` is the only wildcard allowed and matches any suffix.
+- Patterns matching the official store host (`apps.micropythonos.com`) or the `mpos://` / `microPythonOS://` schemes are reserved for the system and rejected at registration.
+- Matching is a case-insensitive scheme-and-host prefix match.
+
+When a URL is opened, the system checks for matching third-party handlers. One match dispatches directly; several open the chooser. No sticky default is set, so a later-installed app is never permanently shadowed.
+
+```python
+from mpos.content.deeplink import open_url
+
+# Dispatches to the app whose urlPattern matches the URL
+open_url("https://store.acme.example/app/123")
+```
+
+### QR Code Integration
+
+QR scanners (e.g., the Camera app) can check whether decoded text is a dispatchable link:
+
+```python
+from mpos.content.deeplink import open_action_label
+
+label = open_action_label(scanned_text)
+if label:
+    print(f"Offer action: {label}")  # "Open in App Store" or "Open link"
+```
+
 ## Best Practices
 
 ### 1. Choose the Right Intent Type
@@ -991,7 +1063,7 @@ MicroPythonOS Intents are inspired by Android's Intent system but simplified for
 | **Intent Filters** | ✅ Manifest + programmatic | ✅ In manifest | File-type filters in `MANIFEST.JSON`, generic handlers via code |
 | **Categories** | ❌ Not supported | ✅ Supported | Simplified routing |
 | **Data Types** | ⚠️ Path patterns | ✅ MIME types | `pathPattern` suffix matching; `mimeType` is stored but not used for matching |
-| **URI Schemes** | ❌ Not matched | ✅ Supported | No scheme filtering |
+| **URI Schemes** | ✅ `mpos://` / `microPythonOS://` | ✅ Supported | Official schemes reserved for system; third-party `urlPattern` matching available |
 | **Chooser UI** | ✅ ChooserActivity | ✅ Intent chooser | Custom implementation |
 | **Result Callbacks** | ✅ Callback-based | ✅ onActivityResult() | Different mechanism |
 | **Method Chaining** | ✅ putExtra() returns self | ❌ No chaining | MicroPythonOS advantage |

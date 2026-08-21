@@ -78,6 +78,17 @@ The `DownloadManager.download_url()` method automatically detects whether it's c
 
 This means you can use the same API in both async and sync code without any wrapper functions.
 
+## Redirect Handling
+
+DownloadManager follows HTTP redirects with the following constraints:
+
+- **Status codes followed:** 301 (Moved Permanently), 302 (Found), 303 (See Other).
+- **Status codes NOT followed:** 307 (Temporary Redirect), 308 (Permanent Redirect). These are treated as the final response.
+- **Maximum redirects: 1 hop.** The HTTP client (`aiohttp`) makes at most 2 requests per call — the original URL plus one redirect. A chain of 2 or more redirects will fail: the final redirect response body (typically empty) is treated as the download content, resulting in a parse error or corrupt file.
+
+!!! warning
+    If you need to redirect `https://updates.micropythonos.org/...` to `https://updates.micropythonos.com/...`, ensure the `.com` endpoint responds directly with a 200 — do not chain another redirect. A 2-hop chain (`.org` → `.com` → `.com?__direct=1`) will exhaust the redirect budget.
+
 ## API Reference
 
 ### `DownloadManager.download_url()`
