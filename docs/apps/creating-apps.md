@@ -88,7 +88,8 @@ Apps can also declare **services** — background components that run at boot ti
     "classname": "MyBootService",
     "intent_filters": [
       {
-        "action": "boot_completed"
+        "action": "boot_completed",
+        "delay_s": 120
       }
     ]
   }
@@ -101,7 +102,7 @@ Each service entry has:
 |-------|-------------|
 | `entrypoint` | Path to the Python file (relative to the app root) |
 | `classname` | Name of the `Service` subclass in that file |
-| `intent_filters` | Array of `{ "action": "..." }` objects. Use `"boot_completed"` to run at startup |
+| `intent_filters` | Array of `{ "action": "...", "delay_s": N }` objects. Use `"boot_completed"` to run at startup. Optional `delay_s` (seconds) defers the import and start of the service; `0` or absent starts immediately |
 
 Services that subscribe to `"boot_completed"` are started automatically during system boot, after the launcher is displayed. See the [Service documentation](../frameworks/service.md) for details on writing and using services.
 

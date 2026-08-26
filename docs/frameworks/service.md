@@ -125,7 +125,7 @@ Apps declare services in their `MANIFEST.JSON` under a `"services"` array:
       "entrypoint": "osupdate_boot_service.py",
       "classname": "OSUpdateService",
       "intent_filters": [
-        { "action": "boot_completed" }
+        { "action": "boot_completed", "delay_s": 90 }
       ]
     }
   ]
@@ -138,7 +138,7 @@ Each service entry requires:
 |-------|-------------|
 | `entrypoint` | Path to the Python file (relative to the app root) |
 | `classname` | Name of the Service subclass in that file |
-| `intent_filters` | Array of `{ "action": "..." }` objects. `"boot_completed"` triggers the service at startup |
+| `intent_filters` | Array of `{ "action": "...", "delay_s": N }` objects. `"boot_completed"` triggers the service at startup. Optional `delay_s` (seconds) defers the import and start of the service; `0` or absent starts immediately |
 
 The corresponding service code:
 

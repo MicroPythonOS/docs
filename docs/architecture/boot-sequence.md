@@ -19,7 +19,10 @@ MicroPythonOS consists of several core components that initialize and manage the
         - `WifiBootService` — auto-connects WiFi in a background thread
         - `WebServerBootService` — starts the HTTP web server
         - `AIOReplService` — starts the asyncio REPL task
-        - App-specific services (e.g., `OSUpdateService`)
+        - App-specific services with `delay_s: 0` or no delay (e.g., `NostrBootService`, `MeshCoreBootService`)
+    - Schedules **deferred boot services** — services declaring `delay_s` > 0 in their intent_filter are imported and started asynchronously after the delay, keeping non-critical module imports out of the boot path:
+        - `AppStoreService` (120s delay)
+        - `OSUpdateService` (90s delay)
     - Marks the current boot as successful (cancel rollback)
     - Starts the TaskManager (asyncio event loop)
 
