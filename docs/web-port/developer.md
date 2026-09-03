@@ -100,6 +100,12 @@ The web-only Python shims (`_thread.py`, `socket.py`, `_webrepl.py`, `websocket.
 
 ## Submodule patches (applied automatically)
 
+!!! note
+    The general mechanism (how `apply_patch` works, adding/regenerating a patch, and the
+    `lvgl_micropython` patch family) is documented once in
+    [Build-time Patches](../os-development/build-patches.md); this section covers only what is
+    specific to the web target.
+
 The web target requires four changes inside the `lvgl_micropython` submodule. Rather than committing them to the submodule, they are stored in this repo and applied at the start of the `web` build (`patch --forward` makes re-application a no-op; the file copies are idempotent):
 
 1. **`builder/web.py`** (full file) — the Emscripten build backend. Copied from `scripts/web_port/web.py`.

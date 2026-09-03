@@ -98,6 +98,7 @@ nav:
       - Emulated ESP32: os-development/emulating-esp32-on-desktop.md
       - Porting Guide: os-development/porting-guide.md
       - Hijacking the Boot: os-development/hijack-boot.md
+      - Build-time Patches: os-development/build-patches.md
   - Web Port:
       - Using the Web Port: web-port/using.md
       - Developer Info: web-port/developer.md
