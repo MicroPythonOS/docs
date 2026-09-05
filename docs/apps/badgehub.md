@@ -50,6 +50,10 @@ Releases on BadgeHub should use [semantic versioning](https://semver.org/) strin
 
 The AppStore app can switch between the curated MicroPythonOS backend and the BadgeHub backend. On supported firmware builds, BadgeHub is the default backend. Tap the backend selector in the AppStore UI to switch sources.
 
+## Sharing via QR
+
+To share your project on-device, point users at `https://badgehub.eu/page/project/<slug>` and have them tap **Scan QR** in the AppStore. See [App Store](appstore.md#scan-qr).
+
 ## See also
 
 - [Bundling Apps](bundling-apps.md) — creating `.mpk` packages

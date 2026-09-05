@@ -825,19 +825,19 @@ MicroPythonOS supports opening URLs (e.g., from QR codes) through a deep-link me
 QR codes can point directly to an app in the App Store using these link formats:
 
 ```
-https://apps.micropythonos.com/app/<app_id>[?v=<min_version>&s=<source>]
+https://badgehub.eu/page/project/<app_id>[?v=<min_version>&s=<source>]
 microPythonOS://app/<app_id>[?...]
 mpos://app/<app_id>[?...]
 ```
 
-All three forms are equivalent and case-insensitive (`MPOS://APP/COM.EXAMPLE.PAINT` works too). The link only carries the app's identity — never a download URL — so the App Store resolves it against its trusted catalog.
+All three forms are equivalent and case-insensitive (`MPOS://APP/COM.EXAMPLE.PAINT` works too). The link only carries the app's identity — never a download URL — so the App Store resolves it against its trusted catalog. The user-facing flow (the AppStore's **Scan QR** button) is described in [App Store](../apps/appstore.md#scan-qr).
 
 Opening a store link launches the App Store on the linked app's detail page:
 
 ```python
 from mpos.content.deeplink import open_url
 
-open_url("https://apps.micropythonos.com/app/com.example.myapp")
+open_url("https://badgehub.eu/page/project/com.example.myapp")
 ```
 
 ### Third-Party URL Handlers
@@ -862,7 +862,7 @@ Rules for `urlPattern`:
 
 - Must look like `scheme://host/...` with a literal host (no wildcards in host).
 - A trailing `*` is the only wildcard allowed and matches any suffix.
-- Patterns matching the official store host (`apps.micropythonos.com`) or the `mpos://` / `microPythonOS://` schemes are reserved for the system and rejected at registration.
+- Patterns matching the official store host (`badgehub.eu`) or the `mpos://` / `microPythonOS://` schemes are reserved for the system and rejected at registration.
 - Matching is a case-insensitive scheme-and-host prefix match.
 
 When a URL is opened, the system checks for matching third-party handlers. One match dispatches directly; several open the chooser. No sticky default is set, so a later-installed app is never permanently shadowed.
