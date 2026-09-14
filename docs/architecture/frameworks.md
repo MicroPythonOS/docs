@@ -279,6 +279,18 @@ task = TaskManager.create_task(my_coroutine())
 TaskManager.sleep(seconds)
 ```
 
+### USBManager
+USB host support on ESP32 (`--usb` builds): DisplayLink display adapters plus HID mice/keyboards, with display/panel auto-switching and hub-port recovery.
+
+```python
+from mpos import USBManager
+
+if USBManager.is_available():
+    USBManager.arm_display()
+    USBManager.arm_hid()
+```
+See [USBManager](../frameworks/usb-manager.md) for details.
+
 ### SharedPreferences
 Per-app configuration storage (exception to the pattern - instance-based).
 

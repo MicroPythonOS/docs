@@ -48,13 +48,17 @@ The layers, bottom to top:
 
 - **C module `usb`** (`c_mpos/usb/`): `Display` class (start/poll/ready, frame upload) plus module-level host functions (`bus_devices`, `lsusb`, `hub_ports`, `reset_port`, watchdog toggles) and HID transport (`hid_start/poll/drain/state/...`). Upstream Pico_USB_Disp is vendored under `c_mpos/usb/upstream/` with a few clearly-commented MPOS adaptations (hub-port watchdog, `lsusb`, held-handle hook).
 - **Drivers**: `drivers/display/usb_display.py` (`USBDisplayDriver`, a `DisplayDriver` behind a shim bus) and `drivers/indev/usb_hid.py` (parser registry + `HIDHub` demux + `USBMouse` + `USBHIDKeyboard`). Report parsing is Python-side, so new device kinds never need C changes.
-- **USBManager** (`mpos/usb/`): boot arming (`arm_display`, `arm_hid`), the 1 s LVGL poll timer (HID pump + display state machine + auto-switch), panel/USB swapping, touch remapping, and HID/watchdog coexistence (idle-reset suppression while HID is claimed or parked).
+- **USBManager** (`mpos/usb/`): boot arming (`arm_display`, `arm_hid`), the 1 s LVGL poll timer (HID pump + display state machine + auto-switch), panel/USB swapping, touch remapping, and HID/watchdog coexistence (port-exact idle-reset skip for claimed HIDs, parked-only global suppression).
 
 Only DisplayLink DL-1xx adapters work on ESP32-S3 (Full-Speed OTG); DL-165/DL-195 recommended. T6/MS91xx need High-Speed, i.e. ESP32-P4 only (protocol code is vendored but untested on hardware).
 
 ### HCD channel budget
 
 The S3 DWC_OTG core has 8 host channels (~7 usable): one channel per USB *pipe*, held for the pipe's lifetime. Rule of thumb: **max 1 hub + 2 downstream devices** on S3. ESP32-P4/S31 have 16 channels, so **1 hub + 4 devices** fits there. Claim priority is display > mouse > keyboard; a claim that fails with channel exhaustion parks silently with backoff until a topology change or `usb.hid_retry()`.
+
+### HID/watchdog coexistence
+
+A healthy, enumerated HID reads exactly like a wedged adapter (connected + enabled, no bus growth), which the hub watchdog's idle auto-reset would otherwise `PORT_RESET` ~15s after plug. Two-part answer: open HID handles resolve to their (hub, port), so the sweep skips the auto-reset exactly on HID-owned ports and logs `HID device, auto-reset skipped` inline, while other ports keep healing; parked devices have no open handle and stay covered by a global suppression (restored when the park clears). The disabled-port recovery path is never suppressed.
 
 ### Display switching
 
@@ -120,6 +124,6 @@ usb.hid_loop_lag()       # ms since the HID task pumped events (~100 healthy)
 
 - ESP32-S3 only; DisplayLink DL-1xx only (tested on DL-165/DL-195).
 - 640x480 minimum mode; rotation fixed to `_0`; RGB565 only.
-- Full display + mouse + keyboard combo cannot fit the S3 channel budget persistently (the keyboard parks until something unplugs).
+- Full display + mouse + keyboard combo cannot fit the S3 channel budget persistently (the keyboard parks until something unplugs); transient keyboard polling (`usb.hid_set_kbd_transient(True)`) holds no persistent pipe and is the experimental fit-the-combo option.
 - A wedged adapter behind an externally powered hub is not recoverable by port resets — power-cut the adapter itself.
 - Field upgrades across this rename need `--erase-all` or a lib re-sync: the frozen C module changed name (`usb_disp` to `usb`), so stale flash shadows will not fall back.
