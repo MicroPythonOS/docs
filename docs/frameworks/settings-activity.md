@@ -40,7 +40,7 @@ class MyApp(Activity):
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`changed_callback`** (function): Callback function called when the setting value changes
 - **`should_show`** (function): Boolean or function to determine if this setting should be displayed in the list
-- **`dont_persist`** (bool): If `True`, the setting won't be saved to SharedPreferences
+- **`dont_persist`** (bool): If `True`, the setting won't be saved to SharedPreferences. In the list, such a row shows "(not persisted)" — unless it also has a `default_value`, in which case it shows "(defaults to X)" like a normal unset setting (useful when the live value is re-read on every open).
 - **`min`** (int): Minimum value for `"slider"` UI (default: `0`)
 - **`max`** (int): Maximum value for `"slider"` UI (default: `100`)
 - **`activity_class`** (class): Custom Activity class for `"activity"` UI type
@@ -212,6 +212,12 @@ Use `dont_persist` to prevent a setting from being saved to SharedPreferences.
     "dont_persist": True
 }
 ```
+
+Such rows show "(not persisted)" in the list — unless a `default_value` is
+also given, in which case the row shows "(defaults to X)", re-read live on
+every open. That combination suits settings whose truth lives outside the
+app's own preferences (e.g. USB Host Mode, persisted under
+`com.micropythonos.usb`).
 
 ## Complete Example: Simple Settings List
 
