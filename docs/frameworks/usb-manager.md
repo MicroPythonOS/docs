@@ -76,8 +76,10 @@ USBManager.deactivate()  # stop host, bring CDC back (REPL rejoins automatically
 USBManager.host_mode_active()  # live host state
 ```
 
-Both persist the choice (`host_mode` in the `com.micropythonos.usb`
-preferences) so reboots keep it; pass `persist=False` for a one-shot switch.
+Both persist the choice (`usb_host_mode` in the `com.micropythonos.settings`
+preferences — the same key the Settings row edits, so UI, REPL and boot
+share one source of truth) so reboots keep it; pass `persist=False` for a
+one-shot switch.
 `mpos.main` honors the persisted flag at boot. Both are idempotent and safe
 to retry. On stock builds (no `usb` module) they return `False`.
 
