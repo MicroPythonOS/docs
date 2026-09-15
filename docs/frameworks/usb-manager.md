@@ -10,7 +10,7 @@ USB host support is opt-in and ESP32-S3-only (needs USB OTG):
 ./scripts/build_mpos.sh esp32s3 --usb
 ```
 
-This compiles in the `usb` C module (`c_mpos/usb/`) alongside TinyUSB device mode. **CDC is the default**: the device boots with a USB-serial console and the OTG peripheral stays in device mode. Host mode starts only on explicit request — Settings → "USB Host Mode", or `USBManager.activate()` — and while it is active USB-CDC is gone (console remains over UART REPL where exposed, or WebREPL over WiFi). Deactivating brings CDC back; the choice persists across reboots. Holding BOOT at boot forces CDC regardless of the persisted flag.
+This compiles in the `usb` C module (`c_mpos/usb/`) alongside TinyUSB device mode. **CDC is the default**: the device boots with a USB-serial console and the OTG peripheral stays in device mode. Host mode starts only on explicit request — Settings → "USB Host Mode" (`On` persisted, `On until reboot` one-shot, `Off`), or `USBManager.activate()` — and while it is active USB-CDC is gone (console remains over UART REPL where exposed, or WebREPL over WiFi). Deactivating brings CDC back; the choice persists across reboots. Holding BOOT at boot forces CDC regardless of the persisted flag.
 
 USBManager centralizes all USB-host operations in a single class with class methods:
 
