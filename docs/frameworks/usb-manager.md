@@ -10,7 +10,7 @@ USB host support is opt-in and ESP32-S3-only (needs USB OTG):
 ./scripts/build_mpos.sh esp32s3 --usb
 ```
 
-This compiles in the `usb` C module (`c_mpos/usb/`) and disables MicroPython's TinyUSB *device* mode (USB-serial REPL goes away; console remains over UART REPL / USB-Serial-JTAG). On stock builds `USBManager.is_available()` is `False` and every arm call is a harmless no-op.
+This compiles in the `usb` C module (`c_mpos/usb/`) alongside TinyUSB device mode. **CDC is the default**: the device boots with a USB-serial console and the OTG peripheral stays in device mode. Host mode starts only on explicit request — Settings → "USB Host Mode", or `USBManager.activate()` — and while it is active USB-CDC is gone (console remains over UART REPL where exposed, or WebREPL over WiFi). Deactivating brings CDC back; the choice persists across reboots. Holding BOOT at boot forces CDC regardless of the persisted flag.
 
 USBManager centralizes all USB-host operations in a single class with class methods:
 
@@ -62,9 +62,24 @@ A healthy, enumerated HID reads exactly like a wedged adapter (connected + enabl
 
 ### Display switching
 
-`mpos.main` arms the display at boot without waiting; the poll timer switches the UI over automatically when a monitor becomes ready and reverts on disconnect. The swap suspends the LVGL pump, tears down activities, repoints indevs to the new display (panel touch is remapped through the panel's own proven mapping — no per-board tables), moves the topmenu, and restarts the launcher. Resolution floor is 640x480: smaller modes need a sub-25 MHz pixel clock that real monitors cannot sync to.
+When host mode is active, `mpos.main` arms the display at boot without waiting; the poll timer switches the UI over automatically when a monitor becomes ready and reverts on disconnect. The swap suspends the LVGL pump, tears down activities, repoints indevs to the new display (panel touch is remapped through the panel's own proven mapping — no per-board tables), moves the topmenu, and restarts the launcher. Resolution floor is 640x480: smaller modes need a sub-25 MHz pixel clock that real monitors cannot sync to.
 
 ## Usage
+
+### Host mode activation
+
+```python
+from mpos import USBManager
+
+USBManager.activate()    # leave CDC device mode, start host, arm display+HID
+USBManager.deactivate()  # stop host, bring CDC back (REPL rejoins automatically)
+USBManager.host_mode_active()  # live host state
+```
+
+Both persist the choice (`host_mode` in the `com.micropythonos.usb`
+preferences) so reboots keep it; pass `persist=False` for a one-shot switch.
+`mpos.main` honors the persisted flag at boot. Both are idempotent and safe
+to retry. On stock builds (no `usb` module) they return `False`.
 
 ### Checking availability and arming
 
@@ -76,7 +91,7 @@ if USBManager.is_available():
     USBManager.arm_hid()            # HID client + mouse/keyboard indevs
 ```
 
-Both are idempotent and safe to retry. On stock builds (no `usb` module) they return `None`.
+Both are idempotent and safe to retry. On stock builds (no `usb` module) they return `None`. In host-mode builds these run automatically: `activate()` calls them, and boot does too when host mode persisted.
 
 ### Manual display switching
 
@@ -108,6 +123,10 @@ usb.hid_loop_lag()       # ms since the HID task pumped events (~100 healthy)
 ### Class Methods
 
 - `is_available()` - `True` when the `usb` C module is importable (`--usb` build).
+- `activate(persist=True)` - Leave CDC device mode, start the host stack, arm display + HID. Returns `False` on stock builds or failure.
+- `deactivate(persist=True)` - Stop host (UI back to panel, indevs removed), bring CDC back. Returns `False` on stock builds or failure.
+- `host_mode_active()` - Live host state (`True` between successful activate/deactivate).
+- `host_boot_requested()` - Persisted flag honored at boot (`False` when BOOT held).
 - `arm_display(width=640, height=480)` - Construct (once) and start the adapter handle, ensure the poll timer. Returns the `usb.Display` or `None`.
 - `arm_hid()` - Start the HID client, create the shared `HIDHub` plus `USBMouse`/`USBHIDKeyboard` indevs (disabled until their kind streams). Returns the mouse or `None`.
 - `switch_to_usb(width=640, height=480, timeout_s=0)` - Blocking-init the adapter and swap the UI to it.
@@ -119,10 +138,14 @@ usb.hid_loop_lag()       # ms since the HID task pumped events (~100 healthy)
 - `usb.Display(port=0, width=0, height=0, ignore_edid=False)` - Adapter handle. `start()`, `poll()` (True on READY/disconnect/mode change), `ready()`, `width()`, `height()`, `chip_name()`, `update_565(x, y, w, h, buf)`, `fill(x, y, w, h, color)`, `flush(timeout_ms=100)`, `set_mode(w, h)`, `force_reenum()` (root-port power cycle).
 - Host inspection: `bus_devices()`, `lsusb()`, `hub_ports()`, `reset_port(hub_addr, port[, power_cycle[, force]])`, `set_watchdog(on)`, `auto_reset_idle([on])` (bare call reads back), `set_log(on)`.
 - HID transport: `hid_start()`, `hid_poll()`, `hid_drain()`, `hid_state()`, `hid_claimed_addrs()`, `hid_parked()`, `hid_retry()`, `hid_poll_stats()`, `hid_loop_lag()`, `hid_verbose([on])`, `hid_set_kbd_transient([on])` (keyboards stay persistent by default; the toggle is a live A/B switch).
+- Mode switching: `activate_host()`, `deactivate_host()`, `host_active()`.
 
 ## Limitations
 
 - ESP32-S3 only; DisplayLink DL-1xx only (tested on DL-165/DL-195).
+- Activating host mode kills USB-CDC until deactivated (announce it before
+  toggling on no-UART boards); UART REPL where exposed, WebREPL over WiFi,
+  and holding BOOT at boot (forces CDC) are the ways back.
 - 640x480 minimum mode; rotation fixed to `_0`; RGB565 only.
 - Full display + mouse + keyboard combo cannot fit the S3 channel budget persistently (the keyboard parks until something unplugs); transient keyboard polling (`usb.hid_set_kbd_transient(True)`) holds no persistent pipe and is the experimental fit-the-combo option.
 - A wedged adapter behind an externally powered hub is not recoverable by port resets — power-cut the adapter itself.
