@@ -59,6 +59,7 @@ The `setting` dict has the same shape as the one used by `SettingActivity` and `
 - **`min`** (int): Minimum value for `"slider"` (default: `0`)
 - **`max`** (int): Maximum value for `"slider"` (default: `100`)
 - **`allow_deselect`** (bool): For `radiobuttons`, allow the user to un-select the active option (default: `False`)
+- **`selected_callback`** (callable): For `radiobuttons` and `dropdown`, called as `selected_callback(value)` every time the user picks an option (including re-tapping the already-selected radio), **before** Save. Use it to preview a choice live, e.g. play the sound the user just tapped. Independent of `changed_callback`, which still fires only after Save when the stored value changed. Exceptions inside it are logged and swallowed. (default: `None`)
 
 ## Result Contract
 
