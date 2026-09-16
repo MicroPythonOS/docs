@@ -140,7 +140,7 @@ usb.hid_loop_lag()       # ms since the HID task pumped events (~100 healthy)
 - `usb.Display(port=0, width=0, height=0, ignore_edid=False)` - Adapter handle. `start()`, `poll()` (True on READY/disconnect/mode change), `ready()`, `width()`, `height()`, `chip_name()`, `update_565(x, y, w, h, buf)`, `fill(x, y, w, h, color)`, `flush(timeout_ms=100)`, `set_mode(w, h)`, `force_reenum()` (root-port power cycle).
 - Host inspection: `bus_devices()`, `lsusb()`, `hub_ports()`, `reset_port(hub_addr, port[, power_cycle[, force]])`, `set_watchdog(on)`, `auto_reset_idle([on])` (bare call reads back), `set_log(on)`.
 - HID transport: `hid_start()`, `hid_poll()`, `hid_drain()`, `hid_state()`, `hid_claimed_addrs()`, `hid_parked()`, `hid_retry()`, `hid_poll_stats()`, `hid_loop_lag()`, `hid_verbose([on])`, `hid_set_kbd_transient([on])` (keyboards stay persistent by default; the toggle is a live A/B switch).
-- Mode switching: `activate_host()`, `deactivate_host()`, `host_active()`.
+- Mode switching: `activate_host()`, `deactivate_host()`, `host_active()`, `cdc_inited()` (diagnostic: TinyUSB initialized; needs no host attached).
 
 ## Limitations
 
