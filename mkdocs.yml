@@ -49,6 +49,7 @@ nav:
       - App Store: apps/appstore.md
       - Creating Apps: apps/creating-apps.md
       - App Lifecycle: apps/app-lifecycle.md
+      - App Performance: apps/app-performance.md
       - Bundling Apps: apps/bundling-apps.md
       - Native C/C++ Apps: apps/native-apps.md
       - BadgeHub Apps: apps/badgehub.md
