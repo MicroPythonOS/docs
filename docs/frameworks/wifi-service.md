@@ -36,9 +36,14 @@ else:
 from mpos import WifiService
 
 networks = WifiService.scan_networks()
-for ssid in networks:
-    print(f"Found network: {ssid}")
+if networks is None:
+    print("WiFi is busy, try again later")
+else:
+    for ssid in networks:
+        print(f"Found network: {ssid}")
 ```
+
+`scan_networks()` returns `None`, not an empty list, while another WiFi operation is running (see [Busy Flag](#busy-flag)).
 
 ### Connecting to a Network
 
@@ -48,11 +53,15 @@ from mpos import WifiService
 WifiService.save_network("MyNetwork", "password123")
 
 success = WifiService.attempt_connecting("MyNetwork", "password123")
-if success:
+if success is None:
+    print("WiFi is busy, try again later")
+elif success:
     print("Connected!")
 else:
     print("Connection failed")
 ```
+
+`attempt_connecting()` returns `None` without trying when another WiFi operation is running. `None` is falsy, so code that only checks `if success:` treats it as a failed attempt.
 
 ### Managing Saved Networks
 
@@ -135,12 +144,12 @@ class WifiSettingsActivity(Activity):
             self.status.set_text("Not connected")
 
     def on_scan(self, event):
-        if WifiService.is_busy():
-            print("WiFi is busy")
+        networks = WifiService.scan_networks()
+        if networks is None:
+            print("WiFi is busy")  # keep the current list
             return
 
         self.network_list.clean()
-        networks = WifiService.scan_networks()
         saved = WifiService.get_saved_networks()
 
         for ssid in networks:
@@ -204,6 +213,24 @@ print(WifiService.get_ipv4_netmask())
 print(WifiService.get_ipv4_gateway())
 ```
 
+## Busy Flag
+
+WifiService runs one radio operation at a time. `auto_connect()`, `attempt_connecting()`, `scan_networks()` and `temporarily_disable()` each hold the class-level `wifi_busy` flag while they run. While another operation holds it:
+
+| Method | While busy |
+|--------|------------|
+| `attempt_connecting()` | Returns `None` without trying |
+| `scan_networks()` | Returns `None` (a scan that finds nothing returns `[]`) |
+| `auto_connect()` | Returns without connecting |
+| `temporarily_disable()` | Raises `RuntimeError` |
+| `enable_hotspot()` | Returns `False` |
+| `is_connected()` | Returns `False` |
+| `get_ipv4_address()`, `get_ipv4_netmask()`, `get_ipv4_gateway()` | Return `None` |
+
+ConnectivityManager's periodic reconnect is skipped while the flag is held, so it can't interrupt a scan or a connect started by an app.
+
+`is_busy()` tells you whether an operation is running, but the flag can change between that check and your call. Check the `None` return values instead of relying on `is_busy()` alone.
+
 ## API Reference
 
 ### Connection Functions
@@ -223,7 +250,7 @@ Scan for available networks and connect to the first saved network found.
 
 #### `WifiService.attempt_connecting(ssid, password, network_module=None, time_module=None)`
 
-Attempt to connect to a specific WiFi network.
+Attempt to connect to a specific WiFi network. Holds the [busy flag](#busy-flag) while it runs.
 
 **Parameters:**
 - `ssid` (str) - Network SSID to connect to
@@ -233,6 +260,7 @@ Attempt to connect to a specific WiFi network.
 
 **Returns:**
 - `bool` - `True` if successfully connected, `False` otherwise
+- `None` - another WiFi operation is running; nothing was attempted
 
 ---
 
@@ -255,6 +283,25 @@ Disconnect from current WiFi network and disable WiFi (also disables hotspot).
 #### `WifiService.is_connected(network_module=None)`
 
 Check if WiFi is currently connected. Returns `True` for hotspot mode when AP is active.
+
+### Scanning Functions
+
+#### `WifiService.scan_networks(network_module=None)`
+
+Scan for available WiFi networks. Holds the [busy flag](#busy-flag) while it runs.
+
+**Parameters:**
+- `network_module` - Network module for dependency injection (testing)
+
+**Returns:**
+- `list` - SSIDs found (empty if none were found)
+- `None` - another WiFi operation is running; nothing was scanned
+
+---
+
+#### `WifiService.is_busy()`
+
+Return `True` while a WiFi operation holds the [busy flag](#busy-flag).
 
 ### Hotspot Functions
 
@@ -301,8 +348,8 @@ On desktop (Linux/macOS), WifiService provides simulated behavior for testing:
 | Method | Desktop Behavior |
 |--------|------------------|
 | `is_connected()` | Always returns `True` |
-| `scan_networks()` | Returns mock SSIDs |
-| `attempt_connecting()` | Simulates 2-second connection delay, always succeeds |
+| `scan_networks()` | Returns mock SSIDs (ignores the busy flag) |
+| `attempt_connecting()` | Simulates 2-second connection delay, succeeds unless WiFi is busy |
 | `get_current_ssid()` | Returns simulated connected SSID |
 | `disconnect()` | Prints message, no-op |
 | `enable_hotspot()` | Simulated hotspot state |
