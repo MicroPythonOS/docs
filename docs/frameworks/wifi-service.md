@@ -347,7 +347,7 @@ On desktop (Linux/macOS), WifiService provides simulated behavior for testing:
 
 | Method | Desktop Behavior |
 |--------|------------------|
-| `is_connected()` | Always returns `True` |
+| `is_connected()` | Returns `True` unless WiFi is busy |
 | `scan_networks()` | Returns mock SSIDs (ignores the busy flag) |
 | `attempt_connecting()` | Simulates 2-second connection delay, succeeds unless WiFi is busy |
 | `get_current_ssid()` | Returns simulated connected SSID |
