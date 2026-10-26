@@ -286,12 +286,13 @@ Check if WiFi is currently connected. Returns `True` for hotspot mode when AP is
 
 ### Scanning Functions
 
-#### `WifiService.scan_networks(network_module=None)`
+#### `WifiService.scan_networks(network_module=None, time_module=None)`
 
 Scan for available WiFi networks. Holds the [busy flag](#busy-flag) while it runs.
 
 **Parameters:**
 - `network_module` - Network module for dependency injection (testing)
+- `time_module` - Time module for dependency injection (testing)
 
 **Returns:**
 - `list` - SSIDs found (empty if none were found)
