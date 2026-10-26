@@ -2,15 +2,31 @@
 
 The [Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3) is the first ESP32-P4 board that MicroPythonOS supports, starting with release 0.20.0. It has a 4.3" 480x800 touch screen, 32 MB of flash and 32 MB of PSRAM.
 
-MicroPythonOS runs only on boards whose ESP32-P4 is chip revision v0.x or v1.x. The `esp32p4` image, in 0.20.0 and on the main branch, is built for revisions v0.0 to v1.99, and the board support was developed on has v1.3. The image does not start on a chip of revision v3.0 or later, so boards with such a chip are not supported. Waveshare's [FAQ](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/FAQ) calls v0.x and v1.x chips engineering samples, so newer boards may have a v3.x chip. Step 2 of [Installing](#installing) shows how to check yours.
+**Check the chip revision before you install.** MicroPythonOS runs only on ESP32-P4 chip revisions v0.x and v1.x. Newer boards can have a v3.x chip, which MicroPythonOS does not support. See [Chip revision](#chip-revision).
 
 The ESP32-P4 has no radio of its own. Wi-Fi and Bluetooth come from a second chip on the board, an ESP32-C6, which runs its own firmware and talks to the ESP32-P4 over SDIO using Espressif's [ESP-Hosted](https://github.com/espressif/esp-hosted-mcu). This page calls it the C6.
+
+## Chip revision
+
+MicroPythonOS 0.20.0 runs only on an ESP32-P4 of chip revision v0.x or v1.x. Its `esp32p4` image is built with ESP-IDF 5.5.1, which supports revisions v0.0 to v1.99. The main branch builds it the same way. The board MicroPythonOS support was developed on has revision v1.3.
+
+Boards with a v3.x chip are not supported. Waveshare's [FAQ](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/FAQ) calls v0.x and v1.x chips engineering samples, and one user's board of this model has a v3.2 chip. Espressif's [chip revision v3.x guide](https://documentation.espressif.com/esp32-p4-chip-revision-v3.x_user_guide_en.html) says that v1.x and v3.x chips cannot share the same firmware image, and that v3.x needs ESP-IDF 5.5.3 or later. Support for v3.x is tracked in [MicroPythonOS/MicroPythonOS#344](https://github.com/MicroPythonOS/MicroPythonOS/issues/344).
+
+To check your board, connect it as in step 1 of [Installing](#installing) and run:
+
+```bash
+python3 -m esptool --chip esp32p4 chip_id
+```
+
+esptool prints the revision when it connects. esptool v4 prints `Chip is ESP32-P4 (revision v1.3)`. esptool v5 prints a `Chip type:` line that ends with `ESP32-P4 (revision v1.3)`. esptool then warns that the ESP32-P4 has no chip ID and prints its MAC address instead. esptool v5 also notes that `chip_id` is deprecated. Both messages are expected.
+
+If your board has a v3.x chip, keep Waveshare's factory firmware on it. Do not get past the revision limit with esptool's `--force`, or by raising the limit when you build MicroPythonOS. The image is then written, but the board restarts over and over and MicroPythonOS never starts. A v3.2 board flashed this way reset in a loop with `rst:0x10 (CHIP_LP_WDT_RESET)`. Writing Waveshare's factory firmware back made it work again.
 
 ## What works and what doesn't
 
 | Part | Status |
 |---|---|
-| ESP32-P4 chip revision | v0.x and v1.x only. MicroPythonOS does not start on a chip of revision v3.0 or later. |
+| ESP32-P4 chip revision | v0.x and v1.x only. v3.x is not supported. See [Chip revision](#chip-revision). |
 | Display | Works. The panel is portrait (480x800); MicroPythonOS shows its usual landscape UI at 800x480, rotated by the ESP32-P4's pixel processing accelerator (PPA). |
 | Brightness | Works, with the brightness slider in the drawer. |
 | Touch | Works (GT911). |
@@ -32,11 +48,13 @@ The [web installer](https://install.micropythonos.com) lists an ESP32-P4 build, 
 
 1. **Connect the board.** Use the USB-C port that Waveshare's documentation calls USB TO UART (power, programming and debugging). The other USB-C port is the USB OTG port.
 
-2. **Check the chip revision.** esptool prints it when it connects, in a line that ends with `ESP32-P4 (revision v1.3)`:
+2. **Check the chip revision**, as described in [Chip revision](#chip-revision):
 
-        python3 -m esptool --chip esp32p4 flash_id
+        python3 -m esptool --chip esp32p4 chip_id
 
-    If the revision is v3.0 or later, stop here. MicroPythonOS will not start on this board, and the next steps would erase its factory firmware. esptool does not check this for you: it writes the full image to any revision.
+    If the revision is v3.0 or later, stop here. MicroPythonOS will not start on this board, and the next steps would erase its factory firmware.
+
+    Do not count on esptool to stop you. The release `.bin` starts with padding, not with an image header, so esptool writes it without checking the revision. esptool checks only files that start with an image header, such as the `.ota` file or a bootloader you built yourself. Up to v5.4.0, it refuses any such file built for other revisions. From v5.5.0, it refuses only a bootloader written at offset 0x2000. Either way, `--force` does not help: the image is written, but the board does not start.
 
 3. **Back up the factory firmware (optional).** The board comes with Waveshare's demo firmware. To be able to go back to it, save the whole 32 MB flash first:
 
@@ -66,9 +84,9 @@ The C6 firmware should be updated. On the board MicroPythonOS support was develo
 
 Why it matters:
 
-- **Empty scans.** With the original C6 firmware, a Wi-Fi scan made straight after the radio was switched on found nothing, in about 1.2 s. A scan 5 s later found 26 networks. While it is not connected, MicroPythonOS switches the radio off and on before every scan. So after losing Wi-Fi, the board could miss its network and switch Wi-Fi off again ([MicroPythonOS#309](https://github.com/MicroPythonOS/MicroPythonOS/issues/309)).
+- **Empty scans.** With the original C6 firmware, a Wi-Fi scan made straight after the radio was switched on found nothing, in about 1.2 s. A scan 5 s later found 26 networks. While it is not connected, MicroPythonOS switches the radio off and on before every scan. So after losing Wi-Fi, the board could miss its network and switch Wi-Fi off again ([MicroPythonOS/MicroPythonOS#309](https://github.com/MicroPythonOS/MicroPythonOS/issues/309)).
 - **After the update.** On the same board, after its C6 was updated to ESP-Hosted 2.7.0, none of 22 scans made straight after a radio restart came back empty.
-- **A fallback, not on 0.20.0.** On the main branch, when the scan after a radio restart finds nothing, MicroPythonOS scans once more 5 s later ([MicroPythonOS#341](https://github.com/MicroPythonOS/MicroPythonOS/pull/341)). Release 0.20.0 does not have this. It could not be tested on the original C6 firmware, as no copy of that firmware was available.
+- **A fallback, not on 0.20.0.** On the main branch, when the scan after a radio restart finds nothing, MicroPythonOS scans once more 5 s later ([MicroPythonOS/MicroPythonOS#341](https://github.com/MicroPythonOS/MicroPythonOS/pull/341); see [`WifiService.scan_networks()`](../frameworks/wifi-service.md#scanning-functions)). Release 0.20.0 does not have this. It could not be tested on the original C6 firmware, as no copy of that firmware was available.
 - **Espressif's advice.** ESP-Hosted's own driver recommends upgrading a co-processor whose firmware is older than the host side's, to avoid timeouts in the requests between the two chips.
 
 ### Check the version
