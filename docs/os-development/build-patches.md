@@ -57,6 +57,10 @@ each; at the time of writing:
 - **Desktop (unix/macOS)** builds only: `unix_sdl_release_2_32_8.patch`
   (guarded; patches `builder/unix.py` in the `lvgl_micropython` repo itself,
   applied in that directory).
+- **macOS** builds only: `macos_brew_prefix.patch` (guarded; patches
+  `builder/macOS.py` in the `lvgl_micropython` repo itself, applied in that
+  directory after the `sdl2-compat` edit described under
+  [Adding a patch](#adding-a-patch)).
 
 ## Current MicroPythonOS patches
 
