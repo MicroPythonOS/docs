@@ -23,6 +23,10 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 - [SQUiXL](https://squixl.io): Fully Supported
 - [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
 
+## ESP32-P4 Microcontrollers
+
+- [Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3): Supported on ESP32-P4 chip revisions v0.x and v1.x (tested on v1.3), not v3.x. The microphones, TF card slot, camera, USB host and battery level are not supported. See [its page](waveshare-esp32-p4-wifi6-touch-lcd-4-3.md), including a note on its ESP32-C6 Wi-Fi firmware.
+
 ## WebAssembly (Browser)
 
 - **Latest release**: [web.micropythonos.com](https://web.micropythonos.com/)

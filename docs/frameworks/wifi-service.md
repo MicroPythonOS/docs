@@ -170,6 +170,8 @@ class WifiSettingsActivity(Activity):
                 self.update_status()
 ```
 
+`on_scan()` calls `scan_networks()` from a click handler, so the screen doesn't respond until the scan returns. While WiFi is not connected, `scan_networks()` takes at least 5 s longer if the first scan after the radio restart finds nothing (see [Scanning Functions](#scanning-functions)). The same applies to `attempt_connecting()` in `on_network_selected()`, which waits up to `WifiService.CONNECT_TIMEOUT_S` seconds for the connection (13 s by default, 30 s on the Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3). To keep the screen responsive, scan and connect in a background thread and update the screen with [`update_ui_threadsafe_if_foreground()`](../apps/app-lifecycle.md#thread-safe-ui-updates), as the built-in WiFi app does.
+
 ### Background Auto-Connect
 
 ```python
@@ -237,7 +239,7 @@ ConnectivityManager's periodic reconnect is skipped while the flag is held, so i
 
 #### `WifiService.connect(network_module=None, time_module=None)`
 
-Scan for available networks and connect to the first saved network found.
+Scan for available networks and connect to the first saved network found. Before it scans, it restarts the radio if WiFi is not connected, and scans once more after 5 s if that scan comes back empty, as [`scan_networks()`](#scanning-functions) does. Unlike `scan_networks()`, it does not take the [busy flag](#busy-flag) itself. `auto_connect()` holds it while it calls `connect()`.
 
 **Parameters:**
 - `network_module` - Network module for dependency injection (testing)
@@ -290,9 +292,13 @@ Check if WiFi is currently connected. Returns `True` for hotspot mode when AP is
 
 Scan for available WiFi networks. Holds the [busy flag](#busy-flag) while it runs.
 
+When WiFi is not connected, it restarts the radio before scanning. If the scan straight after that restart returns no networks at all, it waits 5 s (`WifiService.SCAN_RETRY_DELAY_S`), scans once more without another restart, and returns that result. So when that scan comes back empty while disconnected, the call takes 5 s longer plus the time of the second scan, and holds the busy flag throughout. There is no second scan while connected, or when the first scan finds networks. The wait was added for the [Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3](../getting-started/waveshare-esp32-p4-wifi6-touch-lcd-4-3.md#the-c6-firmware), whose ESP32-C6 still ran its original firmware (older than ESP-Hosted 1.4.7 on the board tested): there, the first scan after a restart found nothing although networks were in range, and a scan 5 s later found them.
+
+Release 0.20.0 does not have this retry or the `time_module` argument.
+
 **Parameters:**
 - `network_module` - Network module for dependency injection (testing)
-- `time_module` - Time module for dependency injection (testing)
+- `time_module` - Time module for dependency injection (testing), used for the 5 s wait
 
 **Returns:**
 - `list` - SSIDs found (empty if none were found)
@@ -349,7 +355,7 @@ On desktop (Linux/macOS), WifiService provides simulated behavior for testing:
 | Method | Desktop Behavior |
 |--------|------------------|
 | `is_connected()` | Returns `True` unless WiFi is busy |
-| `scan_networks()` | Returns mock SSIDs (ignores the busy flag) |
+| `scan_networks()` | Returns mock SSIDs after 1 s (ignores the busy flag and `time_module`) |
 | `attempt_connecting()` | Simulates 2-second connection delay, succeeds unless WiFi is busy |
 | `get_current_ssid()` | Returns simulated connected SSID |
 | `disconnect()` | Prints message, no-op |
