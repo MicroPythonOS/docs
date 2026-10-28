@@ -17,7 +17,7 @@ scripts/run_web.sh
 #   PORT=9000 scripts/run_web.sh     # serve on a different port
 ```
 
-Output artifacts land in `web/`: `micropython.{html,js,wasm,data}`, plus copies `index.html` and `mpos.html`.
+Output artifacts land in `web/`: `micropython.{html,js,wasm,data}` (and `micropython.wasm.map` if the build makes one), plus copies `index.html` and `mpos.html`.
 
 ## Prerequisites
 
@@ -46,20 +46,21 @@ scripts/run_web.sh
 
 ### Pinned submodule commits (known-good)
 
-The two C patches apply against specific upstream revisions. If a submodule is advanced past these, `patch --forward` may reject a hunk (the build logs the failure but continues, so a broken boot can result). These are the commits this port was verified against:
+The web patches apply to specific upstream revisions. If a submodule moves past these, a patch can stop applying. The build then stops with `FATAL: patch ... does not apply` (see [Build-time Patches](../os-development/build-patches.md#how-apply_patch-behaves)). These are the commits pinned on MicroPythonOS `main` on 2026-10-28. The CI web build passed with them:
 
 | Submodule | Commit | Tag/branch |
 | --- | --- | --- |
-| `lvgl_micropython` | `a491b2a` | `integration` |
+| `lvgl_micropython` | `1ab63df` | `integration` |
 | `lvgl_micropython/lib/micropython` | `78ff170` | `v1.27.0` |
-| `lvgl_micropython/lib/lvgl` | `c016f72` | `v9.3.0-556` |
+| `lvgl_micropython/lib/lvgl` | `c016f72` | `v9.4.0` |
 | `lvgl_micropython/lib/SDL` | `6ad390fc` | `release-2.26.0-4202` |
+| `lvgl_micropython/lib/esp-idf` | `fcae328` | `v5.5.1` |
 | `freezeFS` | `5f211e3` | `main` |
-| `secp256k1-embedded-ecdh` | `f86eb16` | `micropython_1.25.0` |
-| `micropython-camera-API` | `f88b29d` | `master` |
-| `micropython-nostr` | `2375c45` | `0.9-22` |
+| `secp256k1-embedded-ecdh` | `ca1c146` | `micropython_1.25.0` |
+| `micropython-camera-API` | `db42861` | `master` |
+| `micropython-nostr` | `04c0a2e` | `main` |
 
-The critical two for the web patches are `lvgl_micropython` (for `sdl_bus.h`) and `lvgl_micropython/lib/micropython` (for `gccollect.c`). A fork should pin at least those. If you bump them, regenerate the patches (see *Updating a submodule patch*) and re-verify a clean boot.
+The web patches change files in `lvgl_micropython` and `lvgl_micropython/lib/micropython`, so those two pins matter most. A fork should pin at least those. The web build also applies the MicroPythonOS patches to `lib/esp-idf`, so that submodule must be checked out too. If you bump a pin and a patch stops applying, regenerate it (see *Updating a submodule patch*) and check for a clean boot.
 
 ## How it works (architecture)
 
@@ -80,7 +81,7 @@ The web target reuses the **unix port** of MicroPython (LVGL + SDL display/input
 Key design points:
 
 - **`REAL_PORT = 'unix'`** — all unix patches and `machine_sdl` reuse unchanged.
-- **No native threads / sockets / ffi / termios / bluetooth.** The web build sets `MICROPY_PY_THREAD/SOCKET/FFI/TERMIOS/BLUETOOTH=0`. Python modules that expect those are satisfied with small web-only shims (see below).
+- **No native threads / sockets / ffi / termios / bluetooth.** The web build sets `MICROPY_PY_THREAD/SOCKET/FFI/TERMIOS/BLUETOOTH/BTREE=0`. Python modules that expect those are satisfied with small web-only shims (see below).
 - **No native `machine.Timer`.** `machine_timer.c` is dropped from the web Makefile; an asyncio-backed `Timer` is injected at boot.
 - **The preloaded filesystem is mounted at `/`** (root), matching the on-device layout, because `main.py` does `sys.path.insert(0, "lib")` and apps use root-relative paths like `/apps` and `/builtin`.
 
@@ -88,15 +89,18 @@ Key design points:
 
 | Path | Purpose |
 | --- | --- |
-| [`scripts/build_mpos.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) | Central build orchestration. The `web` target branch does all web-specific work (patching the submodule, staging the FS, injecting shims, invoking `make.py web`, collecting artifacts). |
+| [`scripts/build_mpos.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/build_mpos.sh) | Central build orchestration. The `web` target branch does all web-specific work (patching the submodule, staging the FS, copying in shims, invoking `make.py web`, collecting artifacts). |
 | [`scripts/run_web.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/run_web.sh) | Build (optional) + serve `web/` with `python3 -m http.server`. |
 | [`scripts/web_port/web.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/web.py) | The Emscripten build backend. Copied into `lvgl_micropython/builder/web.py` at build time; consumed by `make.py web`. |
-| [`scripts/web_port/sdl_bus.h.patch`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/sdl_bus.h.patch) | C struct-layout fix applied to the `lcd_bus` SDL bus (see "Submodule patches"). |
-| [`scripts/web_port/gccollect.c.patch`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/gccollect.c.patch) | Conservative-GC fix for wasm applied to the unix port (see "Submodule patches"). |
+| [`scripts/web_port/*.patch`](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/scripts/web_port/) | The four web-port patches: `make.py.patch`, `lcd_bus_micropython.mk.patch`, `sdl_bus.h.patch`, `gccollect.c.patch` (see "Submodule patches"). |
+| [`scripts/web_port/ext_mod/`](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/scripts/web_port/ext_mod/) | The web-only C modules `_webnet`, `_webterm` and `_webio`. Copied into `lvgl_micropython/ext_mod/` at build time. |
+| [`scripts/web_port/staged_lib/`](https://github.com/MicroPythonOS/MicroPythonOS/tree/main/scripts/web_port/staged_lib/) | Web-only Python shims. Copied into the staged `lib/` at build time (see "Web-only Python shims"). |
+| [`scripts/web_port/inject_web_machine_timer.py`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/web_port/inject_web_machine_timer.py) | Adds the `machine.Timer` injection to the staged `main.py` (see "`machine.Timer` injection"). |
 | [`web/shell.html`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/web/shell.html) | The HTML shell template (`--shell-file`). Build copies the produced `micropython.html` to `index.html` and `mpos.html`. |
-| `web/.preload_internal_filesystem/` | Auto-generated staging copy of `internal_filesystem/` (with web shims injected). Recreated on every build; do not edit by hand. |
+| `web/.preload_internal_filesystem/` | Auto-generated staging copy of `internal_filesystem/` (with web shims added). Recreated on every build; do not edit by hand. |
+| `web/.preload_bundled_apps/`, `web/.preload_bundled_data/` | Auto-generated. The bundled apps and the contents of `internal_filesystem_data/`, packaged apart from the main tree (see "Persistence"). |
 
-The web-only Python shims (`_thread.py`, `socket.py`, `_webrepl.py`, `websocket.py`, `task_handler.py`, `_web_machine_timer.py`) and the boot-time `machine.Timer` injection are written into the staged filesystem by `build_mpos.sh` (heredocs in the `web` target). They are **not** committed into `internal_filesystem/` so device builds are unaffected.
+`build_mpos.sh` copies the web-only Python shims from `scripts/web_port/staged_lib/` into the staged filesystem. `inject_web_machine_timer.py` adds the boot-time `machine.Timer` injection to the staged `main.py`. None of this is in `internal_filesystem/`, so device builds are unaffected.
 
 ## Submodule patches (applied automatically)
 
@@ -106,43 +110,54 @@ The web-only Python shims (`_thread.py`, `socket.py`, `_webrepl.py`, `websocket.
     [Build-time Patches](../os-development/build-patches.md); this section covers only what is
     specific to the web target.
 
-The web target requires four changes inside the `lvgl_micropython` submodule. Rather than committing them to the submodule, they are stored in this repo and applied at the start of the `web` build (`patch --forward` makes re-application a no-op; the file copies are idempotent):
+The web target makes eight changes inside the `lvgl_micropython` submodule. They are stored in the MicroPythonOS repo, not committed to the submodule. The `web` build applies the four patches with `apply_patch` and copies in the other files on every build:
 
 1. **`builder/web.py`** (full file) — the Emscripten build backend. Copied from `scripts/web_port/web.py`.
-2. **`ext_mod/lcd_bus/sdl_bus/sdl_bus.h`** — adds a missing `uint32_t buffer_flags;` field to `mp_lcd_sdl_bus_obj_t` so its layout matches the generic `mp_lcd_bus_obj_t`. `lcd_panel_io_init()` casts the SDL object to the generic type and calls `panel_io_handle.init(...)`; without this field the offset of `panel_io_handle` differs on 32-bit/wasm and the indirect call reads the wrong function pointer → `function signature mismatch` trap. (On 64-bit native, struct padding hid the bug.)
-3. **`lib/micropython/ports/unix/gccollect.c`** — adds an `__EMSCRIPTEN__` branch to `gc_collect()` that uses `emscripten_scan_stack()` + `emscripten_scan_registers()` instead of the setjmp-based `gc_helper_collect_regs_and_stack()`. On wasm, live object pointers live in wasm locals/registers (not linear memory) and are invisible to a memory scan, so the stock collector freed in-use objects → `memory access out of bounds`. This matches the upstream MicroPython `ports/webassembly` approach and **requires ASYNCIFY** (so registers can be spilled), enabled via `-sASYNCIFY=1` in `web.py`.
-4. **`ext_mod/_webnet/`** (new files, not a patch) — the browser `fetch()` bridge for HTTP networking. `webnet.c` + `micropython.mk` are copied from `scripts/web_port/ext_mod/_webnet/`; the `.mk` only compiles it when `MPOS_WEB=1`. See *Networking* below.
+2. **`make.py`** — `make.py.patch` adds `web` to the build targets and loads `builder/web.py` for it.
+3. **`ext_mod/lcd_bus/micropython.mk`** — `lcd_bus_micropython.mk.patch` adds an `MPOS_WEB=1` branch. It builds `lcd_bus` against Emscripten's SDL2 port (`-sUSE_SDL=2`) instead of a natively built SDL2.
+4. **`ext_mod/lcd_bus/sdl_bus/sdl_bus.h`** — `sdl_bus.h.patch` adds a missing `uint32_t buffer_flags;` field to `mp_lcd_sdl_bus_obj_t` so its layout matches the generic `mp_lcd_bus_obj_t`. `lcd_panel_io_init()` casts the SDL object to the generic type and calls `panel_io_handle.init(...)`; without this field the offset of `panel_io_handle` differs on 32-bit/wasm and the indirect call reads the wrong function pointer → `function signature mismatch` trap. (On 64-bit native, struct padding hid the bug.)
+5. **`lib/micropython/ports/unix/gccollect.c`** — `gccollect.c.patch` adds an `__EMSCRIPTEN__` branch to `gc_collect()` that uses `emscripten_scan_stack()` + `emscripten_scan_registers()` instead of the setjmp-based `gc_helper_collect_regs_and_stack()`. On wasm, live object pointers live in wasm locals/registers (not linear memory) and are invisible to a memory scan, so the stock collector freed in-use objects → `memory access out of bounds`. This matches the upstream MicroPython `ports/webassembly` approach and **requires ASYNCIFY** (so registers can be spilled), enabled via `-sASYNCIFY=1` in `web.py`.
+6. **`ext_mod/_webnet/`** (new files, not a patch) — the browser `fetch()` and `WebSocket` bridge for networking. `webnet.c` + `micropython.mk` are copied from `scripts/web_port/ext_mod/_webnet/`; the `.mk` only compiles it when `MPOS_WEB=1`. See *Networking* below.
+7. **`ext_mod/_webterm/`** (new files, not a patch) — a byte bridge between the browser and MicroPython's stdio. An external host such as ViperIDE can use it to drive the REPL like a serial device. Copied from `scripts/web_port/ext_mod/_webterm/`; built only when `MPOS_WEB=1`.
+8. **`ext_mod/_webio/`** (new files, not a patch) — the badge peripheral bridge. NeoPixel output goes to the LED dots on the page, and the on-page joystick and X/Y/A/B/MENU buttons act as input. Copied from `scripts/web_port/ext_mod/_webio/`; built only when `MPOS_WEB=1`.
+
+The web build also applies `unix_autoimport_main.patch` and `unix_native_decorator_fallback.patch`. These are lvgl_micropython patches shared with the desktop builds, so [Build-time Patches](../os-development/build-patches.md#current-lvgl_micropython-patches) covers them.
+
+Every other target first runs `reset_web_port_changes` in `build_mpos.sh`. It deletes `builder/web.py` and the three `ext_mod/_web*` directories, and checks out the four patched files. So the web changes do not leak into device or desktop builds. A new web-port patch to another file must be added to that function too.
 
 ### Updating a submodule patch
 
-If you need to change one of the patched submodule files:
+To change a patched file, edit it in the submodule, then regenerate its patch from the directory the patch is applied in:
 
 ```bash
-# Edit the file directly in the submodule, then regenerate the patch:
 cd lvgl_micropython
+git diff -- make.py > ../scripts/web_port/make.py.patch
+git diff -- ext_mod/lcd_bus/micropython.mk \
+    > ../scripts/web_port/lcd_bus_micropython.mk.patch
 git diff -- ext_mod/lcd_bus/sdl_bus/sdl_bus.h \
     > ../scripts/web_port/sdl_bus.h.patch
 
 cd lib/micropython
 git diff -- ports/unix/gccollect.c \
     > ../../../scripts/web_port/gccollect.c.patch
-
-# For web.py, just copy it back:
-cp lvgl_micropython/builder/web.py scripts/web_port/web.py
 ```
 
-To verify reproducibility, revert the submodule files and rebuild — the build should re-apply everything:
+`web.py` and the `ext_mod/_web*` modules are copied, not patched. Edit them in `scripts/web_port/`: every web build copies them over the submodule copies.
+
+To check that the build reproduces everything, undo the web changes in the submodule and rebuild. These commands do what `reset_web_port_changes` does:
 
 ```bash
 ( cd lvgl_micropython \
-    && git checkout -- ext_mod/lcd_bus/sdl_bus/sdl_bus.h \
-    && rm -f builder/web.py ext_mod/lcd_bus/sdl_bus/sdl_bus.h.rej \
-    && rm -rf ext_mod/_webnet )
+    && git checkout -- make.py ext_mod/lcd_bus/micropython.mk \
+        ext_mod/lcd_bus/sdl_bus/sdl_bus.h \
+    && rm -f builder/web.py make.py.rej ext_mod/lcd_bus/micropython.mk.rej \
+        ext_mod/lcd_bus/sdl_bus/sdl_bus.h.rej \
+    && rm -rf ext_mod/_webnet ext_mod/_webterm ext_mod/_webio )
 ( cd lvgl_micropython/lib/micropython && git checkout -- ports/unix/gccollect.c )
 scripts/build_mpos.sh web
 ```
 
-The two C patches were verified to apply cleanly (`patch --forward`, exit 0, no `.rej`) against the pinned commits listed in *Build from a fresh clone*.
+The build log must show each web patch being applied (`patching file ...`). CI builds the web target on every push and pull request to `main`, so a patch that stops applying fails CI.
 
 ## Build flags (in `scripts/web_port/web.py`)
 
@@ -152,7 +167,8 @@ The Emscripten link flags (`web_ldflags`) are the main tuning surface:
 | --- | --- |
 | `-sUSE_SDL=2` | Use Emscripten's bundled SDL2 port. |
 | `-sALLOW_MEMORY_GROWTH=1`, `-sINITIAL_MEMORY=...`, `-sMAXIMUM_MEMORY=...` | Heap sizing. |
-| `-sSTACK_SIZE=8388608` | Larger stack for deep LVGL/MPOS call chains. |
+| `-sSTACK_SIZE=8388608 -sSTACK_OVERFLOW_CHECK=2` | Larger stack for deep LVGL/MPOS call chains, with stack overflow checks. |
+| `-lidbfs.js` | IndexedDB-backed filesystem for `/data` and `/apps` (see "Persistence"). |
 | `-sASYNCIFY=1 -sASYNCIFY_STACK_SIZE=32768` | **Required** for `emscripten_scan_registers()` in the GC fix. |
 | `-sFORCE_FILESYSTEM=1 -sEXIT_RUNTIME=0` | Keep the runtime + virtual FS alive. |
 | `-Wl,--allow-multiple-definition` | MicroPython's libc `printf` vs Emscripten libc `printf` duplicate. |
@@ -162,19 +178,25 @@ Module disabling and SDL include/link selection happen via `MPOS_WEB=1` and the 
 
 ## Web-only Python shims (staged into `lib/`)
 
-Written by `build_mpos.sh` into `web/.preload_internal_filesystem/lib/` so they shadow frozen/native modules at runtime without affecting device builds:
+`build_mpos.sh` copies these from `scripts/web_port/staged_lib/` into `web/.preload_internal_filesystem/lib/`. There they shadow frozen/native modules at runtime without affecting device builds:
 
 | Shim | Replaces | Behavior |
 | --- | --- | --- |
 | `_thread.py` | native `_thread` | Cooperative: runs thread bodies as asyncio tasks; locks are no-ops; `get_ident()==1`. |
 | `socket.py` | native `socket` | Stub; raises `OSError` on use (no browser raw sockets). |
 | `_webrepl.py` / `websocket.py` | native modules | Stubs; raise `OSError` on use. |
+| `aiorepl.py` | `aiorepl` | Reads REPL input from the `_webterm` bridge instead of `sys.stdin`, which the browser cannot read. |
+| `aiohttp/__init__.py` | `aiohttp` | HTTP and WebSocket client on top of `_webnet` (see "Networking"). |
+| `neopixel.py` | `neopixel` | Sends the LED buffer to the dots on the page via `_webio`. |
+| `web_expander.py` | Fri3d 2026 expander | Reads the on-page joystick and buttons via `_webio`, so the stock expander input driver works unchanged. |
 | `task_handler.py` | frozen `task_handler` | Drives `lv.task_handler()` + `lv.tick_inc()` from an asyncio task instead of `machine.Timer`. Same public API (`TaskHandler`, `TASK_HANDLER_STARTED/FINISHED`, `add_event_cb`, `disable/enable`, `deinit`). |
 | `_web_machine_timer.py` | `machine.Timer` | asyncio-backed periodic/one-shot timer. |
+| `_web_machine_pin.py` | `machine.Pin` | In-memory pin that does no hardware I/O. |
+| `_web_machine_hw.py` | other `machine` names | Stubs such as `ADC`, `PWM`, `I2C`, `SPI`, `UART`, `RTC`, `WDT` and `reset()`. |
 
 ### `machine.Timer` injection
 
-The native `machine` module dict is read-only, so `machine.Timer = ...` fails. Instead, `build_mpos.sh` patches the **staged** copy of `main.py` (never the device source) right after `sys.path.insert(0, "lib")` to replace `sys.modules["machine"]` with a thin wrapper exposing `Timer` and delegating all other attributes to the native module.
+The native `machine` module dict is read-only, so `machine.Timer = ...` fails. Instead, `scripts/web_port/inject_web_machine_timer.py` patches the **staged** copy of `main.py` (never the device source) right after `sys.path.insert(0, "lib")`. The added code replaces `sys.modules["machine"]` with a thin wrapper. The wrapper exposes `Timer`, and `Pin` if the native module has none. Other names come from the native module, or from `_web_machine_hw` if the native module lacks them.
 
 ## Networking (HTTP via browser `fetch()`)
 
@@ -183,7 +205,7 @@ The browser has no raw TCP/UDP sockets, so `socket` is stubbed and `MICROPY_PY_S
 | Piece | Location | Role |
 | --- | --- | --- |
 | `_webnet` native module | `scripts/web_port/ext_mod/_webnet/webnet.c` (+ `micropython.mk`) | C/`EM_JS` bridge to the browser `fetch()` and `WebSocket` APIs. Non-blocking, poll-based so the asyncio/UI loop keeps running. Built only for web (`MPOS_WEB=1`); copied into `lvgl_micropython/ext_mod/_webnet/` by `build_mpos.sh`. |
-| `aiohttp` shim | staged `lib/aiohttp/__init__.py` (heredoc in `build_mpos.sh`) | Re-implements `ClientSession.get/post/put/...` on top of `_webnet`'s fetch bridge, and `ClientSession.ws_connect()` on top of `_webnet`'s WebSocket bridge, polling with `await asyncio.sleep_ms(...)`. Imports `WSMsgType` from the device `aiohttp_ws.py`. |
+| `aiohttp` shim | `scripts/web_port/staged_lib/aiohttp/__init__.py`, copied to the staged `lib/aiohttp/__init__.py` | Re-implements `ClientSession.get/post/put/...` on top of `_webnet`'s fetch bridge, and `ClientSession.ws_connect()` on top of `_webnet`'s WebSocket bridge, polling with `await asyncio.sleep_ms(...)`. Imports `WSMsgType` from the device `aiohttp_ws.py`. |
 
 `_webnet` HTTP API: `fetch_start(method, url, headers_json, body)` returns an int handle; then `poll(h)` (0 pending / 1 done / -1 error), `status(h)`, `headers(h)`, `body(h)`, `error(h)`, and `free(h)`.
 
@@ -207,13 +229,14 @@ How it is wired up:
 
 - **Link flag:** `-lidbfs.js` is added to `web_ldflags` in `scripts/web_port/web.py` so the IDBFS backend is available.
 - **Mount + load (boot):** `web/shell.html`'s `Module.preRun` mounts IDBFS at `/data` and `/apps`, then gates the runtime start on `FS.syncfs(true, …)` (wrapped in `addRunDependency`/`removeRunDependency`) so Python only starts once the persisted contents are loaded from IndexedDB.
-- **Why those two paths are excluded from the preload:** `FS.syncfs(true)` reconciles the in-memory FS to match the IndexedDB store, so a mount point must not also be a `--preload-file` target — otherwise the first boot (empty store) would wipe the preloaded files. `build_mpos.sh` therefore stages the tree **without** `apps/` and `data/`: the bundled demo apps are packaged separately at `/.bundled_apps` (`--preload-file …@/.bundled_apps`) and `data/` is dropped (IDBFS recreates it empty).
+- **Why those two paths are excluded from the preload:** `FS.syncfs(true)` reconciles the in-memory FS to match the IndexedDB store, so a mount point must not also be a `--preload-file` target — otherwise the first boot (empty store) would wipe the preloaded files. `build_mpos.sh` therefore stages the tree **without** `apps/` and `data/`. The bundled demo apps are packaged separately at `/.bundled_apps` (`--preload-file …@/.bundled_apps`). `data/` is dropped. Instead, the contents of `internal_filesystem_data/` are packaged at `/.bundled_data`.
 - **Seeding bundled apps:** on first run `seedBundledApps()` copies `/.bundled_apps` into `/apps` once and writes a `/apps/.seeded` marker, so the bundled apps appear via the normal `AppManager` scan. The marker means a user uninstalling a bundled app makes the removal stick across reloads instead of being re-seeded every boot.
+- **Seeding bundled data:** on every boot `seedBundledData()` copies `/.bundled_data` into `/data`. It only copies files that are not there yet, so it never overwrites a file in `/data`.
 - **Flushing writes:** `startPersistFlush()` periodically calls `FS.syncfs(false, …)` (every few seconds, plus on `pagehide` and when the tab is hidden) to push writes back to IndexedDB.
 
 Notes / limitations:
 
-- Persistence is per-origin and subject to the browser's IndexedDB storage quota and eviction policy (clearing site data wipes it).
+- Persistence is per-origin and subject to the browser's IndexedDB storage quota and eviction policy (clearing site data wipes it). The page's **Reset storage** button deletes the `/data` and `/apps` stores and reloads.
 - No device-side code changed: `AppManager` install/uninstall and `SharedPreferences` use their normal relative paths (`apps/…`, `data/…`), which resolve to the IDBFS mounts because the working directory is `/`.
 
 ## Making changes — common scenarios
@@ -222,19 +245,21 @@ Notes / limitations:
 - **Change the HTML/JS shell:** edit `web/shell.html`, rebuild. `index.html` and `mpos.html` are regenerated from it.
 - **Change build/link flags:** edit `scripts/web_port/web.py`, rebuild.
 - **Change a patched submodule C file:** see "Updating a submodule patch".
-- **Add another web-only shim:** add a heredoc in the `web` branch of `scripts/build_mpos.sh` next to the existing shims.
+- **Change a web-only C module (`_webnet`, `_webterm`, `_webio`):** edit it under `scripts/web_port/ext_mod/`, rebuild.
+- **Add another web-only shim:** add the file under `scripts/web_port/staged_lib/`, and a `cp` line next to the others in the `web` branch of `scripts/build_mpos.sh`.
 
 ## Testing in a browser
 
 Serve with `scripts/run_web.sh` and open the page. When iterating, note that `micropython.data` (the preloaded FS) is cached **separately** from the wasm, so hard-reload / disable cache (or append a cache-busting query like `?v=2`) when testing filesystem changes.
 
-A clean boot prints the banner, the `RAM: ... free` line, then `Passing execution over to mpos.main`, and renders the launcher. The following console messages are **expected and non-fatal** in the browser:
+The page's **Log** button shows the boot output. MicroPython's stdout goes only to that log. Its stderr, where MicroPythonOS writes its warnings, also goes to the browser console.
 
-- `no ADC` / `module 'machine' has no attribute 'ADC'` (no battery ADC)
-- `mpos.imu.drivers.iio: Error listing dir` (no IMU)
+A clean boot prints the banner, the `RAM: ... free` line, then `Passing execution over to mpos.main`, and renders the launcher. The following messages are **expected and non-fatal** in the browser:
+
+- `__debug__ is set so code compiled with opt_level 0`
+- `could not import/run freezefs_mount_builtin: [Errno 20] EEXIST`
+- `could not mark this update as valid: no module named 'esp32'`
 - `download error` / `fetch failed: TypeError: Failed to fetch` for the default app-store/OTA hosts (CORS-blocked cross-origin requests — see *Networking*).
-- `no module named 'esp32'`
-- `aiorepl ... EIO` (browser stdin cannot be read)
 
 A **fatal** problem would instead show `memory access out of bounds`, `function signature mismatch`, or `MicroPythonOS exiting`.
 
@@ -245,10 +270,12 @@ A **fatal** problem would instead show `memory access out of bounds`, `function 
 
 ## Deploying to GitHub Pages
 
-[`scripts/deploy_web_pages.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/deploy_web_pages.sh) builds the web export and force-pushes the contents of `web/` as a single commit to a `gh-pages` branch. It is a plain command (no GitHub Action / CI), so you run it whenever you want to update the live site.
+CI deploys the MicroPythonOS site itself. [`.github/workflows/web-pages.yml`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/.github/workflows/web-pages.yml) builds the web target on every push and pull request to `main`. It boots the build headless and checks the `_webterm` REPL bridge (`tests/web_bridge_smoke.mjs`). A push to `main` is then deployed to the `gh-pages` branch. A pull request from a branch in the same repo gets a Netlify preview.
+
+To deploy a fork by hand, use [`scripts/deploy_web_pages.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/deploy_web_pages.sh). It builds the web export and force-pushes the contents of `web/` as a single commit to a `gh-pages` branch. Run it whenever you want to update your site.
 
 ```bash
-scripts/deploy_web_pages.sh                 # build, then deploy to remote `fork`
+scripts/deploy_web_pages.sh                 # build, then deploy to remote `origin`
 scripts/deploy_web_pages.sh --no-build      # deploy the existing web/ as-is
 REMOTE=origin scripts/deploy_web_pages.sh   # deploy to a different remote
 BRANCH=gh-pages scripts/deploy_web_pages.sh # use a different branch
