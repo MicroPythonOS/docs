@@ -32,7 +32,7 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 - **Latest release**: [web.micropythonos.com](https://web.micropythonos.com/)
 - **Main branch CI**: [micropythonos.github.io/MicroPythonOS](https://micropythonos.github.io/MicroPythonOS/)
 - Runs entirely in a modern desktop browser — no install, no flash.
-- Built from source with `./scripts/build_mpos.sh web` (requires [Emscripten SDK](../web-port/developer/#prerequisites)).
+- Built from source with `./scripts/build_mpos.sh web` (requires [Emscripten SDK](../web-port/developer.md#prerequisites)).
 - See [CI config](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/.github/workflows/web-pages.yml) for automated build details.
 
 ## Desktop Computers
