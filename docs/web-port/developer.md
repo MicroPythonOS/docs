@@ -270,15 +270,15 @@ A **fatal** problem would instead show `memory access out of bounds`, `function 
 
 CI deploys the MicroPythonOS site itself. [`.github/workflows/web-pages.yml`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/.github/workflows/web-pages.yml) builds the web target on every push and pull request to `main`. It boots the build headless and checks the `_webterm` REPL bridge (`tests/web_bridge_smoke.mjs`). A push to `main` is then deployed to the `gh-pages` branch. A pull request from a branch in the same repo gets a Netlify preview.
 
-To deploy a fork by hand, build the web target, then run [`scripts/deploy_web_pages.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/deploy_web_pages.sh) with `--no-build`. It force-pushes the contents of `web/` as a single commit to a `gh-pages` branch. Run it whenever you want to update your site.
+To deploy a fork by hand, use [`scripts/deploy_web_pages.sh`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/scripts/deploy_web_pages.sh). It builds the web target, then force-pushes the contents of `web/` as a single commit to a `gh-pages` branch. Run it whenever you want to update your site.
 
-**Warning:** the web build copies everything in `internal_filesystem/` into `web/`, including git-ignored folders such as `prefs/`, where desktop runs keep app settings. Those can include Wi-Fi passwords and keys. Deploy only a build made from a fresh clone.
+The build leaves out the git-ignored files that desktop runs create in `internal_filesystem/`, such as the app settings in `prefs/`. Other untracked files there, such as apps you added, are included.
 
 ```bash
-scripts/build_mpos.sh web                              # build web/ first
-scripts/deploy_web_pages.sh --no-build                 # deploy to remote `origin`, branch `gh-pages`
-REMOTE=myfork scripts/deploy_web_pages.sh --no-build   # deploy to a different remote
-BRANCH=pages scripts/deploy_web_pages.sh --no-build    # use a different branch
+scripts/deploy_web_pages.sh                   # build, then deploy to remote `origin`, branch `gh-pages`
+scripts/deploy_web_pages.sh --no-build        # deploy the existing web/ as-is
+REMOTE=myfork scripts/deploy_web_pages.sh     # deploy to a different remote
+BRANCH=pages scripts/deploy_web_pages.sh      # use a different branch
 ```
 
 One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: "Deploy from a branch", Branch: `gh-pages` / `(root)`**. The site is then served at `https://<owner>.github.io/<repo>/`.

@@ -75,10 +75,11 @@ they also need the `lib/esp-idf` submodule checked out.
   `lvgl_micropython/lib/micropython/ports/esp32/managed_components/`:
   `tinyusb_isr_double_free.patch`. The ESP-IDF component manager downloads
   this component during ESP32-S3 and ESP32-P4 builds, so it isn't there on a
-  fresh checkout. Until it is there, `build_mpos.sh` skips the patch with a
-  warning. So the first ESP32-S3 or ESP32-P4 build after a fresh checkout
-  is built without it; build again to apply it. Other targets don't use the
-  component, so for them the warning is harmless.
+  fresh checkout. If the component is there before the build,
+  `build_mpos.sh` applies the patch then. If the build downloads the
+  component, or replaces a patched copy, `build_mpos.sh` applies the patch
+  after the build and builds again. Other targets don't use the component,
+  so the patch doesn't change their firmware.
 
 ## Current web-port patches
 
@@ -134,7 +135,11 @@ Git doesn't track the downloaded tinyusb component, so make a patch for it
 with `diff -u` against an unpatched copy, with `a/` and `b/` in front of the
 paths. Put its `apply_patch` call inside the same check for the component's
 files that the current tinyusb call uses. Without it, every build that hasn't
-downloaded the component stops with `FATAL`. The web-port update commands are
+downloaded the component stops with `FATAL`. Also add the call right after
+the second `apply_patch` call for `tinyusb_isr_double_free.patch`, the one
+that runs after the ESP32 build. Without that, the first ESP32-S3 or ESP32-P4
+build after a fresh checkout is built without your patch. The web-port update
+commands are
 in the
 [Web Port Developer Info](../web-port/developer.md#updating-a-submodule-patch).
 
@@ -158,6 +163,7 @@ applying, the build's `FATAL` message tells you which one.
 `tinyusb_isr_double_free.patch` is applied to the downloaded component
 instead. After you change it, delete
 `lvgl_micropython/lib/micropython/ports/esp32/managed_components/espressif__tinyusb`
-and build an ESP32-S3 or ESP32-P4 target twice. A tree that still has the
+and build an ESP32-S3 or ESP32-P4 target. The build downloads the component
+again, applies the patch and builds a second time. A tree that still has the
 old version applied needs the same delete, or the build can stop with
 `FATAL`.
