@@ -224,6 +224,10 @@ and record the About screens before and after each update:
 - **Partition did not toggle**: the base image did not reset `otadata` (use the
   factory `.bin`, or flash with `--erase-all`), or `set_boot()` failed. Re-run
   with a clean flash before treating it as a release blocker.
+- **Serial write timeout or Input/output error**: the USB-CDC link wedged.
+  Power-cycle the badge (relay or unplug) and re-run. The gate deliberately does
+  not auto-reset during a download: interrupting an OTA write is worse than
+  failing the run. `--relay-port` only retries the flash step.
 - **Camera check fails**: check focus/exposure first
   (`focus-sweep`, then `verify`). If the comparison image shows the wrong
   screen, the framebuffer reference or the camera alignment is stale; delete
