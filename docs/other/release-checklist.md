@@ -56,6 +56,23 @@ Check that all expected assets are present: `esp32`, `esp32s3`, `esp32-small`,
   at least one ESP32-S3 board.
 - Test OTA, desktop and web as applicable, and run the on-device test suite
   (see `tests/README.md`).
+- **Required: validate the previous release can install this one.** Flash the
+  previous release's factory `.bin`, then run the OTA release validation (with
+  webcam verification when the rig has a camera). It must pass both the
+  `previous → new` and `new → new` passes, with the OTA partition alternating
+  `ota_0 → ota_1 → ota_0`:
+
+  ```
+  python3 scripts/validate_ota_release.py \
+      --port /dev/ttyACM0 --camera /dev/video0 \
+      --relay-port /dev/ttyUSB0 \
+      --base-bin MicroPythonOS_esp32s3_<previous>.bin \
+      --base-version <previous> --target-version <version>
+  ```
+
+  Keep `tmp/ota_validation/report.json` and the camera comparison images with
+  the release notes. See [OTA Upgrade Validation](ota-release-validation.md)
+  for the full procedure and manual fallback.
 
 **Publish the draft release**
 
