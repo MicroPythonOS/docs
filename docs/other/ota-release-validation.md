@@ -123,18 +123,21 @@ you are re-validating an older point release), serve its metadata locally and
 point both the host check and the device at it:
 
 ```bash
-cat > /tmp/ota_server/osupdate_<hardware_id>.json <<'JSON'
-{
-  "version": "0.21.0",
-  "download_url": "https://updates.micropythonos.com/releases/esp32s3/MicroPythonOS_esp32s3_0.21.0.ota",
-  "changelog": "Re-validation of the 0.21.0 upgrade path."
-}
-JSON
-python3 -m http.server 8765 --bind 0.0.0.0 --directory /tmp/ota_server &
+python3 scripts/ota_validation_server.py \
+    --version 0.21.0 \
+    --ota-url https://updates.micropythonos.com/releases/esp32s3/MicroPythonOS_esp32s3_0.21.0.ota \
+    --hardware-id <hardware_id> --port 8765
 
 python3 scripts/validate_ota_release.py ... \
     --updates-url http://<host-lan-ip>:8765 \
     --mirror-url http://<host-lan-ip>:8765
+```
+
+The same commands are available as Make targets:
+
+```bash
+make ota-validation ARGS='--port /dev/ttyACM0 --camera /dev/video0 ...'
+make ota-validation-server ARGS='--version 0.21.0 --ota-url ... --hardware-id ...'
 ```
 
 `--mirror-url` only changes the device for the current boot; it is applied after
