@@ -107,6 +107,7 @@ nav:
       - Developer Info: web-port/developer.md
   - Other:
       - Release Process: other/release-checklist.md
+      - OTA Upgrade Validation: other/ota-release-validation.md
       - Merge Checklist: other/merge-checklist.md
       - Supported File Formats: other/supported-file-formats.md
 extra:
