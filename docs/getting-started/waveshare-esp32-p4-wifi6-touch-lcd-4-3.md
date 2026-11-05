@@ -8,7 +8,7 @@ The ESP32-P4 has no radio of its own. Wi-Fi and Bluetooth come from a second chi
 
 ## Chip revision
 
-MicroPythonOS 0.20.0 runs only on an ESP32-P4 of chip revision v0.x or v1.x. Its `esp32p4` image is built with ESP-IDF 5.5.1, which supports revisions v0.0 to v1.99. The main branch builds it the same way. The board MicroPythonOS support was developed on has revision v1.3.
+MicroPythonOS releases 0.20.0 to 0.21.1 run only on an ESP32-P4 of chip revision v0.x or v1.x. Their `esp32p4` images are built with ESP-IDF 5.5.1, which supports revisions v0.0 to v1.99. The main branch also builds its `esp32p4` image with ESP-IDF 5.5.1. The board MicroPythonOS support was developed on has revision v1.3.
 
 Boards with a v3.x chip are not supported. Waveshare's [FAQ](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/FAQ) calls v0.x and v1.x chips engineering samples, and one user's board of this model has a v3.2 chip. Espressif's [chip revision v3.x guide](https://documentation.espressif.com/esp32-p4-chip-revision-v3.x_user_guide_en.html) says that v1.x and v3.x chips cannot share the same firmware image, and that v3.x needs ESP-IDF 5.5.3 or later. Support for v3.x is tracked in [MicroPythonOS/MicroPythonOS#344](https://github.com/MicroPythonOS/MicroPythonOS/issues/344).
 
@@ -32,7 +32,7 @@ If your board has a v3.x chip, keep Waveshare's factory firmware on it. Do not g
 | Touch | Works (GT911). |
 | Speaker | Works: ES8311 codec and the on-board amplifier, on the speaker connector. |
 | Wi-Fi | Works, through the C6. Read [the C6 firmware](#the-c6-firmware) and [Wi-Fi on channels 6 to 9](#known-issue-wi-fi-on-channels-6-to-9). |
-| OS updates | The update server has an entry for this board, so the OSUpdate app checks for new releases. Not tested yet: 0.20.0 is the board's first release, so there has been nothing newer to install. See [Updating](#updating). |
+| OS updates | The update server has an entry for this board, so the OSUpdate app checks for new releases. Not tested on this board yet. See [Updating](#updating). |
 | Microphones | Not supported. They go through a separate ES7210 chip, which MicroPythonOS does not set up on this board. |
 | TF (microSD) card slot | Not supported. The slot needs the ESP32-P4's internal LDO channel 4 switched on, which `machine.SDCard` cannot do. |
 | Camera (MIPI-CSI) | Not supported. |
@@ -44,7 +44,9 @@ If your board has a v3.x chip, keep Waveshare's factory firmware on it. Do not g
 
 The firmware for this board is the `esp32p4` build: the file `MicroPythonOS_esp32p4_<version>.bin` on the [releases page](https://github.com/MicroPythonOS/MicroPythonOS/releases), first in 0.20.0. It is a full flash image, written at offset 0.
 
-The [web installer](https://install.micropythonos.com) lists an ESP32-P4 build, but that option currently fails to load. The steps below use [esptool](https://docs.espressif.com/projects/esptool/en/latest/esp32p4/). In the commands, `-b 921600` sets a faster serial speed than esptool's default.
+The [web installer](https://install.micropythonos.com) has the ESP32-P4 build. Installing with it has not been tested on this board yet. The installer does not check the chip revision. So first do steps 1 and 2 below with esptool, and step 3 if you want a backup of the factory firmware. Then install with the web installer. On a first install, select **Erase device** when it asks. It clears the factory firmware's data, as `--erase-all` does in step 4 below.
+
+The steps below use [esptool](https://docs.espressif.com/projects/esptool/en/latest/esp32p4/). In the commands, `-b 921600` sets a faster serial speed than esptool's default.
 
 1. **Connect the board.** Use the USB-C port that Waveshare's documentation calls USB TO UART (power, programming and debugging). The other USB-C port is the USB OTG port.
 
@@ -52,7 +54,7 @@ The [web installer](https://install.micropythonos.com) lists an ESP32-P4 build, 
 
         python3 -m esptool --chip esp32p4 chip_id
 
-    If the revision is v3.0 or later, stop here. MicroPythonOS will not start on this board, and the next steps would erase its factory firmware.
+    If the revision is v3.0 or later, stop here, and do not use the web installer either. MicroPythonOS will not start on this board, and installing it would erase the board's factory firmware.
 
     Do not count on esptool to stop you. The release `.bin` starts with padding, not with an image header, so esptool writes it without checking the revision. esptool checks only files that start with an image header, such as the `.ota` file or a bootloader you built yourself. Up to v5.4.0, it refuses any such file built for other revisions. From v5.5.0, it refuses only a bootloader written at offset 0x2000. Either way, `--force` does not help: the image is written, but the board does not start.
 
@@ -64,9 +66,9 @@ The [web installer](https://install.micropythonos.com) lists an ESP32-P4 build, 
 
 4. **Write MicroPythonOS:**
 
-        python3 -m esptool --chip esp32p4 -b 921600 write_flash --erase-all 0 MicroPythonOS_esp32p4_0.20.0.bin
+        python3 -m esptool --chip esp32p4 -b 921600 write_flash --erase-all 0 MicroPythonOS_esp32p4_0.21.1.bin
 
-    `--erase-all` clears the factory firmware's data, which uses a different partition layout. Leave it out when you reinstall over MicroPythonOS, as it erases your apps and settings. Even without it, reinstalling can cost you data: read [Updating](updating.md) first.
+    Replace `0.21.1` with the version of the `.bin` file you downloaded from the releases page. `--erase-all` clears the factory firmware's data, which uses a different partition layout. Leave it out when you reinstall over MicroPythonOS, as it erases your apps and settings. Even without it, reinstalling can cost you data: read [Updating](updating.md) first.
 
     esptool puts the board into download mode by itself. If it cannot connect, hold the BOOT button, press RESET, release BOOT and try again.
 
@@ -74,7 +76,7 @@ The [web installer](https://install.micropythonos.com) lists an ESP32-P4 build, 
 
 ## Updating
 
-Use the OSUpdate app, as on the other boards. See [Updating](updating.md). This has not been tested on this board yet: 0.20.0 is its first release, so there has been no newer release to update to.
+Use the OSUpdate app, as on the other boards. See [Updating](updating.md). Updating with the OSUpdate app has not been tested on this board yet.
 
 For a manual offline update, also described there, use the `MicroPythonOS_esp32p4_<version>.ota` file from the releases page. The two OTA slots of the `esp32p4` build are at `0x20000` and `0x420000`.
 
@@ -86,7 +88,7 @@ Why it matters:
 
 - **Empty scans.** With the original C6 firmware, a Wi-Fi scan made straight after the radio was switched on found nothing, in about 1.2 s. A scan 5 s later found 26 networks. While it is not connected, MicroPythonOS switches the radio off and on before every scan. So after losing Wi-Fi, the board could miss its network and switch Wi-Fi off again ([MicroPythonOS/MicroPythonOS#309](https://github.com/MicroPythonOS/MicroPythonOS/issues/309)).
 - **After the update.** On the same board, after its C6 was updated to ESP-Hosted 2.7.0, none of 22 scans made straight after a radio restart came back empty.
-- **A fallback, not on 0.20.0.** On the main branch, when the scan after a radio restart finds nothing, MicroPythonOS scans once more 5 s later ([MicroPythonOS/MicroPythonOS#341](https://github.com/MicroPythonOS/MicroPythonOS/pull/341); see [`WifiService.scan_networks()`](../frameworks/wifi-service.md#scanning-functions)). Release 0.20.0 does not have this. It could not be tested on the original C6 firmware, as no copy of that firmware was available.
+- **A fallback, since 0.21.0.** When the scan after a radio restart finds nothing, MicroPythonOS scans once more 5 s later ([MicroPythonOS/MicroPythonOS#341](https://github.com/MicroPythonOS/MicroPythonOS/pull/341); see [`WifiService.scan_networks()`](../frameworks/wifi-service.md#scanning-functions)). Release 0.20.0 does not have this. The fallback could not be tested on the original C6 firmware, as no copy of that firmware was available.
 - **Espressif's advice.** ESP-Hosted's own driver recommends upgrading a co-processor whose firmware is older than the host side's, to avoid timeouts in the requests between the two chips.
 
 ### Check the version
