@@ -8,7 +8,7 @@ The ESP32-P4 has no radio of its own. Wi-Fi and Bluetooth come from a second chi
 
 ## Chip revision
 
-MicroPythonOS releases 0.20.0 to 0.21.1 run only on an ESP32-P4 of chip revision v0.x or v1.x. Their `esp32p4` images are built with ESP-IDF 5.5.1, which supports revisions v0.0 to v1.99. The main branch also builds its `esp32p4` image with ESP-IDF 5.5.1. The board MicroPythonOS support was developed on has revision v1.3.
+MicroPythonOS releases 0.20.0 to 0.21.2 run only on an ESP32-P4 of chip revision v0.x or v1.x. Their `esp32p4` images are built with ESP-IDF 5.5.1, which supports revisions v0.0 to v1.99. The main branch also builds its `esp32p4` image with ESP-IDF 5.5.1. The board MicroPythonOS support was developed on has revision v1.3.
 
 Boards with a v3.x chip are not supported. Waveshare's [FAQ](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/FAQ) calls v0.x and v1.x chips engineering samples, and one user's board of this model has a v3.2 chip. Espressif's [chip revision v3.x guide](https://documentation.espressif.com/esp32-p4-chip-revision-v3.x_user_guide_en.html) says that v1.x and v3.x chips cannot share the same firmware image, and that v3.x needs ESP-IDF 5.5.3 or later. Support for v3.x is tracked in [MicroPythonOS/MicroPythonOS#344](https://github.com/MicroPythonOS/MicroPythonOS/issues/344).
 
@@ -66,9 +66,9 @@ The steps below use [esptool](https://docs.espressif.com/projects/esptool/en/lat
 
 4. **Write MicroPythonOS:**
 
-        python3 -m esptool --chip esp32p4 -b 921600 write_flash --erase-all 0 MicroPythonOS_esp32p4_0.21.1.bin
+        python3 -m esptool --chip esp32p4 -b 921600 write_flash --erase-all 0 MicroPythonOS_esp32p4_0.21.2.bin
 
-    Replace `0.21.1` with the version of the `.bin` file you downloaded from the releases page. `--erase-all` clears the factory firmware's data, which uses a different partition layout. Leave it out when you reinstall over MicroPythonOS, as it erases your apps and settings. Even without it, reinstalling can cost you data: read [Updating](updating.md) first.
+    Replace `0.21.2` with the version of the `.bin` file you downloaded from the releases page. `--erase-all` clears the factory firmware's data, which uses a different partition layout. Leave it out when you reinstall over MicroPythonOS, as it erases your apps and settings. Even without it, reinstalling can cost you data: read [Updating](updating.md) first.
 
     esptool puts the board into download mode by itself. If it cannot connect, hold the BOOT button, press RESET, release BOOT and try again.
 
