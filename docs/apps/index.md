@@ -7,5 +7,6 @@ MicroPythonOS is built around an app-centric model, with built-in apps for core 
 - [Creating Apps](creating-apps.md): Write an app from scratch.
 - [App Lifecycle](app-lifecycle.md): Activity and Service lifecycle.
 - [Bundling Apps](bundling-apps.md): Package apps as `.mpk` files, including Python packages.
+- [Publishing Apps](publishing-apps.md): Ship a new version to the curated index and BadgeHub.
 - [Native C/C++ Apps](native-apps.md): Add compiled native modules to an app.
 - [BadgeHub Apps](badgehub.md): Publish apps on BadgeHub.eu.

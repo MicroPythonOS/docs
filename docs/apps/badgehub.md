@@ -42,6 +42,11 @@ The AppManager uses the latest release's download URL to fetch the `.mpk`.
 5. Upload the `.mpk` to your BadgeHub project.
 6. MicroPythonOS will detect the new release the next time the AppStore refreshes the BadgeHub backend.
 
+The official MicroPythonOS apps are published from the bundled `.mpk` files with
+`../badgehub/synchronize_apps.py --app <fullname>` instead of the web form; that
+also updates the icon and project metadata. See
+[Publishing Apps](publishing-apps.md) for the whole release flow.
+
 ## Version handling
 
 Releases on BadgeHub should use [semantic versioning](https://semver.org/) strings (for example, `1.2.3`). The AppStore compares the installed version against the latest BadgeHub release and offers an update when the BadgeHub version is newer.
@@ -57,5 +62,6 @@ To share your project on-device, point users at `https://badgehub.eu/page/projec
 ## See also
 
 - [Bundling Apps](bundling-apps.md) — creating `.mpk` packages
+- [Publishing Apps](publishing-apps.md) — version bumps and publishing to both backends
 - [Creating Apps](creating-apps.md) — writing an app from scratch
 - [App Lifecycle](app-lifecycle.md) — `Activity` and `Service` lifecycle
