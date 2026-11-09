@@ -10,6 +10,7 @@ AudioManager provides:
 - **Device registry** - Register I2S outputs, PWM buzzers, and microphone inputs
 - **Session control** - Player/Recorder sessions with start/stop/pause/resume
 - **WAV file support** - 8/16/24/32-bit PCM, IMA ADPCM (4-bit), mono/stereo, auto-upsampling
+- **MP3 file support** - MPEG-1/2/2.5 Layer III, CBR and VBR, mono/stereo, 8-48 kHz
 - **WAV recording** - 16-bit mono PCM from I2S or ADC microphone
 - **RTTTL ringtone support** - Full Ring Tone Text Transfer Language parser
 - **Thread-safe** - Safe for concurrent access
@@ -83,6 +84,29 @@ player.start()
 - **Sample rate**: Any rate (auto-upsampled to ≥8000 Hz)
 - **Repeat**: Pass `repeat_count` to loop playback N times
 
+### Playing MP3 Files
+
+MP3 files are handled by the same player API; the file extension picks the stream implementation:
+
+```python
+player = AudioManager.player(
+    file_path="M:/sdcard/music/song.mp3",
+    stream_type=AudioManager.STREAM_MUSIC,
+    volume=80,
+)
+player.start()
+```
+
+**Supported formats:**
+- **Encoding**: MPEG-1, MPEG-2 and MPEG-2.5 Layer III (CBR and VBR)
+- **Channels**: Mono or stereo
+- **Sample rate**: 8, 11.025, 12, 16, 22.05, 24, 32, 44.1 and 48 kHz
+- **Repeat**: Pass `repeat_count` to loop playback N times
+
+Decoding uses the `mp3dec` native module (the public-domain [minimp3](https://github.com/lieff/minimp3) decoder) so the LVGL UI keeps running while audio plays: the GIL is released around each frame decode. The native sample rate of the file is used directly, without resampling. ID3v2 tags (including cover art) and ID3v1 trailers are skipped, and reading the sample rate and duration for progress display works without decoding.
+
+Files without an audio frame (or with free-format bitrate) are not supported.
+
 ### Playing RTTTL Ringtones
 
 ```python
@@ -130,6 +154,8 @@ On Linux and macOS desktop builds, WAV playback uses an external audio player su
 2. `aplay` (ALSA)
 3. `paplay` (PulseAudio)
 4. `afplay` (macOS)
+
+MP3 playback prefers a player that can decode MP3 itself (`ffplay`, then `mpg123`, or `afplay` on macOS). When only `aplay`/`paplay` is available, the file is decoded to a temporary WAV first, so older systems without an MP3-capable player still work.
 
 If none is installed, the player still runs in "timing simulation" mode so apps can test playback flow without sound.
 
