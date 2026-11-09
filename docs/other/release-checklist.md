@@ -12,6 +12,7 @@ with the new version (for example `0.21.0`).
 
 ```
 git diff --stat <previous-tag> -- internal_filesystem/  # each app change needs a MANIFEST bump
+make check-app-versions                                 # lists apps still missing a bump
 ```
 
 **Update Changelog**:
@@ -126,11 +127,13 @@ edit the real files (and any regular board file that is not a symlink).
 
 **Bundle and publish apps**
 
-`bundle_apps.sh` regenerates the whole index from the local manifests, so check
-the diff before committing: it can revert index-only fixes (such as a publisher
+See [Publishing Apps](../apps/publishing-apps.md) for the full flow. For a full
+release (every app), check the diff before committing: the full bundle
+regenerates the whole index and can revert index-only fixes (such as a publisher
 change) and rebuild apps whose external sources are dirty.
 
 ```
+make check-app-versions
 ./scripts/bundle_apps.sh
 cd ../apps/
 git add app_index.json apps/

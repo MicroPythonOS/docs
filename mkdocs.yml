@@ -52,6 +52,7 @@ nav:
       - App Lifecycle: apps/app-lifecycle.md
       - App Performance: apps/app-performance.md
       - Bundling Apps: apps/bundling-apps.md
+      - Publishing Apps: apps/publishing-apps.md
       - Native C/C++ Apps: apps/native-apps.md
       - BadgeHub Apps: apps/badgehub.md
   - Frameworks:

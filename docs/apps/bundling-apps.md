@@ -72,4 +72,4 @@ Apps can include native C/C++ extension modules compiled as MicroPython `.native
 
 MicroPythonOS currently supports the [BadgeHub.eu](https://badgehub.eu) appstore backend, with plans to add more options.
 
-See [BadgeHub Apps](badgehub.md) for how to publish an `.mpk` there.
+See [Publishing Apps](publishing-apps.md) for the version bump, bundle and upload steps, and [BadgeHub Apps](badgehub.md) for how to publish an `.mpk` there.
