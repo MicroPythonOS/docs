@@ -427,11 +427,12 @@ Read this way:
 
 ### What was and was not measured
 
-The sound is verified end to end. With a cable from the badge's headset jack to
-the host's line input, the 1 kHz sidecar beeps are recorded at full scale
-(0.5 of full scale in the 1 kHz band) and land **1.0002 s apart**, drift
-+0.16 ms/s across five of them: the sink plays the file at its own rate, without
-gaps and without resampling. An earlier estimate of the sample rate from DMA
+The sound is verified end to end. Recorded from the badge (headset jack into
+the host's line input, or the webcam microphone that the acoustic tools use by
+default), the 1 kHz sidecar beeps come back at full scale (0.5 of full scale in
+the 1 kHz band) and land **1.0002 s apart**, drift +0.16 ms/s across five of
+them: the sink plays the file at its own rate, without gaps and without
+resampling. An earlier estimate of the sample rate from DMA
 drain timing ("2.6-3.1% fast") was an artefact of that method, not a property of
 the hardware — the recorded beeps are the better instrument.
 
