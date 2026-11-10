@@ -76,6 +76,21 @@ Emoji PNGs are stored in `builtin/res/emojis/`:
 | `_imgfont_source_size_cache` | `src` | `(width, height)` tuple |
 | `_imgfont_empty_src_cache` | `target_height` | 1×h transparent `lv.image_dsc_t` |
 
+### Built-in bitmap fonts and compression
+
+The built-in Montserrat faces live in `lvgl_micropython/lib_lvgl_src_font/` and are copied into LVGL at build time. Most sizes are stored **RLE-compressed** (`LV_FONT_FMT_TXT_COMPRESSED`) to save flash, which means LVGL decompresses every glyph on every draw.
+
+That per-glyph decode is measurable, so the two faces the UI uses most are shipped **uncompressed** on purpose:
+
+| Face | Where it is used | Compressed | Uncompressed |
+|------|------------------|-----------|--------------|
+| 12 px | `getFont()` default, theme body text — the most used size | 0.062 ms/glyph | **0.037 ms/glyph** |
+| 16 px | Second most used size (titles, list headers) | 0.056 ms/glyph | **0.034 ms/glyph** |
+
+Measured on an ESP32-S3 badge with identical text and size: a full text screen (18 lines × 44 characters = 792 glyphs) redraws in **54.1 ms instead of 74.4 ms**, about 20 ms per full-screen repaint. The cost is **+6.7 KB of firmware** for both faces. The remaining sizes (10, 14, 18, 20, 24, 28) stay compressed — they are used far less and the flash saving is worth more there.
+
+If you add a new hot font size, benchmark it before deciding: load a compressed and an uncompressed build of the same face with `lv.binfont_create_from_buffer()` and time a full `scr.invalidate()` + `lv.refr_now()` loop with and without text. The regeneration recipe and the exact per-size `lv_font_conv` options are documented in `lvgl_micropython/lib_lvgl_src_font/README.md`; each generated `.c` file also carries its own `Opts:` line in the header comment.
+
 ## API Reference
 
 ### `getFont(size=None, ttf=None, family=None, emoji=False)`
