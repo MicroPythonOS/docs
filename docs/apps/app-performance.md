@@ -48,3 +48,9 @@ Every invalidate costs render + flush. LVGL redraws only dirty areas, so shrink 
 - Simulate old-vs-new logic in CPython where possible (trajectories, scroll phases, wrap behavior) before spending flash cycles.
 - `ruff` and `mpy-cross` must run on the **real** file path: apps symlinked from external repos are not covered by the main repo's `make lint` / `make syntax-tests`.
 - Bump the app version with every user-visible change so testers can tell builds apart.
+
+## See also
+
+- [Video Performance](video-performance.md) — the frame-cost model for video
+  playback (ingest, decode, flush), measured ceilings per resolution, and why
+  LVGL scaling and timer-driven playback lose so much.
