@@ -21,7 +21,9 @@ AudioManager provides:
 - **I2S Output**: Digital audio output for WAV file playback
 - **I2S Input**: Microphone recording (I2S mic)
 - **ADC Input**: Analog microphone recording via ADC (Fri3d 2026)
-- **Buzzer**: PWM-based tone/ringtone playback
+- **Buzzer**: PWM-based ringtone playback, and WAV/MP3 playback through the
+  piezo's average-voltage response on ESP32 (see
+  [Playing PCM audio on a piezo buzzer](#playing-pcm-audio-on-a-piezo-buzzer-esp32))
 
 ## Quick Start
 
@@ -106,6 +108,88 @@ player.start()
 Decoding uses the `mp3dec` native module (the public-domain [minimp3](https://github.com/lieff/minimp3) decoder) so the LVGL UI keeps running while audio plays: the GIL is released around each frame decode. The native sample rate of the file is used directly, without resampling. ID3v2 tags (including cover art) and ID3v1 trailers are skipped, and reading the sample rate and duration for progress display works without decoding.
 
 Files without an audio frame (or with free-format bitrate) are not supported.
+
+### Playing PCM Audio on a Piezo Buzzer (ESP32)
+
+A passive piezo disc is not a speaker, but it can still reproduce samples from a
+WAV or MP3 file. The disc deflects in proportion to the *average* voltage on its
+pin, so a PWM channel whose duty cycle is rewritten at the sample rate acts as
+a very cheap DAC. On ESP32 builds MicroPythonOS ships a `buzzer` driver
+(`c_mpos/src/buzzer.c`) that does exactly that, and the usual player API works
+unchanged:
+
+```python
+from mpos import AudioManager
+
+player = AudioManager.player(
+    file_path="data/alert.wav",
+    stream_type=AudioManager.STREAM_NOTIFICATION,
+    volume=100,
+    output=AudioManager.find_output_by_kind("buzzer"),
+)
+player.start()
+```
+
+Anything a buzzer output plays that is not RTTTL goes through this PCM path:
+WAV (PCM/ADPCM) and MP3 are decoded by the same code as the I2S output, and
+volume changes apply while playing.
+
+Expect it to be **quiet and narrow-band**. The disc has a mechanical resonance
+somewhere around 3-4 kHz and rolls off quickly below it, so pure low sine waves
+are barely audible while harmonics (music, square-wave ringtones) come through
+much better. A pure 440 Hz test tone, for example, is essentially inaudible;
+what you hear is the PWM noise exciting the disc's resonance.
+
+If the source is harmonic-poor (sine tones, voice, bass) you can overdrive the
+samples before they reach the PWM, which turns them into near-square waves full
+of harmonics that the disc can reproduce:
+
+```python
+output = AudioManager.find_output_by_kind("buzzer")
+output.buzzer_gain = 600   # 100 = unchanged, 600 = 6x with hard clipping
+```
+
+Buzzer outputs default to `1600` (the disc is quiet enough that unity gain makes
+most material inaudible); set it to `100` if you want the samples untouched.
+
+It is set per output (also accepted as `buzzer_gain=` in
+`AudioManager.Output(...)`) and applies to the next clip.
+
+Apps that decode and pace their own PCM instead of using a Player (the video
+player is one) can stream to any output through the small sink API:
+
+```python
+from mpos.audio.stream_buzzer import BuzzerSink
+
+sink = BuzzerSink(AudioManager.find_output_by_kind("buzzer"), rate=22050, channels=1)
+sink.open()
+sink.write(pcm_bytes)   # blocks only if the ~370 ms ring is full
+sink.close()
+```
+
+`BuzzerSink` mirrors the `open()/wait_ready()/write()/close()` shape of the
+I2S sink, so an app can pick it when `output.kind == "buzzer"` and keep its
+existing pacing.
+
+Driver notes, in case you need to work on it:
+
+- The PWM carrier runs at 78 kHz (80 MHz APB clock with 10-bit duty resolution)
+  and the duty cycle is rewritten from a hardware timer interrupt at the file's
+  sample rate (8-48 kHz). Samples are queued in an 8 KB ring buffer in internal
+  RAM, so the playback thread can be delayed by a GC pause or a flash read
+  without an audible gap.
+- The ESP32 backend uses LEDC timer 3 / channel 7 and `machine.Timer(1)`, so it
+  does not collide with `machine.PWM` (allocates from 0 upwards),
+  the LVGL task handler (`machine.Timer(0)`) or the warm-output timer of the I2S
+  stream (`machine.Timer(3)`).
+- The timer interrupt is reserved when the board registers its buzzer output
+  (`AudioManager.add(...)` at boot) and is kept for the lifetime of the
+  firmware. Allocating it lazily at play time can fail: by then the rest of the
+  firmware may have taken every free low/medium interrupt vector, and
+  `esp_intr_alloc()` returns `ESP_ERR_NOT_FOUND`.
+- On desktop and web the same decode -> mono -> volume chain runs into an
+  emulated sink that writes a temporary WAV file, so it can be exercised and
+  unit-tested without hardware.
 
 ### Playing RTTTL Ringtones
 
