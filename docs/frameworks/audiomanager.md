@@ -146,10 +146,34 @@ of harmonics that the disc can reproduce:
 
 ```python
 output = AudioManager.find_output_by_kind("buzzer")
-output.buzzer_gain = 600   # 100 = unchanged, 600 = 6x with hard clipping
+output.buzzer_gain = 800   # 100 = unchanged, 800 = 8x with hard clipping
 ```
 
-Buzzer outputs default to `1600` (the disc is quiet enough that unity gain makes
+There are four knobs in total, also exposed in *Settings → Audio → Buzzer …*
+and persisted in the audio preferences (`AudioManager.set_buzzer_tuning()`):
+
+| Knob | Default | What it does |
+| --- | --- | --- |
+| `buzzer_gain` | `800` | Input overdrive before the PWM (0–3200 %). Higher = more harmonics, louder, more distorted. `100` leaves the samples untouched. |
+| `buzzer_carrier` | `0` | PWM carrier in Hz (`0` = follow the sample rate, at least 16 kHz). A higher carrier gives finer duty control and moves the switching noise up, but does **not** change which frequencies the disc can reproduce; it cannot be slower than the sample rate. |
+| `buzzer_emphasis` | `0` | Pre-emphasis (first-order high-pass) before the overdrive, 0–90 %. Tilts the input towards 1–3 kHz. |
+| `buzzer_mod` | `0` | Ring modulation frequency, 0–8000 Hz. Mixes the input up by that amount, moving its energy into the disc's 2–5 kHz window (buzzy "Donald Duck" timbre, but a lot more acoustic output). |
+
+Measured on the fri3d 2026 with a microphone next to the buzzer (speech at
+22.05 kHz mono, energy in the 2–3 / 3–4 / 4–5 kHz bands):
+
+| Setting | 2–3 kHz | 3–4 kHz | 4–5 kHz | RMS |
+| --- | --- | --- | --- | --- |
+| gain 800 (default) | 26.6 | 76.0 | 77.2 | 0.030 |
+| gain 1600 | 33.6 | 100.2 | 128.2 | 0.076 |
+| gain 800, carrier 78 kHz | 22.0 | 63.0 | 80.9 | 0.046 |
+| gain 800, emphasis 55 % | 24.8 | 71.9 | 90.1 | 0.053 |
+| gain 800, ring mod 3 kHz | 22.2 | 88.4 | **126.7** | **0.102** |
+
+A 78 kHz carrier measured the same in-band energy as 22 kHz: the disc's
+mechanical response, not the PWM carrier, is the limit.
+
+Buzzer outputs default to `800` (the disc is quiet enough that unity gain makes
 most material inaudible); set it to `100` if you want the samples untouched.
 
 It is set per output (also accepted as `buzzer_gain=` in
@@ -173,11 +197,12 @@ existing pacing.
 
 Driver notes, in case you need to work on it:
 
-- The PWM carrier runs at 78 kHz (80 MHz APB clock with 10-bit duty resolution)
-  and the duty cycle is rewritten from a hardware timer interrupt at the file's
-  sample rate (8-48 kHz). Samples are queued in an 8 KB ring buffer in internal
-  RAM, so the playback thread can be delayed by a GC pause or a flash read
-  without an audible gap.
+- The PWM carrier follows the file's sample rate by default (at least 16 kHz)
+  and its duty cycle is rewritten from a hardware timer interrupt at that same
+  sample rate (8-48 kHz). The duty resolution is chosen so carrier × 2^bits fits
+  the LEDC clock. Samples are queued in a ring buffer in internal RAM (8 KB for
+  short clips, ~370 ms for streaming apps), so the playback thread can be
+  delayed by a GC pause or a flash read without an audible gap.
 - The ESP32 backend uses LEDC timer 3 / channel 7 and `machine.Timer(1)`, so it
   does not collide with `machine.PWM` (allocates from 0 upwards),
   the LVGL task handler (`machine.Timer(0)`) or the warm-output timer of the I2S
