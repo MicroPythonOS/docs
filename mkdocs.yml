@@ -47,6 +47,7 @@ nav:
   - Apps:
       - Overview: apps/index.md
       - Built-in Apps: apps/built-in-apps.md
+      - Video Player: apps/video-player.md
       - App Store: apps/appstore.md
       - Creating Apps: apps/creating-apps.md
       - App Lifecycle: apps/app-lifecycle.md

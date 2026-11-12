@@ -1,0 +1,6 @@
+# Pinned so every deploy produces the same asset hashes: the filenames are
+# content-hashed, and a rebuild with a different version replaces them, which
+# breaks pages that browsers still have cached.
+mkdocs==1.6.1
+mkdocs-material==9.8.1
+markdown-include
