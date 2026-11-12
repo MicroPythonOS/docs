@@ -23,6 +23,12 @@ There is no H.264/H.265 or MPEG decode on the badge, and no scaling: frames are 
 
 The picker opens at `/sdcard/video` and falls back to `/sdcard/clips`, then `/sdcard`. Any clip whose name ends in `.avi`, `.mjpeg` or `.mjpg` is listed. The video player is also registered as a viewer for those extensions, so "Open with" from the file manager works.
 
+### Folders and playlists
+
+Tapping a folder in the picker **enters** it, so nested folders are reachable. To play a folder as a playlist, long-press the folder to select it (or just press **Confirm** while inside it) and confirm: every clip in it plays in name order, which is why a naming scheme like `01_intro.avi`, `02_demo.avi` is worth using.
+
+When the last clip ends, playback stops and the player closes, unless `loop` was requested — then the folder starts over from the first clip. Each clip is started like a fresh file, so it gets its own frame rate from the container, its own soundtrack and its own timing report; a clip that cannot be played stops the playlist with its message rather than being skipped silently.
+
 ### Preparing clips
 
 Both formats are plain MJPEG, which every desktop player opens without extra codecs. With `ffmpeg`:

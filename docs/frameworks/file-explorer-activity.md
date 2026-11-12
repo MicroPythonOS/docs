@@ -9,7 +9,7 @@ The activity is registered for the `pick_file` action, so any app can ask the us
 Two modes are supported:
 
 - **`browse`** (default): navigate directories, open files, rename or delete them.
-- **`pick`**: select one or more files and return them to the caller. The `pick_file` action automatically uses pick mode, so callers do not need to set the `"mode"` extra.
+- **`pick`**: select one or more files and return them to the caller. The `pick_file` action automatically uses pick mode, so callers do not need to set the `"mode"` extra. Tapping a file toggles its selection; tapping a folder enters it (as in browse mode) and long-pressing a folder selects the whole folder.
 
 ## Launching
 
@@ -66,6 +66,17 @@ When the user confirms the selection, the result callback receives:
     }
 }
 ```
+
+### Navigating and selecting in pick mode
+
+Pick mode browses folders exactly like the File Manager:
+
+- **Tap a folder** to enter it. The listing follows, so a nested folder can be reached without leaving the picker.
+- **Tap a file** to toggle its selection, so several files can be picked at once.
+- **Long-press a file or folder** to toggle the selection the same way. On a folder this picks the folder itself rather than entering it, and the release that follows the long press does not navigate.
+- **Confirm** without a selection returns the current folder.
+
+A folder in the result is only a path; what the caller does with it is up to the app. The Video Player, for example, plays every clip it contains in name order.
 
 If no file is selected, the current directory path is returned instead:
 
