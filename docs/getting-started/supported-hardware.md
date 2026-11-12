@@ -12,6 +12,7 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 
 ## ESP32-S3 Microcontrollers
 
+- [D-Shell ESP32-S3 N16R8](https://github.com/FreakStudioCN/MicroPython_Claude_Assistant_Public): Fully Supported
 - [DFRobot UniHiker K10](https://www.dfrobot.com/product-2676.html): Fully Supported
 - [Fri3d Camp 2024 Badge](https://fri3d.be/badge/2024/): Fully Supported (including Communicator Add-On)
 - [Fri3d Camp 2026 Badge](https://fri3d.be/badge/2026/): Fully Supported (including Communicator Add-On)
