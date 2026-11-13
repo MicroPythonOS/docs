@@ -134,15 +134,15 @@ Anything a buzzer output plays that is not RTTTL goes through this PCM path:
 WAV (PCM/ADPCM) and MP3 are decoded by the same code as the I2S output, and
 volume changes apply while playing.
 
-Expect it to be **quiet and narrow-band**. The disc has a mechanical resonance
-somewhere around 3-4 kHz and rolls off quickly below it, so pure low sine waves
-are barely audible while harmonics (music, square-wave ringtones) come through
-much better. A pure 440 Hz test tone, for example, is essentially inaudible;
-what you hear is the PWM noise exciting the disc's resonance.
+Expect it to be **quiet and narrow-band**. The disc is a resonator at about
+5 kHz, not a speaker: it has no measurable output below 2 kHz and roughly 50 dB
+more at 5 kHz, so pure low sine waves are barely audible while harmonics
+(music, square-wave ringtones) come through much better. A pure 440 Hz test tone
+is essentially inaudible; what you hear is the PWM noise exciting the disc's
+resonance.
 
-If the source is harmonic-poor (sine tones, voice, bass) you can overdrive the
-samples before they reach the PWM, which turns them into near-square waves full
-of harmonics that the disc can reproduce:
+Because the disc radiates so little of the source directly, the audible output
+is **harmonic content created by overdriving** the samples into square waves:
 
 ```python
 output = AudioManager.find_output_by_kind("buzzer")
@@ -154,30 +154,69 @@ and persisted in the audio preferences (`AudioManager.set_buzzer_tuning()`):
 
 | Knob | Default | What it does |
 | --- | --- | --- |
-| `buzzer_gain` | `800` | Input overdrive before the PWM (0–3200 %). Higher = more harmonics, louder, more distorted. `100` leaves the samples untouched. |
-| `buzzer_carrier` | `0` | PWM carrier in Hz (`0` = follow the sample rate, at least 16 kHz). A higher carrier gives finer duty control and moves the switching noise up, but does **not** change which frequencies the disc can reproduce; it cannot be slower than the sample rate. |
-| `buzzer_emphasis` | `0` | Pre-emphasis (first-order high-pass) before the overdrive, 0–90 %. Tilts the input towards 1–3 kHz. |
-| `buzzer_mod` | `0` | Ring modulation frequency, 0–8000 Hz. Mixes the input up by that amount, moving its energy into the disc's 2–5 kHz window (buzzy "Donald Duck" timbre, but a lot more acoustic output). |
+| `buzzer_gain` | `800` | Input overdrive before the PWM (0–3200 %). `100` leaves the samples untouched and is essentially inaudible on this disc; the level you hear comes from the clipping. |
+| `buzzer_carrier` | `0` | PWM carrier as a **multiple of the sample rate** (0 = auto: one multiple, or more when that would be below 16 kHz). It has to be a whole multiple — see below. |
+| `buzzer_emphasis` | `0` | Pre-emphasis (first-order high-pass) before the overdrive, 0–90 %. Tilts the input towards 1–3 kHz. Not recommended on this disc: it raises the drive at the resonance, which saturates it. |
+| `buzzer_mod` | `0` | Ring modulation, 0–8000 Hz. Moves the baseband up into the disc's window. It is loud, but it mirrors the spectrum and the disc saturates, so intelligibility collapses. |
 
-Measured on the fri3d 2026 with a microphone next to the buzzer (speech at
-22.05 kHz mono, energy in the 2–3 / 3–4 / 4–5 kHz bands):
+### What the disc actually measures like
 
-| Setting | 2–3 kHz | 3–4 kHz | 4–5 kHz | RMS |
-| --- | --- | --- | --- | --- |
-| gain 800 (default) | 26.6 | 76.0 | 77.2 | 0.030 |
-| gain 1600 | 33.6 | 100.2 | 128.2 | 0.076 |
-| gain 800, carrier 78 kHz | 22.0 | 63.0 | 80.9 | 0.046 |
-| gain 800, emphasis 55 % | 24.8 | 71.9 | 90.1 | 0.053 |
-| gain 800, ring mod 3 kHz | 22.2 | 88.4 | **126.7** | **0.102** |
+Measured on the fri3d 2026 with the USB microphone that sits next to the buzzer.
+The badge and the host clocks differ by 0.24 %, which is inaudible but smears a
+12 s comparison, so the test file carries a noise burst at both ends and every
+capture is aligned and retimed on it (`scripts/mpos_buzzer_quality.py`).
 
-A 78 kHz carrier measured the same in-band energy as 22 kHz: the disc's
-mechanical response, not the PWM carrier, is the limit.
+The important consequence of the resonance is that **coherence between the
+source and the recording is only 0.02**: the output is not a filtered copy of
+the input, it is new harmonics. Tuning by "energy in the band the disc can
+reproduce" therefore rewards distortion, which is exactly backwards. The table
+scores instead intelligibility (STOI against the clean clip; 0 = unintelligible,
+1 = clean), how well the output tracks the speech dynamics (band-envelope
+correlation) and the perceived level.
 
-Buzzer outputs default to `800` (the disc is quiet enough that unity gain makes
-most material inaudible); set it to `100` if you want the samples untouched.
+| Setting | STOI | envelope | dBA |
+| --- | --- | --- | --- |
+| gain 100 | 0.21 | 0.03 | −36.4 |
+| gain 200 | 0.49 | 0.67 | −29.4 |
+| gain 400 | 0.55 | 0.65 | −25.6 |
+| **gain 800 (default)** | **0.55** | **0.65** | **−25.5** |
+| gain 1600 | 0.53 | 0.37 | −20.8 |
+| gain 3200 | 0.51 | 0.29 | −19.5 |
+| gain 400, emphasis 30 % | 0.53 | 0.63 | −26.6 |
+| gain 400, emphasis 55 % | 0.21 | −0.08 | −22.7 |
+| gain 400, emphasis 75 % | 0.26 | 0.16 | −22.6 |
+| gain 400, carrier 2× | 0.54 | 0.66 | −27.0 |
+| gain 800, carrier 2× | 0.56 | 0.47 | −23.8 |
+| gain 400, carrier 4× | 0.52 | 0.63 | −28.4 |
+| gain 400, carrier 78125 Hz (3.54×) | 0.27 | 0.10 | −24.3 |
+| gain 800, carrier 78125 Hz (3.54×) | 0.29 | 0.14 | −23.7 |
+| gain 400, ring mod 2.5 kHz | 0.26 | −0.03 | −24.6 |
+| gain 400, ring mod 3 kHz | 0.23 | −0.02 | −21.7 |
+| gain 400, ring mod 4 kHz | 0.27 | −0.02 | −24.0 |
+| gain 800, ring mod 3 kHz | 0.28 | 0.22 | −20.7 |
 
-It is set per output (also accepted as `buzzer_gain=` in
-`AudioManager.Output(...)`) and applies to the next clip.
+Three conclusions:
+
+- **The tuning is at the ceiling of the architecture.** A model of the whole
+  chain — hard-clip the source, then keep only the 2.5–6 kHz the disc radiates
+  — reaches STOI 0.554, and the default measures 0.554. The band limit is the
+  wall, not the knobs; nothing in this design gets speech much past ~0.55.
+- **The gain knee is 400–800.** Unity gain is inaudible, 200 % is quiet, and
+  beyond ~800 % the level rises but the resonance saturates. Above the knee the
+  disc starts emitting a *constant tone* under everything, which halves the
+  envelope tracking (0.65 → 0.37 at gain 1600) — the "loud but awful" failure
+  that energy measurements cannot see.
+- **Anything that adds drive at the resonance saturates it.** Emphasis above
+  ~30 %, ring modulation at any setting, and a carrier that is not a whole
+  multiple of the sample rate all trade intelligibility for a few dB. The
+  carrier case is worth knowing about: 78125 Hz is 3.54× 22050 Hz, so each
+  sample's duty lands on a different number of carrier periods and the disc
+  squeals (STOI 0.27 against 0.55). The driver now snaps any carrier request
+  to a whole multiple, so the setting can no longer do that.
+
+So the defaults are gain `800` with everything else off. `400 %` measures the
+same on full-scale material and is safer with a loud source; `800 %` leaves
+headroom for quiet ones.
 
 Apps that decode and pace their own PCM instead of using a Player (the video
 player is one) can stream to any output through the small sink API:
@@ -197,10 +236,14 @@ existing pacing.
 
 Driver notes, in case you need to work on it:
 
-- The PWM carrier follows the file's sample rate by default (at least 16 kHz)
-  and its duty cycle is rewritten from a hardware timer interrupt at that same
-  sample rate (8-48 kHz). The duty resolution is chosen so carrier × 2^bits fits
-  the LEDC clock. Samples are queued in a ring buffer in internal RAM (8 KB for
+- The PWM carrier is a whole multiple of the file's sample rate (one multiple
+  by default, more when that would be below 16 kHz) and its duty cycle is
+  rewritten from a hardware timer interrupt at the sample rate (8-48 kHz). The
+  multiple matters: with a carrier that is not a whole multiple, each sample's
+  duty lands on a different number of carrier periods, which the disc turns
+  into a constant squeal, so the driver snaps any requested carrier to the
+  nearest multiple. The duty resolution is chosen so carrier × 2^bits fits the
+  LEDC clock. Samples are queued in a ring buffer in internal RAM (8 KB for
   short clips, ~370 ms for streaming apps), so the playback thread can be
   delayed by a GC pause or a flash read without an audible gap.
 - The ESP32 backend uses LEDC timer 3 / channel 7 and `machine.Timer(1)`, so it
@@ -215,6 +258,10 @@ Driver notes, in case you need to work on it:
 - On desktop and web the same decode -> mono -> volume chain runs into an
   emulated sink that writes a temporary WAV file, so it can be exercised and
   unit-tested without hardware.
+- Tune with `scripts/mpos_buzzer_quality.py`, which plays a marker-aligned test
+  file, records it, and scores intelligibility and distortion rather than
+  energy. `prepare`, `run` and `score` are separate steps, so a capture can be
+  re-scored offline.
 
 ### Playing RTTTL Ringtones
 
