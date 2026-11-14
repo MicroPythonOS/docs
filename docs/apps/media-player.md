@@ -4,14 +4,15 @@ The Media Player plays video and audio from the SD card or internal storage. Vid
 
 ## Supported files
 
-| Container | Extension | Video | Audio |
+| Format | Extension | Video | Audio |
 |-----------|-----------|-------|-------|
 | AVI (RIFF) | `.avi` | MJPEG (fourcc `MJPG`) | none, PCM (8/16-bit) or IMA ADPCM |
 | Raw MJPEG stream | `.mjpeg`, `.mjpg` | back-to-back JPEG frames | optional `.wav` sidecar with the same name |
 | WAV | `.wav` | — | PCM (8/16/24/32-bit) or IMA ADPCM |
 | MP3 | `.mp3` | — | MPEG-1/2/2.5 Layer III, CBR and VBR |
+| RTTTL ringtone | `.rtttl` | — | tone sequence played on the piezo buzzer |
 
-Audio in an AVI is played from inside the file, so one file is enough. A raw MJPEG stream has nowhere to carry sound: put a WAV next to it with the base name changed, e.g. `clip.mjpeg` + `clip.wav`. MP3 playback needs the `mp3dec` module, which ships in current firmware; the app hides `.mp3` files when the module is missing.
+Audio in an AVI is played from inside the file, so one file is enough. A raw MJPEG stream has nowhere to carry sound: put a WAV next to it with the base name changed, e.g. `clip.mjpeg` + `clip.wav`. MP3 playback needs the `mp3dec` module, which ships in current firmware; the app hides `.mp3` files when the module is missing. RTTTL tunes need a buzzer output; on a board without one the app says so instead of failing silently.
 
 Anything else is named rather than silently ignored:
 
@@ -23,7 +24,7 @@ There is no H.264/H.265 or MPEG decode on the badge, and no scaling: frames are 
 
 ## Where files go
 
-The picker opens at `/data/video` (where the preloaded sample clip lives), then falls back to `/sdcard/video`, `/data/audio`, `/sdcard/audio`, `/sdcard/clips`, then `/sdcard`. Any file whose name ends in `.avi`, `.mjpeg`, `.mjpg`, `.wav` or `.mp3` is listed. The Media Player is also registered as a viewer for those extensions, so "Open with" from the file manager works (Music Player also offers itself for `.wav` and `.mp3`).
+The picker opens at `/data/video` (where the preloaded sample clip lives), then falls back to `/sdcard/video`, `/data/audio`, `/sdcard/audio`, `/sdcard/clips`, then `/sdcard`. Any file whose name ends in `.avi`, `.mjpeg`, `.mjpg`, `.wav`, `.mp3` or `.rtttl` is listed. The Media Player is also registered as a viewer for those extensions, so "Open with" from the file manager works (Music Player also offers itself for `.wav`, `.mp3` and `.rtttl`).
 
 ### Folders and playlists
 
@@ -49,7 +50,7 @@ Smaller frame sizes buy frame rate: at 320x240 the panel and the SD card togethe
 
 ## Controls
 
-Tap the picture (or the music note, for audio) to pause and play. For video, a control bar appears while paused and for three seconds after any interaction; for audio it stays on screen.
+Tap the picture (or the music note, for audio) to pause and play. For video, a control bar appears while paused and for three seconds after any interaction; for audio it stays on screen. RTTTL has no sample position, so its bar shows restart and close only; pause and scrubbing do not apply.
 
 | Control | Action |
 |---------|--------|

@@ -19,6 +19,7 @@ MicroPythonOS uses LVGL's built-in image decoders and its own audio stack. The f
 | Plain PCM WAV | `.wav` | Standard RIFF/WAVE with `WAVE_FORMAT_PCM` (0x0001) or `WAVE_FORMAT_EXTENSIBLE` (0xFFFE); 8, 16, 24 or 32-bit samples, mono or stereo. |
 | IMA ADPCM WAV | `.wav` | RIFF/WAVE with `WAVE_FORMAT_ADPCM` (0x0011), decoded by the built-in `adpcm_ima` module. Must have 4 or 16 bits per sample. |
 | MP3 | `.mp3` | MPEG-1/2/2.5 Layer III, constant or variable bitrate, 8–48 kHz, mono or stereo, through the native `mp3dec` module. |
+| RTTTL | `.rtttl` | Ring Tone Text Transfer Language tune played on the piezo buzzer; no sample position, so the Media Player offers restart and close only. |
 
 ### JPEG conversion
 
