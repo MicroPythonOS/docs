@@ -10,7 +10,7 @@ MicroPythonOS uses a structured filesystem to organize apps, data, and resources
     - **res/**: Resources (icons, fonts, etc.).
 - **cache/**: Temporary files for each app. Deleted when the app is uninstalled, but may also be deleted to free up space when the filesystem is almost full, without the app being uninstalled.
     - **org.yourdomain.yourapp/**: Files cached by the `org.yourdomain.yourapp` app, such as large audio files or images that are nice to cache, but can be re-downloaded if needed.
-- **data/**: Content files independent of specific apps (images, audio, recordings, etc.). Used by apps like Camera, ImageView, Sound Recorder, and Music Player.
+- **data/**: Content files independent of specific apps (images, audio, recordings, etc.). Used by apps like Camera, ImageView, Sound Recorder, Media Player and Music Player.
 - **lib/**: Libraries and frameworks
     - **mpos/**: MicroPythonOS libraries and frameworks
         - **ui/**: MicroPythonOS User Interface libraries and frameworks

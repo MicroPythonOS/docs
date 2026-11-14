@@ -76,7 +76,7 @@ Pick mode browses folders exactly like the File Manager:
 - **Long-press a file or folder** to toggle the selection the same way. On a folder this picks the folder itself rather than entering it, and the release that follows the long press does not navigate.
 - **Confirm** without a selection returns the current folder.
 
-A folder in the result is only a path; what the caller does with it is up to the app. The Video Player, for example, plays every clip it contains in name order.
+A folder in the result is only a path; what the caller does with it is up to the app. The Media Player, for example, plays every clip it contains in name order.
 
 If no file is selected, the current directory path is returned instead:
 

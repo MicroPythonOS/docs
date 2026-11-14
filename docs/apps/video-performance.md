@@ -591,7 +591,7 @@ Practical conclusions:
   dropping frames to keep time" is visible rather than misread as a slow clip.
 * **Counters**: per-stage `time.ticks_us()` around read, decode, `set_src`, and
   `refr_now`, plus the LVGL pass, aggregated over a run. Stage 1 numbers come
-  from the player in `internal_filesystem/apps/com.micropythonos.video_player`,
+  from the player in `internal_filesystem/apps/com.micropythonos.media_player`,
   which prints one line per clip of exactly these values.
 * **Matrix**: `video_samples/tools/probe_matrix.py`, run from a fresh boot
   (heap fragmentation after a long uptime makes 1 MB allocations fail).

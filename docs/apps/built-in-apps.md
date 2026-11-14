@@ -8,7 +8,7 @@ MicroPythonOS includes essential apps to bootstrap the system, located in [`/bui
 - **OSUpdate**: Manages Over-The-Air (OTA) system updates.
 - **Settings**: Configuration for MicroPythonOS.
 - **File Manager**: Browses the filesystem and opens files with the appropriate viewer.
-- **Video Player**: Plays MJPEG video (AVI with the sound inside, or raw `.mjpeg` plus a WAV sidecar) from the SD card. See [Video Player](video-player.md).
+- **Media Player**: Plays MJPEG video (AVI with the sound inside, or raw `.mjpeg` plus a WAV sidecar) and WAV/MP3 audio from the SD card. See [Media Player](media-player.md).
 
 ## Screenshots
 
