@@ -136,15 +136,34 @@ the top of "Show old releases" when the minor version changes, and the fallback
 - Run `../upload_install.sh` from the parent folder (one level up).
 - Verify: `curl -s https://install.micropythonos.com/manifests/esp32s3/MicroPythonOS_esp32s3_<major.minor>.x.json`.
 
-Drop the `--install-only` / `--updates-only` flag to prepare both repos in one
-go (the flag only decides which one to touch; the release assets are shared).
+Drop the `--install-only` / `--updates-only` / `--web-only` flag to prepare all
+three repos in one go (the flag only decides which one to touch; the release
+assets are shared).
 
-**Release web version**
+**Release the web version**
 
-- Download `MicroPythonOS_web_<version>.zip` from the release and extract it
-  into `../web/`.
-- Commit the web repo and run `../upload_web.sh` from the parent folder (one level up).
-- Verify: https://web.micropythonos.com
+`../web/` is the working copy served at web.micropythonos.com, and it is
+deployed the same way as the other two: rsync the working copy with
+`../upload_web.sh`. It has no git remote, so commit it but never pass `--push`
+for it.
+
+```
+python3 scripts/release_metadata.py <version> --web-only --commit
+```
+
+It downloads `MicroPythonOS_web_<version>.zip` and extracts it over the working
+copy (`index.html`, `micropython.{html,js,data,wasm}`, `mpos.html`,
+`shell.html`), which is exactly what `../upload_web.sh` serves. This used to be
+a manual download-and-unpack step, and a release can look complete while the
+web build is still the previous one, so `release_metadata.py` now covers it and
+`upload_all.sh` runs `upload_web.sh`.
+
+- Run `../upload_web.sh` from the parent folder (one level up). It rsyncs with
+  `--delete`, so run it from the working copy that holds the new build.
+- Verify the live build is the new one: the `Content-Length` of
+  `curl -sI https://web.micropythonos.com/micropython.wasm` matches
+  `stat -c %s ../web/micropython.wasm`, and https://web.micropythonos.com
+  loads.
 
 **Bundle and publish apps**
 
