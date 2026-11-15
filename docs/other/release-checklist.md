@@ -91,38 +91,59 @@ MicroPythonOS releases; rebuild them now or after the next steps.
 **Release to Over-The-Air update**
 
 The [updates repo](https://github.com/MicroPythonOS/updates) keeps the metadata
-in `osupdate*.json`. Most board files are **symlinks** to the three real files
+in `osupdate*.json`. It is a GitHub archive: the live
+updates.micropythonos.com server is updated by rsyncing it (see its README).
+Most board files are **symlinks** to the three real files
 `osupdate_esp32.json`, `osupdate_esp32s3.json` and `osupdate_esp32p4.json`;
 edit the real files (and any regular board file that is not a symlink).
 
-- Copy the new `.ota` files from the release into `updates/releases/<target>/`
-  (`esp32`, `esp32s3`, `esp32p4`).
-- In the real JSON files, set `version`, `download_url` and `changelog`. Use
-  the escaped output of `scripts/changelog_to_json.sh` for the new section;
-  it uses single quotes and `\n` escapes.
-- Commit and push the updates repo.
-- Run `../upload_updates.sh` from the `../claude/` folder. It rsyncs with
+The whole step is automated from the published release:
+
+```
+python3 scripts/release_metadata.py <version> --updates-only --commit --push
+```
+
+It downloads the `.ota` assets from the GitHub release, copies them into
+`updates/releases/<target>/` (`esp32`, `esp32s3`, `esp32p4`) and sets
+`version`, `download_url` and `changelog` in the three real JSON files (the
+changelog is the `<version>` section of `CHANGELOG.md`, escaped like
+`scripts/changelog_to_json.sh` does). Without `--commit --push` it only
+prepares the working copies so the diff can be reviewed first.
+
+- Run `../upload_updates.sh` from the parent folder (one level up). It rsyncs with
   `--delete`, so run it from the working copy that has all previous `.ota`
   files.
 - Verify: `curl -s https://updates.micropythonos.com/osupdate_esp32s3.json`.
 
 **Release to the web installer**
 
-- Copy the new `.bin` files into `install/firmware_images/<target>/`.
-- Add `install/manifests/<target>/MicroPythonOS_<target>_<version>.x.json`
-  (copy the previous manifest and update `version` and the `path`).
-- In `index.html`, update:
-  - the three current-version radio entries,
-  - the new entries at the top of "Show old releases",
-  - the fallback `esp-web-install-button manifest=`.
-- Commit and push, then run `../upload_install.sh` from `../claude/`.
-- Verify: `curl -s https://install.micropythonos.com/manifests/esp32s3/MicroPythonOS_esp32s3_<version>.x.json`.
+The [install repo](https://github.com/MicroPythonOS/install) backs
+install.micropythonos.com and is also a GitHub archive: the live server is
+updated by rsyncing it (see its README).
+
+```
+python3 scripts/release_metadata.py <version> --install-only --commit --push
+```
+
+It downloads the `.bin` assets from the GitHub release, copies them into
+`install/firmware_images/<target>/`, writes the current
+`manifests/<target>/MicroPythonOS_<target>_<major.minor>.x.json` (older
+`<major.minor>.x` manifests stay frozen for "Show old releases") and updates
+`index.html`: the three current entries, a block for the previous release at
+the top of "Show old releases" when the minor version changes, and the fallback
+`esp-web-install-button manifest=`.
+
+- Run `../upload_install.sh` from the parent folder (one level up).
+- Verify: `curl -s https://install.micropythonos.com/manifests/esp32s3/MicroPythonOS_esp32s3_<major.minor>.x.json`.
+
+Drop the `--install-only` / `--updates-only` flag to prepare both repos in one
+go (the flag only decides which one to touch; the release assets are shared).
 
 **Release web version**
 
 - Download `MicroPythonOS_web_<version>.zip` from the release and extract it
   into `../web/`.
-- Commit the web repo and run `../upload_web.sh` from `../claude/`.
+- Commit the web repo and run `../upload_web.sh` from the parent folder (one level up).
 - Verify: https://web.micropythonos.com
 
 **Bundle and publish apps**
