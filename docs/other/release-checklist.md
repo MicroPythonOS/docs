@@ -165,6 +165,26 @@ web build is still the previous one, so `release_metadata.py` now covers it and
   `stat -c %s ../web/micropython.wasm`, and https://web.micropythonos.com
   loads.
 
+**Update the website**
+
+`../website/` is the working copy served at micropythonos.com, and `../web/` is
+the browser build served at web.micropythonos.com. Both are plain rsync
+deploys through `../upload_site.sh`, which gzips large assets (the server has
+`gzip_static on`), refuses a `--comtoorg` rewrite when the `.org` names do not
+resolve, and verifies the upload over HTTP.
+
+- Write the news entry for `<version>`: copy `../website/news/0.22.0.html`,
+  rewrite it from the new `CHANGELOG.md` section, then add it to the top of
+  `../website/news/index.html`, `../website/news/feed.xml` and
+  `../website/sitemap.xml`.
+- Update the release strip on the home page (the `release-badge` link in
+  `../website/index.html`) and its three "What's new" cards.
+- Refresh the screenshot grid every few releases: the clips are captured from
+  a running desktop build with `MPOSController` (see the lab tooling table in
+  `AGENTS.md`), so the posters on the site match what users actually see.
+- Run `../upload_site.sh website`.
+- Run `../upload_site.sh web` after `release_metadata.py --web-only`.
+
 **Bundle and publish apps**
 
 See [Publishing Apps](../apps/publishing-apps.md) for the full flow. For a full
