@@ -21,7 +21,7 @@ Anything else is named rather than silently ignored:
 - `unsupported video codec: H264 (this player plays MJPEG)` — container is fine, the pictures are not
 - an unsupported soundtrack (AC-3, MP3, MS ADPCM) still plays the pictures and prints why there is no sound
 
-There is no H.264/H.265 or MPEG decode on the badge, and no scaling: frames are presented 1:1, so a clip larger than the panel is cropped by the display rather than shrunk. Resize to the panel size (320x240 on the Fri3d badges) when preparing clips.
+There is no H.264/H.265 or MPEG decode on the badge, and no scaling: frames are presented 1:1, so a clip larger than the panel is cropped by the display rather than shrunk (the player says so in its status line). Size clips to fit the panel — 320x240 on the Fri3d badges — and keep their shape when you do: see [Preparing clips](#preparing-clips).
 
 ## Where files go
 
@@ -38,18 +38,25 @@ When the last item ends, video playback closes the player, while audio stops and
 Both video formats are plain MJPEG, which every desktop player opens without extra codecs. With `ffmpeg`:
 
 ```bash
-# AVI with sound inside (PCM), sized to the badge panel
-ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 10 \
-       -c:a pcm_s16le -ar 22050 -ac 1 clip.avi
+# AVI with sound inside (PCM), fitted to the panel at the source's own shape
+ffmpeg -i input.mp4 \
+       -vf "scale=320:240:force_original_aspect_ratio=decrease,setsar=1,fps=15" \
+       -c:v mjpeg -q:v 10 -c:a pcm_s16le -ar 22050 -ac 1 clip.avi
 
 # Raw MJPEG plus a WAV sidecar
-ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 10 -an clip.mjpeg
+ffmpeg -i input.mp4 \
+       -vf "scale=320:240:force_original_aspect_ratio=decrease,setsar=1,fps=15" \
+       -c:v mjpeg -q:v 10 -an clip.mjpeg
 ffmpeg -i input.mp4 -vn -ac 1 -ar 22050 -c:a pcm_s16le clip.wav
 ```
 
+The `scale` part is not optional decoration. Plain `scale=320:240` resamples the pixel grid to exactly 320x240 and records the intended shape in the sample-aspect-ratio (SAR) tag — and the player shows pixels 1:1 and never reads SAR (an MJPEG frame carries no aspect ratio of its own), so a 16:9 film scaled that way plays visibly squeezed into 4:3. `force_original_aspect_ratio=decrease` fits the picture inside the box instead (320x180 for 16:9, 300x240 for 5:4) and `setsar=1` makes ffmpeg produce real square pixels rather than a tag. Check with `ffprobe`: `SAR 1:1` is what you want, and a DAR that only looks right is not enough.
+
+Bars around a smaller frame are correct and they are cheap: the flush cost follows the frame area, so a 320x180 clip costs about a quarter less per frame than a 320x240 one. Do not `pad` back up to the panel size unless something depends on the frame being that size — the player would decode and flush the bars on every frame.
+
 `-q:v 10` is the recommended quality. It is ffmpeg's MJPEG quantiser multiplier, **not** a CRF: the scale runs 1-31 with **lower meaning better**, so `2` is the highest quality and `31` the lowest. `-q:v 10` lands near x264's `CRF 23`; do not copy a CRF value such as 18 into `-q:v`, it would look far worse there. Anything from **6 to 16 is acceptable** — 6 for high quality (about 1.3x the size of 10), 16 when space is tight (about 0.8x). Measure the size before shipping a clip into firmware, where space is the constraint the quality is traded against.
 
-15 fps is close to the ceiling for a 320x240 clip: the player presents 13.6-14.1 fps of one, dropping 5 or 6 frames in 150. Use 12 fps if a clip must never lose a frame, and smaller frame sizes to buy frame rate — 160x120 reaches the high twenties. The measured cost model is in [Video Performance](video-performance.md).
+15 fps is close to the ceiling for a 320x240 clip: the player presents 13.6-14.1 fps of one, dropping 5 or 6 frames in 150. Use 12 fps if a clip must never lose a frame, and smaller frame sizes to buy frame rate — 160x120 reaches the high twenties, and a 16:9 clip fitted to 320x180 gets the same kind of headroom for free, since it is a quarter fewer pixels than a full 320x240 frame. The measured cost model is in [Video Performance](video-performance.md).
 
 ## Controls
 
