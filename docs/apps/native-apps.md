@@ -195,6 +195,24 @@ Measured on the badge: a 267 KB `.mpy` (256 KB `const` tables in rodata plus
 free. Budget for the import: it is a one-off per boot, but it is a visible
 pause if the app does it on launch.
 
+### Porting an engine: writable data is the real work
+
+A natmod is loaded with text, rodata and BSS only. There is no data section,
+and `static` BSS variables are not supported either: writable file-scope data
+has to be a **non-static global without an initializer**, written to only inside
+functions. A Doom-class engine has thousands of file-scope variables, so this —
+not the renderer — is the bulk of an engine port:
+
+- `static int thing;` → `int thing;` (global BSS)
+- `int thing = 5;` → `int thing;` plus `thing = 5;` in an init function
+- `static const uint8_t table[] = {...}` → unchanged (rodata)
+
+The probe confirms the rule at scale: it imports with a 256 KB global BSS array,
+so the limit is RAM, not the linker. Keeping the engine's own globals (with the
+mechanical rewrite above) is much less invasive than moving every module's state
+into Python-heap bytearrays behind getters, which is what an earlier attempt did
+and why it stalled.
+
 ### Loading game data: the filesystem is the slow part
 
 Reading game assets through the normal file API is far slower than the panel:
