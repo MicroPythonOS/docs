@@ -109,7 +109,8 @@ Verify:
 
 ```sh
 curl -s https://badgehub.eu/api/v3/projects/com.example.myapp \
-  | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['version']['revision'], d['name'])"
+  | python3 -c "import json,sys; v=json.load(sys.stdin)['version']; \
+                print(v['revision'], v['app_metadata']['version'])"
 ```
 
 ## Releasing several apps
