@@ -1,6 +1,6 @@
 # Media Player
 
-The Media Player plays video and audio from the SD card or internal storage. Video is MJPEG shown at the clip's recorded frame rate; audio is played through `AudioManager` with the system volume. It is a built-in app (`com.micropythonos.media_player`), so it ships with the OS and needs no download.
+The Media Player plays video and audio from the SD card or internal storage. Video is MJPEG shown at the clip's recorded frame rate; audio is played through `AudioManager` with the system volume. It is preinstalled with the OS (`com.micropythonos.media_player`), so it needs no download; updating it goes through the App Store.
 
 ## Supported files
 
