@@ -38,15 +38,17 @@ Both video formats are plain MJPEG, which every desktop player opens without ext
 
 ```bash
 # AVI with sound inside (PCM), sized to the badge panel
-ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 6 \
+ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 10 \
        -c:a pcm_s16le -ar 22050 -ac 1 clip.avi
 
 # Raw MJPEG plus a WAV sidecar
-ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 6 -an clip.mjpeg
+ffmpeg -i input.mp4 -vf "scale=320:240,fps=15" -c:v mjpeg -q:v 10 -an clip.mjpeg
 ffmpeg -i input.mp4 -vn -ac 1 -ar 22050 -c:a pcm_s16le clip.wav
 ```
 
-Smaller frame sizes buy frame rate: at 320x240 the panel and the SD card together cap the player near 12 fps, while 160x120 clips reach the high twenties. The measured cost model is in [Video Performance](video-performance.md).
+`-q:v 10` is the recommended quality. It is ffmpeg's MJPEG quantiser multiplier, **not** a CRF: the scale runs 1-31 with **lower meaning better**, so `2` is the highest quality and `31` the lowest. `-q:v 10` lands near x264's `CRF 23`; do not copy a CRF value such as 18 into `-q:v`, it would look far worse there. Anything from **6 to 16 is acceptable** — 6 for high quality (about 1.3x the size of 10), 16 when space is tight (about 0.8x). Measure the size before shipping a clip into firmware, where space is the constraint the quality is traded against.
+
+15 fps is close to the ceiling for a 320x240 clip: the player presents 13.6-14.1 fps of one, dropping 5 or 6 frames in 150. Use 12 fps if a clip must never lose a frame, and smaller frame sizes to buy frame rate — 160x120 reaches the high twenties. The measured cost model is in [Video Performance](video-performance.md).
 
 ## Controls
 
