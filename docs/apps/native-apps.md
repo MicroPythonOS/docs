@@ -182,9 +182,13 @@ surface.present_all(lambda band: core.expand8_band(src8, dst, band, rows_per_ban
 ```
 
 Measured on a 320x200 surface with 45-row bands: palette→RGB565 through a
-prepared LUT costs 6.2 ms per frame, 32-bit RGBX 9.5 ms. Whole-frame present is
-27.2 ms; banded conversion *hides* that cost entirely and lands at 26-27 ms
-(37-38 fps), whereas converting first then presenting costs 33-38 ms (26-30 fps).
+prepared LUT costs 6.2 ms per frame and 32-bit RGBX 9.5 ms, while a full-frame
+present alone is 27.2 ms. Converting the whole frame first and then presenting
+it therefore costs 33 ms (palette) to 38 ms (RGBX), i.e. 26-30 fps; the banded
+form is bounded by whichever of the two is slower and is the only one that can
+stay at the present's own ~27 ms (37 fps). The conversion functions take the
+band as `rows` plus the frame `width`: a "row count" treated as a pixel count
+converts 200 pixels instead of 64,000 and flatters every measurement.
 
 ### How big a module can be
 
