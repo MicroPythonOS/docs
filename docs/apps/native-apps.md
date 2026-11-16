@@ -208,9 +208,12 @@ its code section. Options if the code is big:
 * put the engine in the **firmware** (`c_mpos/src` style): its code is executed
   from flash through the instruction cache, so IRAM and the Python heap are not
   involved, and it needs no writable-data rewrite;
-* enable `CONFIG_SPIRAM_XIP_FROM_PSRAM` in the firmware so PSRAM can hold
-  executable code (accepting slower execution), or
 * keep it out of MicroPython entirely (the retro-go partition path).
+
+On ESP32-S3 there is no PSRAM escape: `CONFIG_SPIRAM_XIP_FROM_PSRAM` only copies
+flash code/rodata into PSRAM at boot, while IDF keeps `MALLOC_CAP_EXEC` on
+internal DIRAM/RTC RAM only (`components/heap/port/esp32s3/memory_layout.c`), so
+an executable allocation is never served from PSRAM. Big code means firmware.
 
 `gc.mem_free()`, `gc.collect()` and heap pre-growth do not help: the failing
 allocation is never a GC allocation.
