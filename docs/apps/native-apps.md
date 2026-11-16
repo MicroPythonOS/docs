@@ -144,6 +144,74 @@ surface.present(dirty_bands(), native.render_band)   # blit + flush those rows
 period would quantize the frame rate to 30 fps; the video player does the same
 (see [Video Playback Performance](video-performance.md)).
 
+### A surface the engine owns, and letterboxing
+
+An engine port usually owns its framebuffer already. Hand the surface the
+buffer instead of letting it allocate one — nothing is copied, and the image
+source is the engine's own pixels:
+
+```python
+buffer = core.alloc_framebuffer(320, 200)             # m_malloc in the module
+surface = NativeDisplay(self.screen, buffer=buffer, width=320, height=200)
+core.init(buffer, 320, 200, 0)
+```
+
+`width`/`height` default to the whole panel; a smaller surface is centred, so a
+320x200 engine is letterboxed on a 320x240 badge. `stride` (bytes per row) and
+`bytes_per_pixel` are exposed for C code that computes offsets itself.
+
+`present_area(x1, y1, x2, y2, render)` renders the bands that intersect a
+rectangle and invalidates only that rectangle, so the letterbox rows are never
+flushed. Coordinates are surface-local; the surface position is added for you.
+
+### Converting a legacy format, band by band
+
+An engine that hands you 8-bit paletted or 32-bit RGBX pixels needs a conversion
+on the way to RGB565, and where that conversion happens decides the frame rate.
+Converting the whole frame and then presenting it puts the conversion *in front
+of* the SPI transfer. Converting one band inside the render callback overlaps
+them, because LVGL is already pushing the previous band:
+
+```python
+# whole frame first: 33 ms at 320x200
+core.expand8_lut(src8, dst)
+surface.present_all(noop)
+
+# per band instead: 26 ms — as fast as native RGB565 (the SPI is the limit)
+surface.present_all(lambda band: core.expand8_band(src8, dst, band, rows_per_band))
+```
+
+Measured on a 320x200 surface with 45-row bands: palette→RGB565 through a
+prepared LUT costs 6.2 ms per frame, 32-bit RGBX 9.5 ms. Whole-frame present is
+27.2 ms; banded conversion *hides* that cost entirely and lands at 26-27 ms
+(37-38 fps), whereas converting first then presenting costs 33-38 ms (26-30 fps).
+
+### How big a module can be
+
+A native module is loaded into the MicroPython heap at import, so a
+Doom-class module is a question of RAM and import time, not of the toolchain.
+Measured on the badge: a 267 KB `.mpy` (256 KB `const` tables in rodata plus
+256 KB of BSS) imports in 443 ms and costs 537 KB of heap, on a boot with ~7 MB
+free. Budget for the import: it is a one-off per boot, but it is a visible
+pause if the app does it on launch.
+
+### Loading game data: the filesystem is the slow part
+
+Reading game assets through the normal file API is far slower than the panel:
+
+| Read | Cost |
+|---|---|
+| 16 KB from LittleFS (internal, `open`/`seek`/`readinto`) | **12.5 ms** (≈1.3 MB/s) |
+| 256 KB from LittleFS, one read | 257 ms (≈1.0 MB/s) |
+| 16 KB from a raw flash partition (`esp32.Partition.readblocks`) | **1.6 ms** (≈8 MB/s) |
+| Seek only | 0.08 ms |
+
+So an engine that reads a lump per frame starves at ~80 lump reads per second:
+a WAD has to be read once into RAM, or read from a raw partition, and a small
+cache in front of the filesystem is not optional. Reads are also much cheaper in
+one big call than in 4 KB chunks (4 KB × 4 costs 24.8 ms against 12.2 ms for one
+16 KB call).
+
 ### Rules for the C side
 
 1. **Draw into `surface.buffer`, never into `main_display._frame_buffer1`.**
@@ -250,8 +318,9 @@ oldest firmware you support belongs in the app folder.
    `present()` call `lv.refr_now()`.
 5. **Budget:** one band (45 rows at 320x240) ≈ 4.6 ms of SPI; two bands per
    frame ≈ 10 ms end to end, i.e. 56 fps at a 20 ms interval. A full-screen
-   redraw is ~25-30 ms, so a game that changes every pixel (Doom) is a ~30 fps
-   proposition, and palette→RGB565 conversion in C is the term to watch.
+   redraw is ~27 ms of present, so a game that changes every pixel (Doom) is a
+   ~30 fps proposition; converting per band rather than per frame is what keeps
+   an 8-bit engine there (26.2 ms against 33.1 ms).
 6. **Tests before the badge:** band geometry, per-band row offsets (the
    offset bug that still shows bricks but moves the paddle to the top), the
    tick budget, pause/resume, sound mapping. They run on desktop and on the
