@@ -1,6 +1,6 @@
 # Native C/C++ Apps
 
-Most MicroPythonOS apps are written in MicroPython, but apps can also include native extension modules written in C or C++. These modules are compiled to MicroPython `.native.mpy` files and bundled inside the app's `.mpk` like any other module.
+Most MicroPythonOS apps are written in MicroPython, but apps can also include native extension modules written in C or C++. These modules are compiled to MicroPython natmod `.mpy` files (one per architecture) and bundled inside the app's `.mpk` like any other module.
 
 ## When to use native code
 
@@ -12,20 +12,28 @@ Use a native module when:
 
 For everything else, prefer plain MicroPython — native modules add build complexity and are architecture-specific.
 
+Native is also the only way past the LVGL refresh ceiling: a widget-based game is
+capped at ~30 fps (`LV_DEF_REFR_PERIOD`), while a native renderer presenting its
+own surface reached 56 fps at 320x240 on the same badge. See
+[Drawing](#drawing-give-lvgl-a-surface-do-not-fight-it-for-the-panel).
+
 ## How native modules work
 
 MicroPython supports [native machine code modules](https://docs.micropython.org/en/latest/develop/natmod.html) (often called *natmods*). A natmod is a self-contained `.mpy` file that contains compiled machine code and a MicroPython module descriptor. At runtime it is imported just like a `.py` file:
 
 ```python
-import breakout
-breakout.start()
+import sys
+if sys.platform == "esp32":
+    import breakout_xtensawin as breakout   # the badge
+else:
+    import breakout_x64 as breakout        # desktop simulator
 ```
 
-MicroPythonOS places the `.mpy` file in the app folder when the `.mpk` is installed. The AppManager's import path then finds it automatically.
+MicroPythonOS places the `.mpy` file in the app folder when the `.mpk` is installed, and the app's own directory is on `sys.path` while it runs, so a bare import finds it.
 
 ## Example: `com.micropythonos.breakout`
 
-The built-in **Breakout** game uses a native C module for the game logic. Its source lives in `c_mpos/breakout/` in the main repository.
+The **Breakout** game (preinstalled on the badge and published on the AppStore) uses a native C module for both the game logic and the drawing. Its source lives in `c_mpos/breakout/` in the main repository.
 
 Project layout:
 
@@ -43,7 +51,10 @@ MPY_DIR = ../../lvgl_micropython/lib/micropython/
 
 MOD = breakout
 SRC = breakout.c
+
+# libgcc/libm are linked (the xtensawin module needs memset); libc is not.
 LINK_RUNTIME = 1
+
 ARCHES = x64 xtensawin
 
 ifeq ($(ARCH),)
@@ -51,33 +62,55 @@ ifeq ($(ARCH),)
 
 all: $(ARCHES)
 
+# One object dir per architecture: dynruntime.mk defaults to BUILD=build, and
+# sharing it makes the second architecture link the first one's objects.
 $(ARCHES):
-	$(MAKE) -f $(lastword $(MAKEFILE_LIST)) ARCH=$@ MOD=$(MOD)_$@
+	$(MAKE) -f $(lastword $(MAKEFILE_LIST)) ARCH=$@ MOD=$(MOD)_$@ BUILD=build_$@
 else
 include $(MPY_DIR)/py/dynruntime.mk
 endif
 ```
 
-This builds two artifacts:
+This builds `breakout_x64.mpy` (desktop simulator) and
+`breakout_xtensawin.mpy` (ESP32-S3). `build.sh` puts the Espressif toolchain on
+`PATH`, then copies both into `internal_filesystem/apps/com.micropythonos.breakout/`.
 
-- `breakout_x64.native.mpy` — for the desktop simulator.
-- `breakout_xtensawin.native.mpy` — for ESP32-S3 devices.
+Two things the build needs that are easy to trip over:
 
-The `build.sh` script sets up the Espressif toolchain and then copies the resulting `.mpy` files into the app's folder at `internal_filesystem/apps/com.micropythonos.breakout/`.
+* the **xtensa toolchain** (`xtensa-esp32-elf-gcc`) — `build.sh` points at
+  `~/.espressif/tools/xtensa-esp-elf/*/xtensa-esp-elf/bin`;
+* `ar` and `pyelftools` **importable by the python that runs `mpy_ld.py`** — the
+  system python refuses (`pip install` is blocked by PEP 668), so point the
+  build at a venv: `PATH="$PWD/tmp/venv/bin:$PATH" make`.
+
+`sys.platform` is `"esp32"` for every ESP32 variant, so pick the module by
+platform, and keep the name the app imports stable:
+
+```python
+if sys.platform == "esp32":
+    import breakout_xtensawin as breakout
+else:
+    import breakout_x64 as breakout
+```
 
 ## Bundling a native module
 
-1. Write your C/C++ source and a `Makefile` based on the MicroPython `dynruntime.mk` rules.
+1. Write your C/C++ source and a `Makefile` based on the MicroPython
+   `dynruntime.mk` rules.
 2. Build the module for every architecture you want to support.
-3. Rename or place the output `.mpy` file in the app folder so its import name matches what your MicroPython code imports. For Breakout, the `xtensawin` build is named `breakout.mpy` inside the app folder.
-4. Build the `.mpk` normally. The native `.mpy` is packaged alongside the Python files.
+3. Put the output `.mpy` files in the app folder under the names the entrypoint
+   imports (Breakout ships `breakout_x64.mpy` and `breakout_xtensawin.mpy`).
+4. Build the `.mpk` normally. The native `.mpy` files are packaged alongside the
+   Python files.
 
 ```
 com.micropythonos.breakout/
 ├── MANIFEST.JSON
 ├── icon_64x64.png
-├── main.py
-└── breakout.mpy      # native module, imported by main.py
+├── breakout.py                 # the Activity
+├── native_display.py           # bundled copy, see "Packaging" below
+├── breakout_x64.mpy            # native module, imported by breakout.py
+└── breakout_xtensawin.mpy
 ```
 
 ## Limitations
@@ -188,6 +221,48 @@ channel whose frequency and duty are set per event and cleared by a deadline
 check in the frame loop, which is what Breakout's `Beep` does. It gets the pin
 from `AudioManager.find_output_by_kind("buzzer")` and does nothing at all on a
 board with no buzzer configured, so the game never depends on sound.
+
+### Packaging: an `.mpk` must run on older firmware
+
+An app installed from the AppStore runs on whatever firmware the user has, which
+is older than your working tree. A frozen module you added to `lib/mpos/` is
+therefore **not** available to users yet: import it and the app dies with
+`ImportError: no module named ...` for everyone who is not on your build.
+
+That is why Breakout ships `native_display.py` in its own folder and imports it
+by bare name (the app's directory is on `sys.path` while it runs), while the
+framework copy stays in `lib/mpos/ui/` for the apps that ship with a firmware
+that has it. Keep the two identical — `tests/test_graphical_native_display.py`
+compares them byte for byte.
+
+Same rule for helpers generally: anything the app needs that is newer than the
+oldest firmware you support belongs in the app folder.
+
+## Checklist: a new native game, end to end
+
+1. **Loop first, pixels second.** Get `tick(now)` → `present(bands, render)` →
+   sound polling working with solid rectangles, on desktop (`backend='process'`)
+   and on the badge, before writing game content.
+2. **Clock from Python.** No `mp_import_name`, no `ticks_ms()` in C. (32 ms.)
+3. **Dirty bands, not full frames.** Mark the old *and* new rectangle of
+   everything that moves; clear and redraw only the bands those touch.
+4. **Present from `TASK_HANDLER_FINISHED`**, up to ~5 ms early, and let
+   `present()` call `lv.refr_now()`.
+5. **Budget:** one band (45 rows at 320x240) ≈ 4.6 ms of SPI; two bands per
+   frame ≈ 10 ms end to end, i.e. 56 fps at a 20 ms interval. A full-screen
+   redraw is ~25-30 ms, so a game that changes every pixel (Doom) is a ~30 fps
+   proposition, and palette→RGB565 conversion in C is the term to watch.
+6. **Tests before the badge:** band geometry, per-band row offsets (the
+   offset bug that still shows bricks but moves the paddle to the top), the
+   tick budget, pause/resume, sound mapping. They run on desktop and on the
+   device (`MPOSController.run_test_file`).
+7. **Deploy and measure:** build the module, copy the `.mpy` into the app
+   folder, install, then read the app's own counters (`frames`, `bands`,
+   `rows_per_band`) — do not trust a screenshot for a frame rate.
+8. **Package:** bump `MANIFEST.JSON`, `make check-app-versions ARGS='--changed'`,
+   `./scripts/bundle_apps.sh --app <fullname>`, install the extracted `.mpk` on
+   the badge and re-measure. Then
+   [Publishing Apps](publishing-apps.md).
 
 ## See also
 

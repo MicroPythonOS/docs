@@ -2,6 +2,8 @@
 
 How to make MicroPythonOS apps hit smooth framerates on resource-constrained hardware. The rules below come from a real optimization pass on QuasiBird (Fri3d badge, ST7789 over SPI): **~17 → ~24.5 fps**, measured in-game.
 
+That ceiling (~30 fps, LVGL refresh cycles) applies to apps drawn with LVGL widgets. A game that renders natively into a surface and lets LVGL only blit and flush it gets past it, at the panel's own limit — see [Native C/C++ Apps](native-apps.md), which measured 7.6 → 56 fps on the same class of hardware.
+
 ## 1. Measure first, guess never
 
 - Read the `sysmon:` line over serial with the FPS overlay **off**: `sysmon: 25 FPS (refr_cnt: 8 | ...)`, `refr ... (render ... | flush ...)`. The `render Xms | flush Yms` split tells you whether you're CPU-bound or bus-bound. Optimize the bigger one.
