@@ -497,11 +497,13 @@ and enough on its own to drop a clip below real time.
 Consequences:
 
 * Play clips 1:1. Center them if they are smaller, letterbox if needed.
-* Keep the pixels square. Fit the picture inside the panel
-  (`scale=320:240:force_original_aspect_ratio=decrease,setsar=1`) instead of
-  scaling it to the panel's dimensions: the player never reads the SAR tag, so
-  a grid that was resampled to a different shape plays stretched. A smaller
-  frame is also cheaper — the flush follows the frame area.
+* Keep the pixels square, at the right shape. Normalise the SAR first
+  (`scale=iw*sar:ih,setsar=1`), then fit the picture inside the panel
+  (`scale=320:240:force_original_aspect_ratio=decrease`) instead of scaling it
+  to the panel's dimensions. The player never reads the SAR tag, and
+  `force_original_aspect_ratio` ignores it as well, so either mistake plays
+  stretched. A smaller frame is also cheaper — the flush follows the frame
+  area.
 * `set_size()` + `set_scale()` are acceptable once at clip load.
 * If an app must fill the panel from a small clip, decode to the target size
   offline or pre-generate the larger asset; never scale per frame.

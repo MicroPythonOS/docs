@@ -40,17 +40,21 @@ Both video formats are plain MJPEG, which every desktop player opens without ext
 ```bash
 # AVI with sound inside (PCM), fitted to the panel at the source's own shape
 ffmpeg -i input.mp4 \
-       -vf "scale=320:240:force_original_aspect_ratio=decrease,setsar=1,fps=15" \
+       -vf "scale=iw*sar:ih,setsar=1,scale=320:240:force_original_aspect_ratio=decrease,fps=15" \
        -c:v mjpeg -q:v 10 -c:a pcm_s16le -ar 22050 -ac 1 clip.avi
 
 # Raw MJPEG plus a WAV sidecar
 ffmpeg -i input.mp4 \
-       -vf "scale=320:240:force_original_aspect_ratio=decrease,setsar=1,fps=15" \
+       -vf "scale=iw*sar:ih,setsar=1,scale=320:240:force_original_aspect_ratio=decrease,fps=15" \
        -c:v mjpeg -q:v 10 -an clip.mjpeg
 ffmpeg -i input.mp4 -vn -ac 1 -ar 22050 -c:a pcm_s16le clip.wav
 ```
 
-The `scale` part is not optional decoration. Plain `scale=320:240` resamples the pixel grid to exactly 320x240 and records the intended shape in the sample-aspect-ratio (SAR) tag — and the player shows pixels 1:1 and never reads SAR (an MJPEG frame carries no aspect ratio of its own), so a 16:9 film scaled that way plays visibly squeezed into 4:3. `force_original_aspect_ratio=decrease` fits the picture inside the box instead (320x180 for 16:9, 300x240 for 5:4) and `setsar=1` makes ffmpeg produce real square pixels rather than a tag. Check with `ffprobe`: `SAR 1:1` is what you want, and a DAR that only looks right is not enough.
+The `scale` part is not optional decoration, and it takes two steps for a reason. Plain `scale=320:240` resamples the pixel grid to exactly 320x240 and records the intended shape in the sample-aspect-ratio (SAR) tag — and the player shows pixels 1:1 and never reads SAR (an MJPEG frame carries no aspect ratio of its own), so a 16:9 film scaled that way plays visibly squeezed into 4:3.
+
+`scale=iw*sar:ih,setsar=1` first turns an anamorphic source into square pixels at the shape it is meant to be seen (a 720x576 16:9 DVD frame becomes 1024x576); on an already-square source it changes nothing. Then `scale=320:240:force_original_aspect_ratio=decrease` fits that into the panel box, giving 320x180 for 16:9 and 300x240 for 5:4. The first step is needed because `force_original_aspect_ratio` compares the *stored* pixel dimensions and ignores SAR: on the same DVD frame it alone would answer 300x240, which is square-pixel but still the wrong shape. Check the result with `ffprobe` — `SAR 1:1` and a DAR that matches the source is what you want; square pixels on their own do not prove the shape is right.
+
+If the shape is known up front, one pass is enough: for 16:9, `scale=320:180:flags=lanczos,setsar=1` gives the same thing.
 
 Bars around a smaller frame are correct and they are cheap: the flush cost follows the frame area, so a 320x180 clip costs about a quarter less per frame than a 320x240 one. Do not `pad` back up to the panel size unless something depends on the frame being that size — the player would decode and flush the bars on every frame.
 
