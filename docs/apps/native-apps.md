@@ -210,6 +210,33 @@ its code section. Options if the code is big:
   involved, and it needs no writable-data rewrite;
 * keep it out of MicroPython entirely (the retro-go partition path).
 
+### Bigger engines: a core in its own flash partition
+
+When the code simply cannot fit, the engine can still run *inside* MicroPythonOS
+from flash. `c_mpos/core_abi.h` defines a small ABI (`init`/`tick`/`stop` plus
+host callbacks for frame bands, palette, keys, clock, file reads, allocation and
+logging) and `mpos_core` loads a blob from a partition:
+
+1. the core is linked for a **fixed address** inside the instruction window and
+   flashed into a partition (the badge reserves `retro-core` for exactly this);
+2. the loader reads the blob's entry table, maps those flash pages at the linked
+   address with `mmu_hal_map_region()` (letting `esp_mmu_map()` do its own
+   cache/MMU work first, so the mapping is booked and the caches stay coherent),
+   and calls `init`;
+3. the app's frame loop calls `tick(now)` and the core reports pixels through
+   `present_band`, so MPOS keeps the board, the display, input and the activity.
+
+The engine's code runs XIP through the cache like the firmware itself: no IRAM,
+no Python heap, no reboot and no OTA bookkeeping. What it does need is the same
+split the firmware uses — **text in the instruction window, read-only data in the
+data window** — because instruction memory is not data-readable; a core maps its
+partition twice (INST and DATA) for that.
+
+Verified so far with a small stateless test core: it starts at its linked
+address, runs from flash and calls back per row (600 bands, 192,000 bytes over
+three ticks). A full engine also needs a writable arena for its globals, which is
+the remaining piece.
+
 On ESP32-S3 there is no PSRAM escape: `CONFIG_SPIRAM_XIP_FROM_PSRAM` only copies
 flash code/rodata into PSRAM at boot, while IDF keeps `MALLOC_CAP_EXEC` on
 internal DIRAM/RTC RAM only (`components/heap/port/esp32s3/memory_layout.c`), so
