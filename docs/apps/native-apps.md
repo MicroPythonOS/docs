@@ -190,6 +190,31 @@ stay at the present's own ~27 ms (37 fps). The conversion functions take the
 band as `rows` plus the frame `width`: a "row count" treated as a pixel count
 converts 200 pixels instead of 64,000 and flatters every measurement.
 
+### How big a module's *code* can be
+
+There is a hard limit that has nothing to do with RAM: the code section of a
+native module is committed with `MP_PLAT_COMMIT_EXEC`, which on ESP32 is
+`heap_caps_malloc(..., MALLOC_CAP_EXEC)`. It has to fit in **executable memory
+(IRAM)**, and a booted ESP32-S3 with WiFi/BT/IDF running has only a few KB of
+that free — on the lab badge the largest contiguous executable block was
+**~7 KB**. Data is different: `rodata` and BSS are ordinary heap allocations and
+can live in PSRAM.
+
+So a module with 3 KB of code and 500 KB of tables loads fine, while a
+Doom-class engine (140 KB of code) fails with
+`MemoryError: memory allocation failed, allocating 142528 bytes` — the size of
+its code section. Options if the code is big:
+
+* put the engine in the **firmware** (`c_mpos/src` style): its code is executed
+  from flash through the instruction cache, so IRAM and the Python heap are not
+  involved, and it needs no writable-data rewrite;
+* enable `CONFIG_SPIRAM_XIP_FROM_PSRAM` in the firmware so PSRAM can hold
+  executable code (accepting slower execution), or
+* keep it out of MicroPython entirely (the retro-go partition path).
+
+`gc.mem_free()`, `gc.collect()` and heap pre-growth do not help: the failing
+allocation is never a GC allocation.
+
 ### How big a module can be
 
 A native module is loaded into the MicroPython heap at import, so a
