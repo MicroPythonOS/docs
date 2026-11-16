@@ -17,6 +17,7 @@ Audio in an AVI is played from inside the file, so one file is enough. A raw MJP
 Anything else is named rather than silently ignored:
 
 - `not an AVI file (only AVI with MJPEG video is supported)` — e.g. an MP4 with the wrong extension
+- `AMV files are not supported (convert to MJPEG AVI first)` — the format used by cheap MP5/MP4 players. It is already MJPEG with IMA ADPCM inside, so re-muxing it to a normal AVI makes it play; only the deliberately malformed container stops it
 - `unsupported video codec: H264 (this player plays MJPEG)` — container is fine, the pictures are not
 - an unsupported soundtrack (AC-3, MP3, MS ADPCM) still plays the pictures and prints why there is no sound
 
