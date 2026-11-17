@@ -212,30 +212,45 @@ its code section. Options if the code is big:
 
 ### Bigger engines: a core in its own flash partition
 
-When the code simply cannot fit, the engine can still run *inside* MicroPythonOS
-from flash. `c_mpos/core_abi.h` defines a small ABI (`init`/`tick`/`stop` plus
-host callbacks for frame bands, palette, keys, clock, file reads, allocation and
-logging) and `mpos_core` loads a blob from a partition:
+When the code simply cannot fit in executable RAM, the engine can still run
+*inside* MicroPythonOS from flash. `c_mpos/core_abi.h` defines a small ABI
+(`init`/`tick`/`stop` plus host callbacks for frame bands, palette, keys, clock,
+file reads, allocation and logging) and `mpos_core` loads a blob from a
+partition:
 
-1. the core is linked for a **fixed address** inside the instruction window and
-   flashed into a partition (the badge reserves `retro-core` for exactly this);
-2. the loader reads the blob's entry table, maps those flash pages at the linked
-   address with `mmu_hal_map_region()` (letting `esp_mmu_map()` do its own
-   cache/MMU work first, so the mapping is booked and the caches stay coherent),
-   and calls `init`;
+1. the core is linked for **fixed addresses** and flashed into a partition (the
+   badge reserves `retro-core` for exactly this);
+2. the loader reads the blob's entry table through a temporary data mapping,
+   maps its flash pages at those addresses and calls `init`;
 3. the app's frame loop calls `tick(now)` and the core reports pixels through
    `present_band`, so MPOS keeps the board, the display, input and the activity.
 
-The engine's code runs XIP through the cache like the firmware itself: no IRAM,
-no Python heap, no reboot and no OTA bookkeeping. What it does need is the same
-split the firmware uses — **text in the instruction window, read-only data in the
-data window** — because instruction memory is not data-readable; a core maps its
-partition twice (INST and DATA) for that.
+A core needs three regions, all at addresses it was linked for:
 
-Verified so far with a small stateless test core: it starts at its linked
-address, runs from flash and calls back per row (600 bands, 192,000 bytes over
-three ticks). A full engine also needs a writable arena for its globals, which is
-the remaining piece.
+* **text** in the instruction window, executed through the cache;
+* **read-only data** in the data window, mapped from the *same* flash pages a
+  second time: instruction memory cannot be read as data, so a string has to
+  live on the data bus even though it is read-only in both places (the firmware
+  splits itself the same way: `.flash.text` in IROM, `.flash.rodata` in DROM);
+* a writable **arena** for `.bss`: the host allocates page-aligned RAM, zeroes it
+  and maps it at the address the blob declares, so the engine's globals are
+  ordinary variables.
+
+The engine's code runs XIP through the cache like the firmware itself: no IRAM,
+no executable-RAM limit, no reboot and no OTA bookkeeping. The activity keeps
+the panel (`NativeDisplay`), the input and the file system; the core asks for all
+three through the ABI.
+
+The Doom port runs this way: `com.micropythonos.doomcore` starts the engine from
+the `retro-core` partition, reads the WAD through MicroPython's own file objects,
+rotates and converts each frame to RGB565 in C (320x200 becomes a 200x320
+surface that fits the portrait panel) and plays the E1M1 demo at about 10 fps on
+a fri3d-class S3, of which ~33 ms per frame is the panel transfer itself.
+
+Two things that are easy to get wrong: the host must keep the Python callbacks
+alive (the collector does not trace C statics — a registered root pointer does
+it), and code that runs with the flash cache disabled must be in IRAM, which is
+why the mapping lets `esp_mmu_map()` own IDF's cache/MMU sequence.
 
 On ESP32-S3 there is no PSRAM escape: `CONFIG_SPIRAM_XIP_FROM_PSRAM` only copies
 flash code/rodata into PSRAM at boot, while IDF keeps `MALLOC_CAP_EXEC` on
