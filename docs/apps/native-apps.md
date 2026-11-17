@@ -250,12 +250,16 @@ conversion of the next one. On a fri3d-class S3 that is 19 fps at 40 MHz SPI and
 split as 14 ms of engine, 5 ms of conversion and 25 ms of panel transfer: the
 frame is now shared between the renderer and the SPI bus.
 
-Controls are chosen for the hardware that exists: on a touch panel the left and
-right thirds turn, the middle walks and a tap fires (the top edge opens the
-menu); on a badge the joystick turns and walks, B fires, A and Y use/open and X
-opens the menu. The core translates those same keys while a menu is up (fire
-selects, the turn keys move the cursor), so a device without a keyboard can
-still start a game.
+Controls are chosen for the hardware that exists. On a touch panel the game is
+played with the device held sideways, so the zones are laid out in Doom's own
+frame rather than the panel's (the core rotates the picture, and the touch
+mapping undoes that rotation): the left thumb gets a joystick anchored where it
+lands - drag across the game to turn, along it to walk - and the right thumb
+gets three bands along the long edge, fire at the bottom, use in the middle and
+the menu at the top. On a badge the joystick turns and walks, B fires, A and Y
+use/open and X opens the menu. The core translates those same keys while a menu
+is up (fire selects, the turn keys move the cursor), so a device without a
+keyboard can still start a game.
 
 Two things that are easy to get wrong: the host must keep the Python callbacks
 alive (the collector does not trace C statics — a registered root pointer does
