@@ -244,8 +244,18 @@ three through the ABI.
 The Doom port runs this way: `com.micropythonos.doomcore` starts the engine from
 the `retro-core` partition, reads the WAD through MicroPython's own file objects,
 rotates and converts each frame to RGB565 in C (320x200 becomes a 200x320
-surface that fits the portrait panel) and plays the E1M1 demo at about 10 fps on
-a fri3d-class S3, of which ~33 ms per frame is the panel transfer itself.
+surface that fits the portrait panel) and draws straight into the display
+surface, one band of rows at a time - the panel transfer of a band overlaps the
+conversion of the next one. On a fri3d-class S3 that is 18-19 fps, split as
+15 ms of engine, 5 ms of conversion and 29 ms of panel transfer: the frame is
+now shared between the renderer and the SPI bus.
+
+Controls are chosen for the hardware that exists: on a touch panel the left and
+right thirds turn, the middle walks and a tap fires (the top edge opens the
+menu); on a badge the joystick turns and walks, B fires, A and Y use/open and X
+opens the menu. The core translates those same keys while a menu is up (fire
+selects, the turn keys move the cursor), so a device without a keyboard can
+still start a game.
 
 Two things that are easy to get wrong: the host must keep the Python callbacks
 alive (the collector does not trace C statics — a registered root pointer does
