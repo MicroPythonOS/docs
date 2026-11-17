@@ -246,9 +246,9 @@ the `retro-core` partition, reads the WAD through MicroPython's own file objects
 rotates and converts each frame to RGB565 in C (320x200 becomes a 200x320
 surface that fits the portrait panel) and draws straight into the display
 surface, one band of rows at a time - the panel transfer of a band overlaps the
-conversion of the next one. On a fri3d-class S3 that is 18-19 fps, split as
-15 ms of engine, 5 ms of conversion and 29 ms of panel transfer: the frame is
-now shared between the renderer and the SPI bus.
+conversion of the next one. On a fri3d-class S3 that is 19 fps at 40 MHz SPI and 21 fps at 80 MHz,
+split as 14 ms of engine, 5 ms of conversion and 25 ms of panel transfer: the
+frame is now shared between the renderer and the SPI bus.
 
 Controls are chosen for the hardware that exists: on a touch panel the left and
 right thirds turn, the middle walks and a tap fires (the top edge opens the
