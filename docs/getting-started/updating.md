@@ -23,6 +23,11 @@ on it can cost you your data:
   layout** than the one on your device (this can happen from time to time
   as MicroPythonOS evolves). In that case the storage partition is
   reformatted on first boot, **without any prompt**.
+- From 0.22.0, the full ESP32 images (the `.bin` files) also contain the
+  storage partition, with preloaded apps and sample files. Installing one
+  **replaces** your storage partition, even without erasing. This is true
+  for the web installer and for writing the `.bin` file with esptool.
+  Only the 4 MB `esp32-small` image does not contain a storage partition.
 
 So, just like for any electronics device: **make a backup of important
 files before reinstalling the software.** For example, over USB with
@@ -38,8 +43,9 @@ If a device has no network access, you can apply an update manually by
 writing the over-the-air update file (for example
 `MicroPythonOS_esp32s3_0.17.3.ota` from the
 [releases](https://github.com/MicroPythonOS/MicroPythonOS/releases)) to
-the OTA application offsets in flash with esptool. For the esp32s3 build,
-for example, the two OTA slots are at `0x20000` and `0x3A0000`:
+the OTA application offsets in flash with esptool. For example, on an
+esp32s3 device first installed before 0.22.0, the two OTA slots are at
+`0x20000` and `0x3A0000`:
 
 ```bash
 python3 -m esptool --chip esp32s3 write_flash 0x20000 MicroPythonOS_esp32s3_0.17.3.ota
@@ -49,3 +55,16 @@ This writes the same bytes an OTA update would, so the storage partition
 is left alone — but it is an advanced action: the offsets differ per
 board/build, and writing to the wrong offset can corrupt the device's
 filesystem. Making a backup first is strongly advised.
+
+The offsets depend on the partition table on the device, not on the
+version you write. From 0.22.0, the full images use a different table: on
+an esp32s3 device installed with one, the two OTA slots are at `0x10000`
+and `0x390000`. Over-the-air updates keep the table that a device already
+has. To see the slots on your device, run this in its REPL and look for
+`ota_0` and `ota_1`:
+
+```python
+import esp32
+for p in esp32.Partition.find(esp32.Partition.TYPE_APP):
+    print(p.info()[4], hex(p.info()[2]))
+```
