@@ -108,7 +108,6 @@ com.micropythonos.breakout/
 ├── MANIFEST.JSON
 ├── icon_64x64.png
 ├── breakout.py                 # the Activity
-├── native_display.py           # bundled copy, see "Packaging" below
 ├── breakout_x64.mpy            # native module, imported by breakout.py
 └── breakout_xtensawin.mpy
 ```
@@ -431,14 +430,12 @@ is older than your working tree. A frozen module you added to `lib/mpos/` is
 therefore **not** available to users yet: import it and the app dies with
 `ImportError: no module named ...` for everyone who is not on your build.
 
-That is why Breakout ships `native_display.py` in its own folder and imports it
-by bare name (the app's directory is on `sys.path` while it runs), while the
-framework copy stays in `lib/mpos/ui/` for the apps that ship with a firmware
-that has it. Keep the two identical — `tests/test_graphical_native_display.py`
-compares them byte for byte.
-
-Same rule for helpers generally: anything the app needs that is newer than the
-oldest firmware you support belongs in the app folder.
+Anything the app needs that is newer than the oldest firmware you support
+belongs in the app folder. That is the rule for *helpers*. Framework
+infrastructure is the exception: `NativeDisplay` is part of the OS and apps
+import it from `mpos.ui.native_display` — no app ships its own copy of it (the
+firmware that first carried it is the minimum for these apps, and
+`tests/test_graphical_native_display.py` keeps app folders free of a copy).
 
 ## Checklist: a new native game, end to end
 
