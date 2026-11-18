@@ -241,12 +241,12 @@ no executable-RAM limit, no reboot and no OTA bookkeeping. The activity keeps
 the panel (`NativeDisplay`), the input and the file system; the core asks for all
 three through the ABI.
 
-The Doom port runs this way: `com.micropythonos.doomcore` starts the engine from
-the `retro-core` partition, reads the WAD through MicroPython's own file objects,
-rotates and converts each frame to RGB565 in C (a portrait panel gets a
-200x320 surface, a landscape one gets the 320x200 frame as it is) and draws straight into the display
-surface, one band of rows at a time - the panel transfer of a band overlaps the
-conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18
+The Doom port runs this way on a badge: `com.micropythonos.doom` starts the
+engine from the `retro-core` partition, reads the WAD through MicroPython's own
+file objects, rotates and converts each frame to RGB565 in C (a portrait panel
+gets a 200x320 surface, a landscape one gets the 320x200 frame as it is) and
+draws straight into the display surface, one band of rows at a time - the panel
+transfer of a band overlaps the conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18
 on the fri3d 2026's landscape one, split as 15 ms of engine, 5 ms of conversion
 and 25-36 ms of panel transfer. The transfer is the wall: a full 320x200 RGB565
 frame reaches the panel at about 5-6 MB/s however it is pushed, and internal RAM
@@ -262,6 +262,21 @@ speaker: a piezo buzzer can play PCM through the same sink the audio player uses
 for files, but an 11 kHz broadband effect through a resonator with no output
 below 2 kHz is a screech, so a buzzer-only board stays silent.
 
+The same app runs on a desktop, where there is no MMU window to map a flash
+partition into and the blob is Xtensa code anyway: it loads the engine as an
+ordinary native module instead (`doom_x64.mpy`, built from the same tree) and
+converts the 8-bit frame to RGB565 through `blit_band`, one band per present.
+Only the engine differs. Input and output do not, because MicroPythonOS already
+unifies them: an SDL keyboard and mouse, a touch panel and a badge keypad all
+arrive as the same LVGL events, and `NativeDisplay` is the only way either
+engine reaches the panel. So the activity owns the surface, the frame pacing,
+the touch layout and the key mapping, and each engine is a ~40-line adapter with
+`surface_size`, `start`, `tick`, `key`, `resume`, `pause` and `stop` - the shape
+a framework base class would have if a second engine ever justified one. On a
+host that can run neither (a firmware without `mpos_core`, a board without the
+partition, a checkout without the `.mpy`) the app says what is missing instead of
+showing a black screen.
+
 Controls are chosen for the hardware that exists. On a touch panel the game is
 played with the device held sideways, so the zones are laid out in Doom's own
 frame rather than the panel's (the core rotates the picture, and the touch
@@ -271,7 +286,8 @@ gets three bands along the long edge, fire at the bottom, use in the middle and
 the menu at the top. On a badge the joystick turns and walks, B fires, A and Y
 use/open and X opens the menu. The core translates those same keys while a menu
 is up (fire selects, the turn keys move the cursor), so a device without a
-keyboard can still start a game.
+keyboard can still start a game. The same zones work with a mouse: press in the
+left half and drag to turn or walk, hold the fire band to shoot.
 
 Two things that are easy to get wrong: the host must keep the Python callbacks
 alive (the collector does not trace C statics — a registered root pointer does
