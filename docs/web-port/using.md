@@ -38,6 +38,7 @@ The web port is a faithful approximation of the real OS, but a browser is not a 
 - **No raw network sockets** — HTTP is handled through the browser's `fetch()` API, and CORS applies to cross-origin requests.
 - **No Bluetooth, ADC, IMU, or camera** — hardware-specific features either raise errors or return stubs.
 - **Persistence is per-origin** — clearing site data wipes `/data` and `/apps`.
+- **Audio starts on the first interaction** — games that synthesise their own sound play through WebAudio, and browsers keep an `AudioContext` suspended until the page is clicked or tapped once.
 
 For everything else, the web port behaves like a desktop build: the same apps, the same launcher, and the same Python runtime.
 

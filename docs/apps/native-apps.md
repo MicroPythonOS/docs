@@ -255,12 +255,24 @@ renderer.
 Sound effects come from the engine itself: the core mixes its own 8-bit DMX
 samples (8 voices, 11025 Hz mono) and the host pulls them through the ABI and
 writes them to the board's i2s output, so the engine never blocks on audio. The
-same mixer file is linked into the native module (`audio_mix(buf)`), so the
-desktop can pull it too - but the desktop build has no PCM sink yet: its unix
-binary is linked statically, which rules out a shared alsa-lib, and SDL is built
-with the Linux audio backends off. A desktop sink needs a dynamically linked
-unix build (or a static alsa-lib) before the engine's samples have somewhere to
-go.
+same mixer file is linked into the native module (`audio_mix(buf)`), so every
+host can pull it; where the samples go is `AudioManager.open_pcm()`.
+
+On a browser they go to `hosted_audio`, which is SDL's audio over WebAudio -
+started by the first touch of the page, as browsers require. That module is the
+one place a host-specific sink lives, and it is why the web build can play a
+game's own mixer without any JavaScript: Emscripten's SDL2 port is already part
+of that build for display and input.
+
+A Linux desktop binary is linked statically, so it cannot link libasound, and
+its bundled SDL is built with the Linux audio backends off: that binary is
+silent today. Turning `SDL_ALSA=ON` in the desktop SDL build would enable it
+(and the same `hosted_audio` module would drive it), at the cost of the binary
+becoming dynamically linked - a distribution decision, not an audio one. The
+"static alsa-lib" alternative was measured and rejected: its configuration
+parsing spins inside a static glibc binary, and without the plugin layer a
+minimal configuration can only take the card exclusively, which fails while
+anything else on the desktop is playing.
 Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
 with speakers on the DAC headset jack the demo measures -23 dBFS RMS. The engine asks for a real
 speaker: a piezo buzzer can play PCM through the same sink the audio player uses
