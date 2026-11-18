@@ -246,21 +246,21 @@ the `retro-core` partition, reads the WAD through MicroPython's own file objects
 rotates and converts each frame to RGB565 in C (a portrait panel gets a
 200x320 surface, a landscape one gets the 320x200 frame as it is) and draws straight into the display
 surface, one band of rows at a time - the panel transfer of a band overlaps the
-conversion of the next one. On a fri3d-class S3 that is 19-23 fps at 80 MHz SPI, split as 15 ms of engine,
-5 ms of conversion and 21-25 ms of panel transfer. The transfer is the wall: a
-full 320x200 RGB565 frame reaches the panel at about 5-6 MB/s however it is
-pushed, and internal RAM cannot hold a DMA-ready surface that size, so it
-cannot be hidden behind the renderer.
+conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18
+on the fri3d 2026's landscape one, split as 15 ms of engine, 5 ms of conversion
+and 25-36 ms of panel transfer. The transfer is the wall: a full 320x200 RGB565
+frame reaches the panel at about 5-6 MB/s however it is pushed, and internal RAM
+cannot hold a DMA-ready surface that size, so it cannot be hidden behind the
+renderer.
 
 Sound effects come from the engine itself: the core mixes its own 8-bit DMX
 samples (8 voices, 11025 Hz mono) and the host pulls them through the ABI and
 writes them to the board's i2s output, so the engine never blocks on audio.
 Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
-with speakers on the DAC headset jack the demo measures -23 dBFS RMS. Boards
-without a DAC fall back to the piezo buzzer through the same sink the audio
-player uses for files: a duty cycle rewritten from a timer interrupt at the
-sample rate, which is quiet and distorted but recognises gunfire and monsters
-(-26 dBFS RMS measured on the fri3d 2026, at no cost in frame rate).
+with speakers on the DAC headset jack the demo measures -23 dBFS RMS. The engine asks for a real
+speaker: a piezo buzzer can play PCM through the same sink the audio player uses
+for files, but an 11 kHz broadband effect through a resonator with no output
+below 2 kHz is a screech, so a buzzer-only board stays silent.
 
 Controls are chosen for the hardware that exists. On a touch panel the game is
 played with the device held sideways, so the zones are laid out in Doom's own
