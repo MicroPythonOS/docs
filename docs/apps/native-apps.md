@@ -254,7 +254,13 @@ renderer.
 
 Sound effects come from the engine itself: the core mixes its own 8-bit DMX
 samples (8 voices, 11025 Hz mono) and the host pulls them through the ABI and
-writes them to the board's i2s output, so the engine never blocks on audio.
+writes them to the board's i2s output, so the engine never blocks on audio. The
+same mixer file is linked into the native module (`audio_mix(buf)`), so the
+desktop can pull it too - but the desktop build has no PCM sink yet: its unix
+binary is linked statically, which rules out a shared alsa-lib, and SDL is built
+with the Linux audio backends off. A desktop sink needs a dynamically linked
+unix build (or a static alsa-lib) before the engine's samples have somewhere to
+go.
 Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
 with speakers on the DAC headset jack the demo measures -23 dBFS RMS. The engine asks for a real
 speaker: a piezo buzzer can play PCM through the same sink the audio player uses
