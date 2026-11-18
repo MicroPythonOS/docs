@@ -269,18 +269,24 @@ below 2 kHz is a screech, so a buzzer-only board stays silent.
 
 The same app runs on a desktop, where there is no MMU window to map a flash
 partition into and the blob is Xtensa code anyway: it loads the engine as an
-ordinary native module instead (`doom_x64.mpy`, built from the same tree) and
-converts the 8-bit frame to RGB565 through `blit_band`, one band per present.
-Only the engine differs. Input and output do not, because MicroPythonOS already
+ordinary native module instead (`doom_x64.mpy`, built from the same tree), and
+that module presents the same way the core does - it converts each band to
+RGB565 into the host's buffer and calls back so the band can be flushed. Only
+the engine differs. Input and output do not, because MicroPythonOS already
 unifies them: an SDL keyboard and mouse, a touch panel and a badge keypad all
 arrive as the same LVGL events, and `NativeDisplay` is the only way either
-engine reaches the panel. So the activity owns the surface, the frame pacing,
-the touch layout and the key mapping, and each engine is a ~40-line adapter with
-`surface_size`, `start`, `tick`, `key`, `resume`, `pause` and `stop` - the shape
-a framework base class would have if a second engine ever justified one. On a
-host that can run neither (a firmware without `mpos_core`, a board without the
-partition, a checkout without the `.mpy`) the app says what is missing instead of
-showing a black screen.
+engine reaches the panel.
+
+The reusable part of that lives in the framework now:
+`mpos.ui.native_activity.NativeActivity` owns the screen, the surface, pacing,
+the labels and the close-the-app path, and `mpos.ui.native_input` has the two
+input patterns - `KeyHolds` for engines that want both edges of a key, and
+`ThumbZones` for the handheld joystick-and-bands layout. An app supplies its
+engine and its controls; Doom is ~120 lines of that, and Breakout subclasses the
+same base with a dirty-band presentation of its own. On a host that can run
+neither engine (a firmware without `mpos_core`, a board without the partition, a
+checkout without the `.mpy`) the app says what is missing instead of showing a
+black screen.
 
 Controls are chosen for the hardware that exists. On a touch panel the game is
 played with the device held sideways, so the zones are laid out in Doom's own
