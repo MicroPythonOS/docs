@@ -243,12 +243,20 @@ three through the ABI.
 
 The Doom port runs this way: `com.micropythonos.doomcore` starts the engine from
 the `retro-core` partition, reads the WAD through MicroPython's own file objects,
-rotates and converts each frame to RGB565 in C (320x200 becomes a 200x320
-surface that fits the portrait panel) and draws straight into the display
+rotates and converts each frame to RGB565 in C (a portrait panel gets a
+200x320 surface, a landscape one gets the 320x200 frame as it is) and draws straight into the display
 surface, one band of rows at a time - the panel transfer of a band overlaps the
-conversion of the next one. On a fri3d-class S3 that is 19 fps at 40 MHz SPI and 21 fps at 80 MHz,
-split as 14 ms of engine, 5 ms of conversion and 25 ms of panel transfer: the
-frame is now shared between the renderer and the SPI bus.
+conversion of the next one. On a fri3d-class S3 that is 19-23 fps at 80 MHz SPI, split as 15 ms of engine,
+5 ms of conversion and 21-25 ms of panel transfer. The transfer is the wall: a
+full 320x200 RGB565 frame reaches the panel at about 5-6 MB/s however it is
+pushed, and internal RAM cannot hold a DMA-ready surface that size, so it
+cannot be hidden behind the renderer.
+
+Sound effects come from the engine itself: the core mixes its own 8-bit DMX
+samples (8 voices, 11025 Hz mono) and the host pulls them through the ABI and
+writes them to the board's i2s output, so the engine never blocks on audio.
+Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
+with speakers on the DAC headset jack the demo measures -13 dBFS RMS.
 
 Controls are chosen for the hardware that exists. On a touch panel the game is
 played with the device held sideways, so the zones are laid out in Doom's own
