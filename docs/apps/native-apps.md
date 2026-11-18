@@ -259,20 +259,20 @@ same mixer file is linked into the native module (`audio_mix(buf)`), so every
 host can pull it; where the samples go is `AudioManager.open_pcm()`.
 
 On a browser they go to `hosted_audio`, which is SDL's audio over WebAudio -
-started by the first touch of the page, as browsers require. That module is the
-one place a host-specific sink lives, and it is why the web build can play a
-game's own mixer without any JavaScript: Emscripten's SDL2 port is already part
-of that build for display and input.
+started by the first touch of the page, as browsers require. The same module is
+what plays them on a Linux desktop: the bundled SDL is built with `SDL_ALSA=ON`,
+so its ALSA backend feeds the sound card through whatever is mixing it
+(PulseAudio, PipeWire or ALSA itself). One implementation, every host; the app
+does not know which one it is on.
 
-A Linux desktop binary is linked statically, so it cannot link libasound, and
-its bundled SDL is built with the Linux audio backends off: that binary is
-silent today. Turning `SDL_ALSA=ON` in the desktop SDL build would enable it
-(and the same `hosted_audio` module would drive it), at the cost of the binary
-becoming dynamically linked - a distribution decision, not an audio one. The
-"static alsa-lib" alternative was measured and rejected: its configuration
-parsing spins inside a static glibc binary, and without the plugin layer a
+That is why the desktop binary is linked **dynamically** (`patches/
+unix_desktop_dynamic.patch`): a fully static binary cannot link `libasound.so`,
+and a statically linked alsa-lib was measured to be unusable - its configuration
+parser spins inside a static glibc binary, and without the plugin layer a
 minimal configuration can only take the card exclusively, which fails while
-anything else on the desktop is playing.
+anything else on the desktop is playing. So `libc` and `libasound` come from the
+host (every desktop distribution has both); SDL, LVGL, MicroPython and the
+engines are still inside the binary.
 Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
 with speakers on the DAC headset jack the demo measures -23 dBFS RMS. The engine asks for a real
 speaker: a piezo buzzer can play PCM through the same sink the audio player uses
@@ -306,11 +306,17 @@ frame rather than the panel's (the core rotates the picture, and the touch
 mapping undoes that rotation): the left thumb gets a joystick anchored where it
 lands - drag across the game to turn, along it to walk - and the right thumb
 gets three bands along the long edge, fire at the bottom, use in the middle and
-the menu at the top. On a badge the joystick turns and walks, B fires, A and Y
-use/open and X opens the menu. The core translates those same keys while a menu
-is up (fire selects, the turn keys move the cursor), so a device without a
-keyboard can still start a game. The same zones work with a mouse: press in the
-left half and drag to turn or walk, hold the fire band to shoot.
+the menu at the top. With a mouse the same zones work: press in the left half
+and drag to turn or walk, hold the fire band to shoot.
+
+On a badge or a keyboard the arrows (or the joystick) turn and walk; fire is B
+on a badge and B or space on a keyboard; use/open doors is A or Enter; Y opens
+Doom's menu; and Esc - the X button on a fri3d - is the OS "back" key, so it
+leaves the game instead of opening Doom's menu (that is why Y exists). Fire also
+confirms in menus, and the arrows steer them exactly as they do on a keyboard:
+both engines translate only one key, fire to Enter, while a menu is open. A
+device without a keyboard therefore needs nothing extra to start a game, and the
+button that shoots is the button that picks.
 
 Two things that are easy to get wrong: the host must keep the Python callbacks
 alive (the collector does not trace C statics — a registered root pointer does
