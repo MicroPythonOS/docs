@@ -12,6 +12,15 @@ BuildInfo centralizes OS version and build information in a single class with ne
 - **Android-Inspired** - Follows Android's Build.VERSION pattern
 - **Singleton Pattern** - Single source of truth for OS version
 
+## API level 0
+
+Until `BuildInfo.version.api_level` reaches 1, the framework API is not frozen:
+a release may change or remove APIs and break apps, and an app may require the
+latest OS. Shared framework code lives in `lib/mpos/` and apps import it — never
+copy a framework module into an app folder. Publish an app that needs a new
+framework module only after the OS release that carries it is out, so AppStore
+users are not sent to an `ImportError` on their current firmware.
+
 ## Architecture
 
 BuildInfo is implemented as a singleton with a nested `version` class containing version attributes:
@@ -21,7 +30,7 @@ class BuildInfo:
     class version:
         """Version information."""
         release = "0.7.0"  # Human-readable version
-        sdk_int = 0        # API level
+        api_level = 0        # API level
 ```
 
 All version information is accessed through class attributes - no instance creation is needed.
@@ -38,7 +47,7 @@ version = BuildInfo.version.release
 # Returns: "0.7.0"
 
 # Get API level
-api_level = BuildInfo.version.sdk_int
+api_level = BuildInfo.version.api_level
 # Returns: 0
 ```
 
@@ -52,7 +61,7 @@ if BuildInfo.version.release == "0.7.0":
     print("Running MicroPythonOS 0.7.0")
 
 # Check API level
-if BuildInfo.version.sdk_int >= 1:
+if BuildInfo.version.api_level >= 1:
     print("API level 1 or higher")
 ```
 
@@ -90,14 +99,14 @@ version = BuildInfo.version.release
 # Returns: "0.7.0"
 ```
 
-#### `BuildInfo.version.sdk_int`
+#### `BuildInfo.version.api_level`
 API level (SDK version) as an integer.
 
 **Type:** int
 
 **Example:**
 ```python
-api_level = BuildInfo.version.sdk_int
+api_level = BuildInfo.version.api_level
 # Returns: 0
 ```
 
@@ -118,7 +127,7 @@ class AboutActivity(Activity):
         version_label.set_text(f"Version: {BuildInfo.version.release}")
         
         api_label = lv.label(screen)
-        api_label.set_text(f"API Level: {BuildInfo.version.sdk_int}")
+        api_label.set_text(f"API Level: {BuildInfo.version.api_level}")
         
         self.setContentView(screen)
 ```
@@ -132,7 +141,7 @@ class FeatureManager:
     @staticmethod
     def supports_feature(feature_name):
         """Check if feature is available in current API level."""
-        api_level = BuildInfo.version.sdk_int
+        api_level = BuildInfo.version.api_level
         
         features = {
             "camera": 1,
@@ -180,7 +189,7 @@ class AppCompatibility:
     def is_compatible(cls):
         """Check if app is compatible with current OS."""
         version = BuildInfo.version.release
-        api_level = BuildInfo.version.sdk_int
+        api_level = BuildInfo.version.api_level
         
         # Check API level
         if api_level < cls.MIN_API_LEVEL:
@@ -210,7 +219,7 @@ def setup_logging():
     logger = logging.getLogger(__name__)
     
     # Log build information
-    logger.info(f"MicroPythonOS {BuildInfo.version.release} (API {BuildInfo.version.sdk_int})")
+    logger.info(f"MicroPythonOS {BuildInfo.version.release} (API {BuildInfo.version.api_level})")
     
     return logger
 ```
@@ -229,7 +238,7 @@ def apply_workarounds():
         import gc
         gc.collect()
     
-    if BuildInfo.version.sdk_int < 1:
+    if BuildInfo.version.api_level < 1:
         # Workaround for older API
         print("Using legacy API compatibility mode")
 ```
@@ -246,7 +255,7 @@ class Telemetry:
         """Get system context for telemetry."""
         return {
             "os_version": BuildInfo.version.release,
-            "api_level": BuildInfo.version.sdk_int,
+            "api_level": BuildInfo.version.api_level,
             "timestamp": time.time()
         }
 ```
@@ -269,7 +278,7 @@ The `BuildInfo.version` class contains:
 class BuildInfo:
     class version:
         release = "0.7.0"  # Human-readable version: "major.minor.patch"
-        sdk_int = 0        # API level: integer for compatibility checks
+        api_level = 0        # API level: integer for compatibility checks
 ```
 
 ### Version Numbering
@@ -279,7 +288,7 @@ class BuildInfo:
   - Minor: New features
   - Patch: Bug fixes
 
-- **sdk_int**: API level for feature availability
+- **api_level**: API level for feature availability
   - Incremented when new APIs are added
   - Used for compatibility checks
 
@@ -293,7 +302,7 @@ BuildInfo uses a nested `version` class to organize version-related attributes:
 class BuildInfo:
     class version:
         release = "0.7.0"
-        sdk_int = 0
+        api_level = 0
 ```
 
 This pattern groups related information and provides a clear namespace.

@@ -453,19 +453,71 @@ check in the frame loop, which is what Breakout's `Beep` does. It gets the pin
 from `AudioManager.find_output_by_kind("buzzer")` and does nothing at all on a
 board with no buzzer configured, so the game never depends on sound.
 
-### Packaging: an `.mpk` must run on older firmware
+### Immersive input and touch hints
 
-An app installed from the AppStore runs on whatever firmware the user has, which
-is older than your working tree. A frozen module you added to `lib/mpos/` is
-therefore **not** available to users yet: import it and the app dies with
-`ImportError: no module named ...` for everyone who is not on your build.
+A full-screen game owns the picture, but two OS zones still sit above every app
+in `lv.layer_top()`: a bar-height strip across the top (swipe down opens the
+drawer) and a bar-height strip down the left edge (swipe right goes back).
+Because they are above the activity's screen they win LVGL's hit test, so a
+joystick that starts at the edge or a menu band at the top never receives the
+touch. The activity declares the intent, and the view applies it whenever the
+foreground changes:
 
-Anything the app needs that is newer than the oldest firmware you support
-belongs in the app folder. That is the rule for *helpers*. Framework
-infrastructure is the exception: `NativeDisplay` is part of the OS and apps
-import it from `mpos.ui.native_display` — no app ships its own copy of it (the
-firmware that first carried it is the minimum for these apps, and
-`tests/test_graphical_native_display.py` keeps app folders free of a copy).
+```python
+class Doom(NativeActivity):
+    system_gestures_enabled = False
+```
+
+`gesture_navigation.set_system_gestures_enabled()` hides both strips **and
+removes their `CLICKABLE` flag**; both are needed, because a hidden object that
+is still clickable keeps winning the hit test. The hardware back key and
+`Activity.onBackPressed()` keep working - only the edge swipes stop. A settings
+or dialog activity pushed over the game is a normal activity, so the swipes come
+back when it becomes the foreground and stop again when the game is resumed.
+
+An app that wants to show where its zones are draws them itself; the framework
+only supplies the inverse of `to_game()`:
+
+```python
+x, y = activity.game_to_panel(game_x, game_y)
+panel_x, panel_y, panel_width, panel_height = activity.game_rect_to_panel(
+    game_x, game_y, game_w, game_h)
+```
+
+The result includes the letterbox and swaps the sides on a rotated portrait
+surface, so an overlay can be written in the game's own coordinates next to the
+input zones. Doom's `doom_overlay.py` is the example: 1 px outlines and LVGL
+symbols, no fills, added to the activity's screen with `CLICKABLE` removed so
+the pointer still reaches the game.
+
+A static overlay is repainted every frame whether it is invalidated or not:
+every band the engine updates is redrawn with the objects that intersect it, so
+the outline pixels are blended inside the pass that is already running. With
+outlines and a few glyphs that is a few thousand pixels against the 21-30 ms
+panel transfer of a full frame - measured on the MaTouch, the difference between
+the overlay on and off was within run-to-run noise. A filled overlay would be a
+different proposition (a large fraction of the surface blended every frame), and
+drawing the overlay only every N frames saves nothing: the band repaint happens
+anyway, and the result flickers.
+
+### Packaging: framework code lives in `lib/mpos`
+
+`BuildInfo.version.api_level` is 0, so the framework API is not frozen yet: an
+app is allowed to require the latest OS release, and that release may break
+apps built against an older one. There is no `ImportError` compatibility
+promise to keep.
+
+Shared framework code therefore belongs in `lib/mpos/` (for example
+`NativeDisplay` in `mpos.ui.native_display` and gestures in
+`mpos.ui.multitouch`) and apps import it from there. Never ship a copy of a
+framework module in an app folder: the copies drift, and
+`tests/test_graphical_native_display.py` fails when a `native_display.py`
+reappears.
+
+The release order still matters: publish an app that needs a new framework
+module only **after** the OS release that carries the module is out, so an
+AppStore user who installs the app is not sent to an `ImportError` on the
+current firmware. Once API level 1 exists, the compatibility policy changes.
 
 ## Checklist: a new native game, end to end
 
