@@ -306,8 +306,11 @@ frame rather than the panel's (the core rotates the picture, and the touch
 mapping undoes that rotation): the left thumb gets a joystick anchored where it
 lands - drag across the game to turn, along it to walk - and the right thumb
 gets three bands along the long edge, fire at the bottom, use in the middle and
-the menu at the top. With a mouse the same zones work: press in the left half
-and drag to turn or walk, hold the fire band to shoot.
+the menu at the top. Both thumbs work at once on a panel that reports more than
+one point: the joystick and the fire band are independent, so walking and
+firing is one touch each (see "Two thumbs at once"). With a mouse the same
+zones work: press in the left half and drag to turn or walk, hold the fire band
+to shoot.
 
 On a badge or a keyboard the arrows (or the joystick) turn and walk; fire is B
 on a badge and B or space on a keyboard; use/open doors is A or Enter; Y opens
