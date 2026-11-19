@@ -504,6 +504,57 @@ opens, then hides it; hiding is what keeps the steady-state frame rate intact.
 Filling the zones would be worse, and drawing the overlay every N frames saves
 nothing (the band repaint happens anyway) and only flickers.
 
+### Two thumbs at once
+
+A virtual joystick and a fire button are only useful together: a player walks
+and fires at the same time. LVGL's pointer device cannot deliver that, and not
+by accident - when a second finger lands, the driver reports the whole panel as
+released so that a pinch cannot click the widget under it. That rule is what
+keeps two-finger gestures from pressing buttons, so a game does not fight it;
+it reads the driver's own points instead:
+
+```python
+class Doom(NativeActivity):
+    touch_fingers = True
+
+    def on_touch_finger(self, finger, event_code, x, y):
+        ...
+```
+
+`touch_fingers` is off by default. When the panel reports more than one point,
+`NativeActivity` polls it every frame and sends every finger to
+`on_touch_finger()` with the same LVGL event codes a single pointer produces;
+`finger` stays the same for as long as that finger is down. `on_pointer()` is
+not called on such a panel at all, because the poll already covers the first
+finger. A board with a single-touch controller keeps using `on_pointer()`
+unchanged, so an app that sets `touch_fingers` works on both.
+
+`mpos.ui.native_input.ThumbZones` keeps one control state per finger: the left
+thumb's direction survives the right thumb landing on fire, and lifting one
+finger releases only its own keys. A zone has a single owner - a second finger
+that lands in the same band (or on the joystick half) is ignored rather than
+sharing the key, because otherwise the first finger to lift would release it
+for both.
+
+`mpos.TouchMonitor` is the piece both apps share: one poll of the panel feeds
+the per-finger events (`monitor.fingers`) and the pinch/rotation/pan view
+(`monitor.gesture`), so an app that ever wants both does not run two pollers at
+different rates. `NativeActivity` drives it from the frame loop; Image View,
+which has no frame loop, drives it from a 30 ms LVGL timer.
+
+The GT911 and FT6x36 drivers report their *slot* number with each point, and
+that number is the finger identity. A driver that reports no number at all
+still works: `TouchFingers` then matches a point to the nearest finger that is
+already down, which is also how a pinch pair is selected.
+
+Cost on the MaTouch, measured with the panel idle: LVGL's input-device timer
+reads the controller 29.6 times a second (34 ms between reads, 37 ms worst) and
+one `_get_coords()` costs at most 2.3 ms - 0.5 ms for the status register and
+1.7 ms for five 8-byte records at 400 kHz. A press therefore reaches a frame
+loop within about one read plus one frame. Reading five records even when the
+status nibble claims fewer points is deliberate: on this panel the nibble can
+count empty slots, and the parser drops them.
+
 ### Packaging: framework code lives in `lib/mpos`
 
 `BuildInfo.version.api_level` is 0, so the framework API is not frozen yet: an
