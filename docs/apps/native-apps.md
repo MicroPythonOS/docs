@@ -490,15 +490,19 @@ input zones. Doom's `doom_overlay.py` is the example: 1 px outlines and LVGL
 symbols, no fills, added to the activity's screen with `CLICKABLE` removed so
 the pointer still reaches the game.
 
-A static overlay is repainted every frame whether it is invalidated or not:
-every band the engine updates is redrawn with the objects that intersect it, so
-the outline pixels are blended inside the pass that is already running. With
-outlines and a few glyphs that is a few thousand pixels against the 21-30 ms
-panel transfer of a full frame - measured on the MaTouch, the difference between
-the overlay on and off was within run-to-run noise. A filled overlay would be a
-different proposition (a large fraction of the surface blended every frame), and
-drawing the overlay only every N frames saves nothing: the band repaint happens
-anyway, and the result flickers.
+Draw it as a hint, not as permanent chrome. A static overlay is repainted every
+frame whether it is invalidated or not: every band the engine updates is
+redrawn with the objects that intersect it. Its own cost is small - a few
+milliseconds for outlines and a handful of glyphs - but Doom already sits at
+the LVGL refresh budget on a busy map. Measured on the MaTouch, an overlay that
+adds about 3 ms took a heavy E1M1 view from 17.9 to 11.4 fps (88 ms/frame),
+while the engine's own 17-18 ms and the 6 ms conversion were unchanged: the
+draw pass crossed the 33 ms refresh period, so every frame waited for one more
+slot. On a light scene (engine ~7 ms) the same overlay fit and cost nothing.
+Doom therefore shows the map for six seconds at start and whenever its menu
+opens, then hides it; hiding is what keeps the steady-state frame rate intact.
+Filling the zones would be worse, and drawing the overlay every N frames saves
+nothing (the band repaint happens anyway) and only flickers.
 
 ### Packaging: framework code lives in `lib/mpos`
 
