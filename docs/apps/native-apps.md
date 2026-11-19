@@ -507,6 +507,40 @@ opens, then hides it; hiding is what keeps the steady-state frame rate intact.
 Filling the zones would be worse, and drawing the overlay every N frames saves
 nothing (the band repaint happens anyway) and only flickers.
 
+### Key repeat is a typing feature, not a gamepad one
+
+A keypad reports a *press*, and LVGL sends no key-release event for anything but
+ENTER. An engine that wants "hold the joystick to keep turning" therefore cannot
+wait for a release. `KeyHolds` used a 180 ms deadline that a repeat had to
+refresh, and that fell apart on a keypad whose first repeat comes after 400 ms:
+the key turned for 200 ms, stopped, and only resumed 230 ms later when the
+repeat arrived. That gap is what a player feels as a repeat delay.
+
+The clean split is the one the badge hardware already makes. Repeats stay for
+the UI, where scrolling a list and moving a text cursor want them. A game sets
+`key_state = True` on its activity:
+
+```python
+class Doom(NativeActivity):
+    key_state = True
+```
+
+`NativeActivity` then asks `InputManager.held_keys()` every frame which keys the
+hardware says are down, and `KeyHolds.hold(code, key)` is refreshed for as long
+as its physical key is in that set. Pressing starts at once, releasing stops
+within a frame, and the keypad's synthesised repeats are switched off while the
+game is in the foreground - a repeated menu-button press would otherwise open
+and close the menu ten times a second. A driver that cannot report held state
+keeps the timed behaviour, and repeats with it, so the same app still works
+everywhere.
+
+`InputManager.held_keys()` returns `None` when nothing can answer. A driver that
+already tracks the physical state (the fri3d 2026 expander, the communicator
+keyboard) exposes `held_keys()`; a keypad that keeps reporting `PRESSED` while
+a button is down needs nothing, because LVGL's last read already says so. A
+driver that synthesises press/release pairs is trusted over that last read,
+since LVGL has seen the release by the time the next frame runs.
+
 ### Two thumbs at once
 
 A virtual joystick and a fire button are only useful together: a player walks
