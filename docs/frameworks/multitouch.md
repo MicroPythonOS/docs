@@ -43,11 +43,19 @@ driver.get_touch_count()  # len(get_touches())
 ```
 
 `id` is the driver's slot number (the GT911 and FT6x36 record index), not a
-hardware id: it stays with a finger while it is down, and a driver must not
-renumber the records after dropping empty slots. Drivers that report no id
-return `None`. The coordinates are already passed through the driver's
-calibration and startup rotation, i.e. they are in LVGL's pre-display-rotation
-space.
+hardware id, and drivers that report no id return `None`. The coordinates are
+already passed through the driver's calibration and startup rotation, i.e. they
+are in LVGL's pre-display-rotation space.
+
+The id cannot be trusted to stay with a finger. Some controllers shuffle their
+records between reports: the FT6x36 returns them in touch order, so a new
+finger can take the first record and push a held one down a slot (upstream
+describes its two points as "moving around between the points arbitrarily").
+`TouchFingers`, which feeds `TouchMonitor`, therefore pairs every point with
+the finger that was nearest to it in the previous report and uses `id` only to
+break a tie. A driver should still keep its ids stable where it can; the
+position matching is what makes a two-thumb game work on the panels that do
+not.
 
 `MultiTouchGesture` converts them to logical coordinates, applies LVGL's display
 rotation, and tracks the pair:
