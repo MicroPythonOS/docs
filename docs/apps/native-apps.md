@@ -250,11 +250,16 @@ and the engine is told which directory to write its config and savegames to
 that changed it would break every relative import path in the OS. It reads the
 WAD through MicroPython's own file objects, rotates and converts each frame to
 RGB565 in C (a portrait panel
-gets a 200x320 surface, a landscape one gets the 320x200 frame as it is) and
+gets a 200x320 surface, a landscape one gets the 320x200 frame as it is, and a
+panel too small for either gets the same landscape picture at the largest
+quarter scale that fits - a 240x240 panel becomes 240x150, sampled nearest
+neighbour) and
 draws straight into the display surface, one band of rows at a time - the panel
 transfer of a band overlaps the conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18
 on the fri3d 2026's landscape one, split as 15 ms of engine, 5 ms of conversion
-and 25-36 ms of panel transfer. The transfer is the wall: a full 320x200 RGB565
+and 25-36 ms of panel transfer. The scaled surface is cheaper on both sides -
+about 20 fps on a 240x240 T-Watch S3 Plus, where 36000 pixels convert in 3 ms
+and 72 KB of bands in 16 ms. The transfer is the wall: a full 320x200 RGB565
 frame reaches the panel at about 5-6 MB/s however it is pushed, and internal RAM
 cannot hold a DMA-ready surface that size, so it cannot be hidden behind the
 renderer.
