@@ -9,26 +9,26 @@ it.
 
 | Board | Controller | Touch points |
 |---|---|---|
-| Makerfabs MaTouch ESP32-S3 SPI IPS 2.8 (OV3660) | GT911 | 5 |
 | D-Shell | GT911 | 5 |
-| Squixl | GT911 | 5 |
-| Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 | GT911 | 5 |
-| Freenove ESP32-S3 Display | FT6336G | 2 |
-| LilyGO T-Watch S3 Plus | FT6x36 | 2 |
-| M5Stack Core2 | FT6336U | 2 |
-| Waveshare ESP32-S3-Touch-LCD-3.5 | FT6336 | 2 |
-| fri3d 2026 | CST816S | 1 — no multi-touch |
-| Waveshare ESP32-S3-Touch-LCD-2 | CST816S | 1 — no multi-touch |
-| Waveshare ESP32-S3-Touch-LCD-1.54 | CST816S | 1 — no multi-touch |
-| LilyGO T-HMI | XPT2046 | 1 — no multi-touch |
-| unphone | XPT2046 | 1 — no multi-touch |
-| fri3d 2024 | none — keypad only | 0 |
-| LilyGO T4 | none — keypad only | 0 |
-| LilyGO T-Display S3 | none — keypad only | 0 |
-| M5Stack Fire | none — keypad only | 0 |
-| ODROID-GO | none — keypad only | 0 |
-| UniHiker K10 | none — keypad only | 0 |
 | Desktop / web | SDL pointer | 1 — mouse, no multi-touch |
+| Freenove ESP32-S3 Display | FT6336G | 2 |
+| fri3d 2024 | none — keypad only | 0 |
+| fri3d 2026 | CST816S | 1 — no multi-touch |
+| LilyGO T-Display S3 | none — keypad only | 0 |
+| LilyGO T-HMI | XPT2046 | 1 — no multi-touch |
+| LilyGO T-Watch S3 Plus | FT6x36 | 2 |
+| LilyGO T4 | none — keypad only | 0 |
+| M5Stack Core2 | FT6336U | 2 |
+| M5Stack Fire | none — keypad only | 0 |
+| Makerfabs MaTouch ESP32-S3 SPI IPS 2.8 (OV3660) | GT911 | 5 |
+| ODROID-GO | none — keypad only | 0 |
+| Squixl | GT911 | 5 |
+| UniHiker K10 | none — keypad only | 0 |
+| unphone | XPT2046 | 1 — no multi-touch |
+| Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 | GT911 | 5 |
+| Waveshare ESP32-S3-Touch-LCD-1.54 | CST816S | 1 — no multi-touch |
+| Waveshare ESP32-S3-Touch-LCD-2 | CST816S | 1 — no multi-touch |
+| Waveshare ESP32-S3-Touch-LCD-3.5 | FT6336 | 2 |
 
 Single-touch boards keep working exactly as before: `get_touches()` is simply
 absent, `MultiTouchGesture.indev` is `None`, and gestures stay disabled.

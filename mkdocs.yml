@@ -73,8 +73,8 @@ nav:
       - Focus: frameworks/focus.md
       - InputActivity: frameworks/input-activity.md
       - InputManager: frameworks/input-manager.md
-      - Multi-touch: frameworks/multitouch.md
       - LightsManager: frameworks/lights-manager.md
+      - Multi-touch: frameworks/multitouch.md
       - NotificationManager: frameworks/notification-manager.md
       - NumberFormat: frameworks/number-format.md
       - Preferences: frameworks/preferences.md

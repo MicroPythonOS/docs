@@ -179,8 +179,8 @@ class Sorter(Activity):
 
 ## Related Frameworks
 
-- **[MultiTouchGesture](multitouch.md)** - Pinch, rotate and pan from two fingers (uses the pointer driver's `get_touches()`)
 - **[DisplayMetrics](display-metrics.md)** - Display properties and pointer coordinates (uses InputManager)
+- **[MultiTouchGesture](multitouch.md)** - Pinch, rotate and pan from two fingers (uses the pointer driver's `get_touches()`)
 - **[WidgetAnimator](widget-animator.md)** - UI animation framework
 
 ## See Also
