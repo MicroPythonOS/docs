@@ -240,9 +240,16 @@ no executable-RAM limit, no reboot and no OTA bookkeeping. The activity keeps
 the panel (`NativeDisplay`), the input and the file system; the core asks for all
 three through the ABI.
 
-The Doom port runs this way on a badge: `com.micropythonos.doom` starts the
-engine from the `retro-core` partition, reads the WAD through MicroPython's own
-file objects, rotates and converts each frame to RGB565 in C (a portrait panel
+The Doom port runs this way on a badge: `com.micropythonos.doom` ships the core
+as `esp32s3.xip`; the App Store writes it into a contiguous littlefs2e extent in
+the app directory, stores the entry's CRC with it, and the app starts the core
+from there (the `retro-core` partition is only the stand-in path when a core is
+flashed by hand). The loader checks that CRC before mapping the blob executable,
+and the engine is told which directory to write its config and savegames to
+(`prefs/<app>`) instead of relying on the process working directory - a game
+that changed it would break every relative import path in the OS. It reads the
+WAD through MicroPython's own file objects, rotates and converts each frame to
+RGB565 in C (a portrait panel
 gets a 200x320 surface, a landscape one gets the 320x200 frame as it is) and
 draws straight into the display surface, one band of rows at a time - the panel
 transfer of a band overlaps the conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18

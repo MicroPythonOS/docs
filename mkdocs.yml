@@ -48,6 +48,7 @@ nav:
       - Overview: apps/index.md
       - Built-in Apps: apps/built-in-apps.md
       - Media Player: apps/media-player.md
+      - Doom: apps/doom.md
       - App Store: apps/appstore.md
       - Creating Apps: apps/creating-apps.md
       - App Lifecycle: apps/app-lifecycle.md

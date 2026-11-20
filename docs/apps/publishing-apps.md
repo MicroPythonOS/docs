@@ -63,6 +63,37 @@ unzip -p ../apps/apps/com.example.myapp/mpks/com.example.myapp_0.5.1.mpk \
 The script also warns when an app has uncommitted changes; such a package does
 not correspond to any commit, so commit first.
 
+### Native engines in one package
+
+An app with a C engine ships one file per platform and a `"native"` map in
+`MANIFEST.JSON` that says which file belongs to which host:
+
+```json
+"native": {
+  "esp32s3": ["esp32s3.xip"],
+  "x64": ["module_x64.mpy"]
+}
+```
+
+The key is the **SoC** (`esp32s3`, `esp32p4`) for a flash-resident core, or the
+**native-module architecture** (`x64`, `xtensawin`) for a `.mpy`. The installer
+reads the map and installs only the files for the running host
+(`mpos.platform`), so one package serves badges and desktops and the user never
+downloads the other platform's engine. `MANIFEST.JSON` must come before the
+native files in the archive; `bundle_apps.sh` sorts it first.
+
+A selected `.xip` is written straight into a littlefs2e **extent** at install
+time: the App Store streams the entry into a reserved contiguous run instead of
+extracting a normal file, so the first launch has no conversion step. The entry
+CRC is stored with the extent and checked before the core is mapped. A
+sideloaded `.xip` (or a package installed by an older OS) falls back to a normal
+file and the app converts it on first launch.
+
+A stock littlefs tool can mount a 2.1 image that contains extents, but it sees
+the extent's blocks as free and can overwrite them: **treat stock tools as
+read-only** on such an image. The CRC turns that into a clean "engine is
+corrupt, reinstall" instead of a crash.
+
 ## 3. Publish the curated index
 
 ```sh
