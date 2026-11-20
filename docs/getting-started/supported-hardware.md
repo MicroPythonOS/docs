@@ -2,13 +2,45 @@
 
 MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 
+## Specifications
+
+Board files are the source of truth for what the OS initializes. Alphabetical.
+
+| Board | MCU | Flash | PSRAM | Display | Size | Driver | Touch | Pts | SD | Audio | IMU | Camera | Battery |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| D-Shell | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.8" | ST7789 | GT911 | 5 | — | Speaker + buzzer | QMI8658 | — | — |
+| Desktop / web | host | — | — | window | — | SDL | SDL pointer | 1 | host | host | mock | webcam / mock | — |
+| Freenove ESP32-S3 Display | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.8" | ILI9341V | FT6336G | 2 | 4-bit SDMMC | Speaker + mic | — | — | ADC |
+| fri3d 2024 | ESP32-S3 | 16 MB | 8 MB | 240×296 | 2.0" | ST7789 | — | 0 | SPI | Speaker + mic + buzzer | LSM6DSO | — | ADC |
+| fri3d 2026 | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.0" | ST7789 | CST816S | 1 | SPI | Speaker + mic + buzzer | LSM6DSO | — | Expander ADC |
+| LilyGO T-Display S3 | ESP32-S3 | 16 MB | 8 MB | 170×320 | 1.9" | ST7789 | — | 0 | — | — | — | — | — |
+| LilyGO T-HMI | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.8" | ST7789 | XPT2046 | 1 | SDMMC | — | — | — | ADC |
+| LilyGO T-Watch S3 Plus | ESP32-S3 | 16 MB | 8 MB | 240×240 | 1.3" | ST7789 | FT6x36 | 2 | — | Speaker + mic | BMA423 | — | AXP2101 |
+| LilyGO T4 | ESP32 | 4 MB | 8 MB | 240×320 | 2.4" | ILI9341 | — | 0 | SPI | Buzzer | — | — | ADC |
+| M5Stack Core2 | ESP32 | 16 MB | 8 MB | 320×240 | 2.0" | ILI9342C | FT6336U | 2 | — | Speaker + mic | MPU6886 | — | AXP192 |
+| M5Stack Fire | ESP32 | 16 MB | 8 MB | 320×240 | 2.0" | ILI9342 | — | 0 | — | Buzzer | MPU6886 | — | — |
+| Makerfabs MaTouch 2.8 | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.8" | ST7789 | GT911 | 5 | SDIO | — | — | OV3660 | — |
+| ODROID-GO | ESP32-PICO-D4 | 4 MB | — | 240×320 | 2.4" | ILI9341 | — | 0 | — | Buzzer | — | — | ADC |
+| SQUiXL | ESP32-S3 | 16 MB | 8 MB | 480×480 | 4.0" | ST7701S | GT911 | 5 | SD | Speaker | — | — | MAX1704X |
+| UniHiker K10 | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.8" | ILI9341 | — | 0 | — | Speaker + mic (not enabled) | — | GC2145 | — |
+| unPhone 9 | ESP32-S3 | 8 MB | 8 MB | 320×480 | 3.5" | HX8357D | XPT2046 | 1 | — | — | — | — | — |
+| Waveshare ESP32-P4 4.3 | ESP32-P4 | 32 MB | 32 MB | 480×800 | 4.3" | ST7701S | GT911 | 5 | — | Speaker | — | — | — |
+| Waveshare ESP32-S3 1.54 | ESP32-S3 | 16 MB | 8 MB | 240×240 | 1.54" | ST7789 | CST816S | 1 | SD | Speaker + mic | — | — | ADC |
+| Waveshare ESP32-S3 2 | ESP32-S3 | 16 MB | 8 MB | 240×320 | 2.0" | ST7789 | CST816S | 1 | — | — | QMI8658 | OV5640 | ADC |
+| Waveshare ESP32-S3 3.5 | ESP32-S3 | 16 MB | 8 MB | 320×480 | 3.5" | ST7796 | FT6336 | 2 | — | Speaker + mic | QMI8658 | OV5640/OV2640 | AXP2101 |
+
+Flash and PSRAM are the module fitted on the board; vendors ship variants, and the
+value listed is the one MicroPythonOS is tested on. `—` means the board file does
+not wire up that peripheral (the hardware may still provide it); the SD column is
+what the board file initializes, not what the PCB exposes. `Pts` is the maximum
+number of touch points the controller reports; `0` means no touchscreen.
+
 ## ESP32 Microcontrollers
 
 - [M5Stack Fire](https://docs.m5stack.com/en/core/fire): Fully Supported
 - [M5Stack Core2](https://docs.m5stack.com/en/core/core2): Fully Supported
 - [HardKernel ODROID-GO](https://wiki.odroid.com/odroid_go/odroid_go): Fully Supported
 - [LilyGo T4 V1.3](https://github.com/Xinyuan-LilyGO/LilyGo_Txx): Fully Supported
-- [unPhone 9](https://unphone.net/): Fully Supported
 
 ## ESP32-S3 Microcontrollers
 
@@ -22,7 +54,10 @@ MicroPythonOS runs on a variety of platforms, from microcontrollers to desktops.
 - [LilyGo T-Watch S3 Plus](https://lilygo.cc/products/t-watch-s3-plus): Fully Supported
 - [Makerfabs MaTouch ESP32-S3 SPI IPS 2.8" with Camera OV3660](https://www.makerfabs.com/matouch-esp32-s3-spi-ips-2-8-with-camera-ov3660.html): Fully Supported
 - [SQUiXL](https://squixl.io): Fully Supported
+- [unPhone 9](https://unphone.net/): Fully Supported
+- [Waveshare ESP32-S3-Touch-LCD-1.54](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.54): Fully Supported
 - [Waveshare ESP32-S3-Touch-LCD-2](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-2): Fully Supported
+- [Waveshare ESP32-S3-Touch-LCD-3.5](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-3.5): Fully Supported
 
 ## ESP32-P4 Microcontrollers
 
