@@ -1,20 +1,34 @@
-# MultiTouchGesture
+# Multi-touch
 
-`MultiTouchGesture` turns two fingers into pinch scale, rotation and pan. It
-works with the touch controllers that report more than one point; the second
-finger is gesture-only, so it never clicks the widget underneath it.
+`MultiTouchGesture` turns two fingers into pinch scale, rotation and pan, and
+`TouchMonitor` exposes every finger to a game. Both need a touch controller that
+reports more than one point; a second finger never clicks the widget underneath
+it.
 
 ## Supported hardware
 
 | Board | Controller | Touch points |
 |---|---|---|
-| Makerfabs MaTouch ESP32-S3 2.8 | GT911 | 5 |
-| Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 | GT911 | 5 |
+| Makerfabs MaTouch ESP32-S3 SPI IPS 2.8 (OV3660) | GT911 | 5 |
 | D-Shell | GT911 | 5 |
+| Squixl | GT911 | 5 |
+| Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 | GT911 | 5 |
+| Freenove ESP32-S3 Display | FT6336G | 2 |
+| LilyGO T-Watch S3 Plus | FT6x36 | 2 |
+| M5Stack Core2 | FT6336U | 2 |
 | Waveshare ESP32-S3-Touch-LCD-3.5 | FT6336 | 2 |
 | fri3d 2026 | CST816S | 1 — no multi-touch |
-| Waveshare ESP32-S3-Touch-LCD-2 / 1.54 | CST816S | 1 — no multi-touch |
+| Waveshare ESP32-S3-Touch-LCD-2 | CST816S | 1 — no multi-touch |
+| Waveshare ESP32-S3-Touch-LCD-1.54 | CST816S | 1 — no multi-touch |
+| LilyGO T-HMI | XPT2046 | 1 — no multi-touch |
 | unphone | XPT2046 | 1 — no multi-touch |
+| fri3d 2024 | none — keypad only | 0 |
+| LilyGO T4 | none — keypad only | 0 |
+| LilyGO T-Display S3 | none — keypad only | 0 |
+| M5Stack Fire | none — keypad only | 0 |
+| ODROID-GO | none — keypad only | 0 |
+| UniHiker K10 | none — keypad only | 0 |
+| Desktop / web | SDL pointer | 1 — mouse, no multi-touch |
 
 Single-touch boards keep working exactly as before: `get_touches()` is simply
 absent, `MultiTouchGesture.indev` is `None`, and gestures stay disabled.
@@ -28,9 +42,12 @@ driver.get_touches()      # [(id, x, y), ...] or [] when nothing is down
 driver.get_touch_count()  # len(get_touches())
 ```
 
-`id` is `None` for controllers that do not report one (the GT911 on the MaTouch
-does not). The coordinates are already passed through the driver's calibration
-and startup rotation, i.e. they are in LVGL's pre-display-rotation space.
+`id` is the driver's slot number (the GT911 and FT6x36 record index), not a
+hardware id: it stays with a finger while it is down, and a driver must not
+renumber the records after dropping empty slots. Drivers that report no id
+return `None`. The coordinates are already passed through the driver's
+calibration and startup rotation, i.e. they are in LVGL's pre-display-rotation
+space.
 
 `MultiTouchGesture` converts them to logical coordinates, applies LVGL's display
 rotation, and tracks the pair:
@@ -90,6 +107,34 @@ A pair closer together than `_MIN_PAIR_DISTANCE` (12 px) is ignored until the
 fingers spread, which keeps jitter from starting a gesture. Point order is kept
 stable by matching ids when a driver provides them and by nearest previous point
 otherwise, so the scale does not jump when a controller reorders slots.
+
+## Games: two thumbs at once
+
+A native game cannot use LVGL's pointer events for two fingers: the pointer
+device is single-point, and while 2+ fingers are down the driver reports the
+panel as released. `TouchMonitor` reads the driver itself and feeds both views
+from one sample, so a game does not poll the panel twice:
+
+```python
+from mpos import TouchMonitor
+
+monitor = TouchMonitor()
+events = monitor.poll()   # TouchFingers events for this frame
+monitor.gesture            # the same sample, as MultiTouchGesture state
+```
+
+`NativeActivity` owns one when the activity sets `touch_fingers = True`. Its
+frame loop calls `poll()` and delivers every finger to
+`on_touch_finger(finger, event_code, x, y)` with LVGL's `EVENT_PRESSED`,
+`EVENT_PRESSING` and `EVENT_RELEASED`; `on_pointer()` is not called on such a
+panel, so do not handle both. An activity without a frame loop (Image View)
+polls `MultiTouchGesture` or `TouchMonitor` from an LVGL timer instead.
+
+`ThumbZones` builds the handheld layout on top of those finger ids: a joystick
+anchored under the left thumb and menu/use/fire bands under the right. Each
+finger keeps its own state and only one finger can own a zone, so a second thumb
+in the same band is ignored and lifting the first cannot release the other's
+key.
 
 ## Applying it to an image
 
