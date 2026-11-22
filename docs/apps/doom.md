@@ -40,13 +40,15 @@ Hold the badge sideways while playing.
 
 | Touch | Action |
 |-------|--------|
-| left half | joystick: drag left/right to turn, up/down to walk |
-| right, bottom | fire (hold to keep shooting) |
-| right, middle | use / open |
-| right, top | menu / back; **hold it** for the licenses |
+| left half | joystick: touch anywhere and drag from there - left/right turns, up/down walks |
+| right, bottom | fire (**FIRE/ENTER**; hold to keep shooting) |
+| right, middle | use / open (**OPEN/USE**) |
+| right, top | menu / back (**MENU**); **hold it** for the licenses |
 
-The touch controls are outlined for a few seconds at start and whenever the
-menu opens, so the outline never costs a frame while playing.
+The touch controls are outlined and labelled for a few seconds at start and
+whenever the menu opens, so the hint never costs a frame while playing. The
+joystick has no fixed centre: the point where your thumb lands is the centre,
+and the four directions are relative to it.
 
 | Button | Action |
 |--------|--------|
