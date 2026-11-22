@@ -13,10 +13,11 @@ device can run:
 | x86-64 desktop | `module_x64.mpy` | MicroPython native module |
 
 The badge engine is too large to fit in executable RAM, so it never does: the
-App Store writes it into a contiguous extent at install time and the loader
-maps it where it was linked. There is no first-launch conversion when the
-installer made the extent; a sideloaded copy is converted once and says
-"Preparing engine" while it does.
+App Store writes it into a contiguous extent at install time, a preloaded
+factory image already carries it as one, and the loader maps it where it was
+linked. There is no first-launch conversion in either case; only a copy that
+was sideloaded as an ordinary file is converted once (with a "Preparing
+engine" screen, after defragmenting room for it).
 
 The shareware WAD ships deflated as `doom1.wad.zip` and is unpacked into RAM at
 each launch (PSRAM is volatile), so a first launch costs a few seconds with an
