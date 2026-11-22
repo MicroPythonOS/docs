@@ -32,3 +32,26 @@ For example, **sdcard/cache/org.yourdomain.yourapp** should be used to cache fil
 
 Currently, **sdcard/apps** is not yet used to search for and install apps but it's likely that it will be, in a future release.
 
+## Extents and defragmentation
+
+The internal filesystem is **littlefs2e**, a fork of littlefs v2.11.3 that adds
+extent files: an immutable, contiguous, optionally aligned run of blocks that a
+payload is committed into. An extent is what lets a native engine run straight
+out of flash (XIP) instead of being read through littlefs's CTZ skip-list, and
+the same fork's defragmenter is what makes room for one by relocating the files
+(and the directory metadata pairs) inside a candidate window.
+
+The fork lives at
+[MicroPythonOS/littlefs_with_extents_and_defrag](https://github.com/MicroPythonOS/littlefs_with_extents_and_defrag)
+and is consumed as the `third_party/littlefs2e` git submodule;
+`scripts/sync_littlefs2e.sh` prefixes its sources into the MicroPython tree at
+build time. Its [EXTENTS.md](https://github.com/MicroPythonOS/littlefs_with_extents_and_defrag/blob/extents/EXTENTS.md)
+has the on-disk format, the API and the defragmenter's limits (a split
+directory's tail pair still cannot be moved).
+
+Extents keep the standard littlefs disk version 2.1, but stock littlefs does not
+know the extent tag: it treats an extent's blocks as free space and reports the
+file as empty. Treat any image that may contain extents as read-only for stock
+tools (littlefs-python, `mklittlefs`, an older firmware); each extent carries a
+CRC so a consumer can detect that before using the payload.
+
