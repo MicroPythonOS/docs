@@ -28,7 +28,7 @@ To run all unit tests, do:
 ./tests/unittest.sh
 ```
 
-This takes some time, during which you'll see the MicroPythonOS window pop up often.
+This takes some time. The desktop tests run headless: no MicroPythonOS window opens, so they don't take the keyboard focus while you work in another app. To watch them, set `MPOS_TEST_SHOW_WINDOW=1` or pass `--show-window` to `scripts/test_runner.py`.
 
 There's also a syntax checker:
 
@@ -74,6 +74,7 @@ The `test_runner.py` script (used by `unittest.sh` internally) supports these ad
 | `--coverage` | Enable code coverage tracking on desktop builds (requires a coverage build — see `./scripts/build_mpos.sh unix coverage`). |
 | `--coverage-save <file.json>` | Save coverage data to a JSON file for later aggregation or HTML report generation. |
 | `--coverage-load <file.json>` | Load previously saved coverage data to merge with the current run. |
+| `--show-window` | Show the MicroPythonOS window during desktop runs. By default the test binaries use SDL's dummy video driver, so no window opens; `MPOS_TEST_SHOW_WINDOW=1` does the same as this flag. |
 
 ### Coverage Example
 
