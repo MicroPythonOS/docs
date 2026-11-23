@@ -19,12 +19,14 @@ linked. There is no first-launch conversion in either case; only a copy that
 was sideloaded as an ordinary file is converted once (with a "Preparing
 engine" screen, after defragmenting room for it).
 
-The shareware WAD ships deflated as `doom1.wad.zip` and is inflated once into
-the app's `cache/` directory (a first launch costs a few seconds with an
-"Unpacking WAD" screen, and later launches skip it). Both engines read that
-file; keeping it out of RAM leaves the space the core's 3 MiB zone needs. A
-plain `doom1.wad` — next to the app, at `/doom1.wad`, or on the SD card under
-`/sdcard/doom1.wad` — is used directly and skips the extraction.
+The shareware WAD ships deflated as `doom1.wad.zip` and is unpacked into RAM at
+each launch (PSRAM is volatile) - nothing is ever written to storage. The
+inflated bytes come from a buffer outside MicroPython's garbage collector, so
+the space goes back to the heap when the game stops and the core's 3 MiB zone
+still has one contiguous block on the next launch. A first launch costs a few
+seconds with an "Unpacking WAD" screen. A plain `doom1.wad` — next to the app,
+at `/doom1.wad`, or on the SD card under `/sdcard/doom1.wad` — is used as a
+file instead and skips the unpack.
 
 ## Requirements
 
