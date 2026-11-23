@@ -390,6 +390,28 @@ cache in front of the filesystem is not optional. Reads are also much cheaper in
 one big call than in 4 KB chunks (4 KB × 4 costs 24.8 ms against 12.2 ms for one
 16 KB call).
 
+### Where that RAM lives
+
+An asset read into RAM is several megabytes, and *which heap* holds it decides
+whether the engine can even start twice:
+
+- A Python `bytearray` of that size lives in the GC heap, which on ESP32 is a
+  split heap: the collector adds areas taken from the IDF heap, and it can only
+  give an area back once the area is completely empty. As soon as any other
+  object lands in it, `heap_caps_malloc()` can never use that memory again -
+  while `gc.mem_free()` still reports megabytes free. The engine's zone (one
+  contiguous block, often 2-4 MiB, see `-mb` in the port) then has no room on
+  the second launch. Keep the asset out of the GC heap: allocate it with
+  `mpos_core.buffer(size)`, fill it in place with `zipasset.load(path,
+  buffer=buf)`, and hand it to the engine from there.
+- Ownership is explicit: `mpos_core.buffer_free(buf)` when the engine has
+  stopped. Freeing returns the block to the IDF heap immediately. Holding it for
+  the life of the boot is not a fix on a 7 MB device.
+- Watch the **largest** free block from `esp32.idf_heap_info(esp32.HEAP_DATA)`,
+  not the total: the zone is a single `malloc`, so fragmentation matters as much
+  as free bytes. Refuse a launch with a message when the block cannot fit rather
+  than letting the engine's allocator `I_Error` into a reset.
+
 ### Rules for the C side
 
 1. **Draw into `surface.buffer`, never into `main_display._frame_buffer1`.**
