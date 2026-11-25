@@ -86,13 +86,15 @@ Settings, saves and the engine's config live in
 The core always renders its 320x200 frame; the host's surface says how to show
 it. A panel that holds the frame gets it as it is (320x240 badges letterbox
 20 rows), a portrait panel gets it transposed (200x320), and a panel that fits
-neither - the fri3d 2024 is **296x240** - gets the whole picture sampled down to
-the largest rectangle with the frame's own shape: 296x185, the full width and
-55 rows of letterbox. Without that path the right edge of the picture (and of
-the status bar) was cropped, which is why the app used to refuse the panel
-outright. Below 160x100 it still refuses with a message.
+neither - the fri3d 2024 is **296x240** - gets the **middle** of the picture at
+full resolution: 296x200, so 12 pixels are dropped at each edge and nothing is
+resampled. Cropping keeps every remaining pixel exactly as the engine drew it;
+scaling the same frame to 296x185 would blur all of them to save 24 columns, and
+the app did that for one build before the crop replaced it. A panel shorter
+than 200 rows loses the same amount top and bottom. Below 160x100 it refuses
+with a message.
 
-On the fri3d 2024 that is **19-20 fps** at 296x185, with the repeats of its
+On the fri3d 2024 that is **19-20 fps** at 296x200, with the repeats of its
 keypad switched off while the engine is foreground. Its buttons and joystick
 are independent inputs, so holding fire and turning at the same time works -
 the badge's driver reports every held key, not just the first one

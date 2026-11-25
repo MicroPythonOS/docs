@@ -163,266 +163,37 @@ core.init(buffer, 320, 200, 0)
 rectangle and invalidates only that rectangle, so the letterbox rows are never
 flushed. Coordinates are surface-local; the surface position is added for you.
 
-### A panel smaller than the frame: sample, never crop
+### A panel smaller than the frame: crop the middle, don't resample
 
 An engine with a fixed frame size (Doom and Duke both render 320x200 whatever
-the host says) cannot be given a smaller surface and expected to fill it: its
-conversion loop ends at the surface's width, so the picture loses its right
-edge - on Duke that is the right side of the status bar. The core has to know
-it is presenting a downscaled frame and use nearest neighbour
-(`dst(x, y) = src(round(x*320/out_w), round(y*200/out_h))`, with the same
-rounding `NativeActivity.to_game()` uses so a finger lands on the pixel it is
-over). The surface's shape then selects the path: 320x200 direct, 200x320
-transposed, anything smaller sampled.
+the host says) cannot simply be given the panel's surface and expected to fill
+it: its conversion loop ends at the surface's width, so the picture loses its
+right edge - on Duke that is the right side of the status bar. Handing it a
+*scaled* surface works but resamples every pixel to save a few columns.
 
-The app picks the surface: 320x200 when the panel holds it, otherwise the
-largest rectangle with the frame's own shape that fits. The fri3d 2024's
-296x240 panel becomes 296x185 - the full width, 55 rows of letterbox below.
-Duke runs at **19-20 fps** there (engine 52 ms, convert 8 ms, present handled
-on the other core), so it is the engine's render cost, not the scale, that
-sets the pace.
+Both cores now present the **middle** of the frame instead: a 296-wide panel
+(the fri3d 2024's 296x240) gets 296x200, with 12 columns dropped at each edge
+and every surviving pixel untouched. A panel shorter than the frame loses rows
+the same way. Only a panel that cannot show a whole row falls back to nearest
+neighbour sampling (Doom keeps that path for a 240x150 quarter scale).
 
-### Converting a legacy format, band by band
-
-An engine that hands you 8-bit paletted or 32-bit RGBX pixels needs a conversion
-on the way to RGB565, and where that conversion happens decides the frame rate.
-Converting the whole frame and then presenting it puts the conversion *in front
-of* the SPI transfer. Converting one band inside the render callback overlaps
-them, because LVGL is already pushing the previous band:
+The app chooses the surface and reports where it sits in the frame:
 
 ```python
-# whole frame first: 33 ms at 320x200
-core.expand8_lut(src8, dst)
-surface.present_all(noop)
-
-# per band instead: 26 ms — as fast as native RGB565 (the SPI is the limit)
-surface.present_all(lambda band: core.expand8_band(src8, dst, band, rows_per_band))
+class Engine:
+    frame_size = (320, 200)          # the engine's own frame
+    frame_window = (12, 0, 296, 200) # what the surface shows of it
 ```
 
-Measured on a 320x200 surface with 45-row bands: palette→RGB565 through a
-prepared LUT costs 6.2 ms per frame and 32-bit RGBX 9.5 ms, while a full-frame
-present alone is 27.2 ms. Converting the whole frame first and then presenting
-it therefore costs 33 ms (palette) to 38 ms (RGBX), i.e. 26-30 fps; the banded
-form is bounded by whichever of the two is slower and is the only one that can
-stay at the present's own ~27 ms (37 fps). The conversion functions take the
-band as `rows` plus the frame `width`: a "row count" treated as a pixel count
-converts 200 pixels instead of 64,000 and flatters every measurement.
+`NativeActivity` uses `frame_window` in `to_game()`, `game_to_panel()` and
+`game_rect_to_panel()`, after the letterbox and before the rotation, so a
+finger still lands on the pixel it is over and an overlay lands where the
+picture is. Leaving it `None` means the surface is the whole frame, which is
+what an engine that scales (Doom's native module) wants.
 
-### How big a module's *code* can be
-
-There is a hard limit that has nothing to do with RAM: the code section of a
-native module is committed with `MP_PLAT_COMMIT_EXEC`, which on ESP32 is
-`heap_caps_malloc(..., MALLOC_CAP_EXEC)`. It has to fit in **executable memory
-(IRAM)**, and a booted ESP32-S3 with WiFi/BT/IDF running has only a few KB of
-that free — on the lab badge the largest contiguous executable block was
-**~7 KB**. Data is different: `rodata` and BSS are ordinary heap allocations and
-can live in PSRAM.
-
-So a module with 3 KB of code and 500 KB of tables loads fine, while a
-Doom-class engine (140 KB of code) fails with
-`MemoryError: memory allocation failed, allocating 142528 bytes` — the size of
-its code section. Options if the code is big:
-
-* put the engine in the **firmware** (`c_mpos/src` style): its code is executed
-  from flash through the instruction cache, so IRAM and the Python heap are not
-  involved, and it needs no writable-data rewrite;
-* keep it out of MicroPython entirely (the retro-go partition path).
-
-### Bigger engines: a core in its own flash partition
-
-When the code simply cannot fit in executable RAM, the engine can still run
-*inside* MicroPythonOS from flash. `c_mpos/core_abi.h` defines a small ABI
-(`init`/`tick`/`stop` plus host callbacks for frame bands, palette, keys, clock,
-file reads, allocation and logging) and `mpos_core` loads a blob from a
-partition:
-
-1. the core is linked for **fixed addresses** and flashed into a partition (the
-   badge reserves `retro-core` for exactly this);
-2. the loader reads the blob's entry table through a temporary data mapping,
-   maps its flash pages at those addresses and calls `init`;
-3. the app's frame loop calls `tick(now)` and the core reports pixels through
-   `present_band`, so MPOS keeps the board, the display, input and the activity.
-
-A core needs three regions, all at addresses it was linked for:
-
-* **text** in the instruction window, executed through the cache;
-* **read-only data** in the data window, mapped from the *same* flash pages a
-  second time: instruction memory cannot be read as data, so a string has to
-  live on the data bus even though it is read-only in both places (the firmware
-  splits itself the same way: `.flash.text` in IROM, `.flash.rodata` in DROM);
-* a writable **arena** for `.bss`: the host allocates page-aligned RAM, zeroes it
-  and maps it at the address the blob declares, so the engine's globals are
-  ordinary variables.
-
-The engine's code runs XIP through the cache like the firmware itself: no IRAM,
-no executable-RAM limit, no reboot and no OTA bookkeeping. The activity keeps
-the panel (`NativeDisplay`), the input and the file system; the core asks for all
-three through the ABI.
-
-The Doom port runs this way on a badge: `com.micropythonos.doom` ships the core
-as `esp32s3.xip`; the App Store writes it into a contiguous littlefs2e extent in
-the app directory, stores the entry's CRC with it, and the app starts the core
-from there (the `retro-core` partition is only the stand-in path when a core is
-flashed by hand). An extent is allocated by the filesystem's own defragmenter:
-when no aligned run is free it moves the ordinary files out of a candidate
-window and, since littlefs2e, the directory metadata pairs too. A directory's
-head pair relocates like anything else; a split directory's *tail* pair does
-not, because the parent chain finds a child through its `DIRSTRUCT` entry while
-a tail is referenced by a `TAIL` tag in the head, so a window holding one is
-skipped rather than cleared. Removing that limit needs either rewriting the
-head's `TAIL` tag to point at a fresh tail pair or rebuilding the head and its
-whole tail chain into new pairs; until then a filesystem with many split
-directories can still have no window large enough.
-The loader checks that CRC before mapping the blob executable,
-and the engine is told which directory to write its config and savegames to
-(`prefs/<app>`) instead of relying on the process working directory - a game
-that changed it would break every relative import path in the OS. It reads the
-WAD through MicroPython's own file objects, rotates and converts each frame to
-RGB565 in C (a portrait panel
-gets a 200x320 surface, a landscape one gets the 320x200 frame as it is, and a
-panel too small for either gets the same landscape picture at the largest
-quarter scale that fits - a 240x240 panel becomes 240x150, sampled nearest
-neighbour) and
-draws straight into the display surface, one band of rows at a time - the panel
-transfer of a band overlaps the conversion of the next one. On a fri3d-class S3 that is 18-19 fps on the MaTouch's portrait panel and 16-18
-on the fri3d 2026's landscape one, split as 15 ms of engine, 5 ms of conversion
-and 25-36 ms of panel transfer. The scaled surface is cheaper on both sides -
-about 20 fps on a 240x240 T-Watch S3 Plus, where 36000 pixels convert in 3 ms
-and 72 KB of bands in 16 ms. The transfer is the wall: a full 320x200 RGB565
-frame reaches the panel at about 5-6 MB/s however it is pushed, and internal RAM
-cannot hold a DMA-ready surface that size, so it cannot be hidden behind the
-renderer.
-
-Sound effects come from the engine itself: the core mixes its own 8-bit DMX
-samples (8 voices, 11025 Hz mono) and the host pulls them through the ABI and
-writes them to the board's i2s output, so the engine never blocks on audio. The
-same mixer file is linked into the native module (`audio_mix(buf)`), so every
-host can pull it; where the samples go is `AudioManager.open_pcm()`.
-
-On a browser they go to `hosted_audio`, which is SDL's audio over WebAudio -
-started by the first touch of the page, as browsers require. The same module is
-what plays them on a Linux desktop: the bundled SDL is built with `SDL_ALSA=ON`,
-so its ALSA backend feeds the sound card through whatever is mixing it
-(PulseAudio, PipeWire or ALSA itself). One implementation, every host; the app
-does not know which one it is on.
-
-That is why the desktop binary is linked **dynamically** (`patches/
-unix_desktop_dynamic.patch`): a fully static binary cannot link `libasound.so`,
-and a statically linked alsa-lib was measured to be unusable - its configuration
-parser spins inside a static glibc binary, and without the plugin layer a
-minimal configuration can only take the card exclusively, which fails while
-anything else on the desktop is playing. So `libc` and `libasound` come from the
-host (every desktop distribution has both); SDL, LVGL, MicroPython and the
-engines are still inside the binary.
-Doom's music would need an OPL2 emulator and is not ported. On the fri3d 2026
-with speakers on the DAC headset jack the demo measures -23 dBFS RMS. The engine asks for a real
-speaker: a piezo buzzer can play PCM through the same sink the audio player uses
-for files, but an 11 kHz broadband effect through a resonator with no output
-below 2 kHz is a screech, so a buzzer-only board stays silent.
-
-The same app runs on a desktop, where there is no MMU window to map a flash
-partition into and the blob is Xtensa code anyway: it loads the engine as an
-ordinary native module instead (`doom_x64.mpy`, built from the same tree), and
-that module presents the same way the core does - it converts each band to
-RGB565 into the host's buffer and calls back so the band can be flushed. Only
-the engine differs. Input and output do not, because MicroPythonOS already
-unifies them: an SDL keyboard and mouse, a touch panel and a badge keypad all
-arrive as the same LVGL events, and `NativeDisplay` is the only way either
-engine reaches the panel.
-
-The reusable part of that lives in the framework now:
-`mpos.ui.native_activity.NativeActivity` owns the screen, the surface, pacing,
-the labels and the close-the-app path, and `mpos.ui.native_input` has the two
-input patterns - `KeyHolds` for engines that want both edges of a key, and
-`ThumbZones` for the handheld joystick-and-bands layout. An app supplies its
-engine and its controls; Doom is ~120 lines of that, and Breakout subclasses the
-same base with a dirty-band presentation of its own. On a host that can run
-neither engine (a firmware without `mpos_core`, a board without the partition, a
-checkout without the `.mpy`) the app says what is missing instead of showing a
-black screen.
-
-Controls are chosen for the hardware that exists. On a touch panel the game is
-played with the device held sideways, so the zones are laid out in Doom's own
-frame rather than the panel's (the core rotates the picture, and the touch
-mapping undoes that rotation): the left thumb gets a joystick anchored where it
-lands - drag across the game to turn, along it to walk - and the right thumb
-gets three bands along the long edge, fire at the bottom, use in the middle and
-the menu at the top. Both thumbs work at once on a panel that reports more than
-one point: the joystick and the fire band are independent, so walking and
-firing is one touch each (see "Two thumbs at once"). With a mouse the same
-zones work: press in the left half and drag to turn or walk, hold the fire band
-to shoot.
-
-On a badge or a keyboard the arrows (or the joystick) turn and walk; fire is B
-on a badge and B or space on a keyboard; use/open doors is A or Enter; Y opens
-Doom's menu; and Esc - the X button on a fri3d - is the OS "back" key, so it
-leaves the game instead of opening Doom's menu (that is why Y exists). Fire also
-confirms in menus, and the arrows steer them exactly as they do on a keyboard:
-both engines translate only one key, fire to Enter, while a menu is open. A
-device without a keyboard therefore needs nothing extra to start a game, and the
-button that shoots is the button that picks.
-
-Two things that are easy to get wrong: the host must keep the Python callbacks
-alive (the collector does not trace C statics — a registered root pointer does
-it), and code that runs with the flash cache disabled must be in IRAM, which is
-why the mapping lets `esp_mmu_map()` own IDF's cache/MMU sequence.
-
-On ESP32-S3 there is no PSRAM escape: `CONFIG_SPIRAM_XIP_FROM_PSRAM` only copies
-flash code/rodata into PSRAM at boot, while IDF keeps `MALLOC_CAP_EXEC` on
-internal DIRAM/RTC RAM only (`components/heap/port/esp32s3/memory_layout.c`), so
-an executable allocation is never served from PSRAM. Big code means firmware.
-
-`gc.mem_free()`, `gc.collect()` and heap pre-growth do not help: the failing
-allocation is never a GC allocation.
-
-### How big a module can be
-
-A native module is loaded into the MicroPython heap at import, so a
-Doom-class module is a question of RAM and import time, not of the toolchain.
-Measured on the badge: a 267 KB `.mpy` (256 KB `const` tables in rodata plus
-256 KB of BSS) imports in 443 ms and costs 537 KB of heap, on a boot with ~7 MB
-free. Budget for the import: it is a one-off per boot, but it is a visible
-pause if the app does it on launch.
-
-### Porting an engine: writable data is the real work
-
-A natmod is loaded with text, rodata and BSS only. There is no data section,
-and `static` BSS variables are not supported either: writable file-scope data
-has to be a **non-static global without an initializer**, written to only inside
-functions. A Doom-class engine has thousands of file-scope variables, so this —
-not the renderer — is the bulk of an engine port:
-
-- `static int thing;` → `int thing;` (global BSS)
-- `int thing = 5;` → `int thing;` plus `thing = 5;` in an init function
-- `static const uint8_t table[] = {...}` → unchanged (rodata)
-
-The probe confirms the rule at scale: it imports with a 256 KB global BSS array,
-so the limit is RAM, not the linker. Keeping the engine's own globals (with the
-mechanical rewrite above) is much less invasive than moving every module's state
-into Python-heap bytearrays behind getters, which is what an earlier attempt did
-and why it stalled.
-
-### Off-screen views are a second size domain
-
-An engine that draws a mirror, a screen tilt or a save thumbnail into a *tile*
-sets its view from the tile's dimensions, which can be larger than the screen.
-Duke's compacted GRP declares a 128×400 mirror, while the port's row and column
-tables were sized for the 320×200 screen. Drawing that view wrote past
-`ylookup`/`lastx` into the engine's globals, and the next wall draw faulted in
-`hline` — four faces of one corruption (`LoadProhibited`, a rejected cache
-write, `LoadStoreError`, a divide-by-zero in `setaspect`). `ylookup` now holds
-1024 entries, the `lastx` stores are bounded and `setviewtotile()` clamps the
-view to what the tables hold. Audit every `setview`-style call whose size comes
-from an asset rather than the display.
-
-Also check that a `reportandexit`/`Error` macro actually stops. Duke's
-`RG_PANIC` was a log call in the port, so its cache allocator continued after
-"CACHE SPACE ALL LOCKED UP" with an invalid best fit and wrote past its
-bookkeeping. It aborts now (a clean quit with the reason logged), and the
-allocator recovers from a full cache — clear stale locks and retry, then give
-the one tile a 1×1 transparent stand-in — instead of quitting. The
-[Duke Nukem 3D](duke3d.md) page and `c_mpos/duke3d/README.md` have the whole
-case study.
+Duke runs at **19-20 fps** on the fri3d 2024 that way (engine 52 ms, convert
+8 ms, present on the other core), so it is the engine's render cost, not the
+crop, that sets the pace.
 
 ### Loading game data: the filesystem is the slow part
 
