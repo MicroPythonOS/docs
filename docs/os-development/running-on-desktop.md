@@ -1,6 +1,6 @@
 ## Running on desktop
 
-MicroPythonOS runs on Linux, macOS and Raspberry Pi desktops. The desktop build is a single executable that contains the whole OS, so you usually do not need to compile anything.
+MicroPythonOS runs on Linux, macOS and Raspberry Pi desktops. The desktop build is a single executable that contains the whole OS, so you usually do not need to compile anything. On Linux it uses the system's `libasound` for audio (every distribution ships it); everything else, including its graphical stack, is inside the binary.
 
 Pick the level that matches what you want to do.
 

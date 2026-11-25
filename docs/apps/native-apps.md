@@ -244,7 +244,17 @@ The Doom port runs this way on a badge: `com.micropythonos.doom` ships the core
 as `esp32s3.xip`; the App Store writes it into a contiguous littlefs2e extent in
 the app directory, stores the entry's CRC with it, and the app starts the core
 from there (the `retro-core` partition is only the stand-in path when a core is
-flashed by hand). The loader checks that CRC before mapping the blob executable,
+flashed by hand). An extent is allocated by the filesystem's own defragmenter:
+when no aligned run is free it moves the ordinary files out of a candidate
+window and, since littlefs2e, the directory metadata pairs too. A directory's
+head pair relocates like anything else; a split directory's *tail* pair does
+not, because the parent chain finds a child through its `DIRSTRUCT` entry while
+a tail is referenced by a `TAIL` tag in the head, so a window holding one is
+skipped rather than cleared. Removing that limit needs either rewriting the
+head's `TAIL` tag to point at a fresh tail pair or rebuilding the head and its
+whole tail chain into new pairs; until then a filesystem with many split
+directories can still have no window large enough.
+The loader checks that CRC before mapping the blob executable,
 and the engine is told which directory to write its config and savegames to
 (`prefs/<app>`) instead of relying on the process working directory - a game
 that changed it would break every relative import path in the OS. It reads the
@@ -372,6 +382,28 @@ so the limit is RAM, not the linker. Keeping the engine's own globals (with the
 mechanical rewrite above) is much less invasive than moving every module's state
 into Python-heap bytearrays behind getters, which is what an earlier attempt did
 and why it stalled.
+
+### Off-screen views are a second size domain
+
+An engine that draws a mirror, a screen tilt or a save thumbnail into a *tile*
+sets its view from the tile's dimensions, which can be larger than the screen.
+Duke's compacted GRP declares a 128×400 mirror, while the port's row and column
+tables were sized for the 320×200 screen. Drawing that view wrote past
+`ylookup`/`lastx` into the engine's globals, and the next wall draw faulted in
+`hline` — four faces of one corruption (`LoadProhibited`, a rejected cache
+write, `LoadStoreError`, a divide-by-zero in `setaspect`). `ylookup` now holds
+1024 entries, the `lastx` stores are bounded and `setviewtotile()` clamps the
+view to what the tables hold. Audit every `setview`-style call whose size comes
+from an asset rather than the display.
+
+Also check that a `reportandexit`/`Error` macro actually stops. Duke's
+`RG_PANIC` was a log call in the port, so its cache allocator continued after
+"CACHE SPACE ALL LOCKED UP" with an invalid best fit and wrote past its
+bookkeeping. It aborts now (a clean quit with the reason logged), and the
+allocator recovers from a full cache — clear stale locks and retry, then give
+the one tile a 1×1 transparent stand-in — instead of quitting. The
+[Duke Nukem 3D](duke3d.md) page and `c_mpos/duke3d/README.md` have the whole
+case study.
 
 ### Loading game data: the filesystem is the slow part
 
