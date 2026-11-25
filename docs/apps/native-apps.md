@@ -195,6 +195,40 @@ Duke runs at **19-20 fps** on the fri3d 2024 that way (engine 52 ms, convert
 8 ms, present on the other core), so it is the engine's render cost, not the
 crop, that sets the pace.
 
+### The engine's files: a blocking handshake
+
+A core that runs on its own task must never enter MicroPython, and the host's
+filesystem *is* MicroPython's — so an engine's own files (its setup, its
+savegames) cannot be a plain `fopen` from the core. ABI 10 adds a request the
+host serves:
+
+```python
+# the core: publishes (op, path, offset, length), then blocks
+count = abi->file_request(host, MPOS_CORE_FILE_WRITE, "/saves/duke3d/game0.sav",
+                          offset, len, data)
+
+# the activity, once a frame:
+op, path, offset, length, buffer = mpos_core.file_poll()
+with open(real_path(path), "wb" if offset == 0 else "r+b") as handle:
+    handle.seek(offset)
+    count = handle.write(buffer)      # a read uses handle.readinto(buffer)
+mpos_core.file_reply(count)           # wakes the engine
+```
+
+Two rules make it work:
+
+- **The buffer is the core's own memory, wrapped by reference.** `file_poll()`
+  returns a `bytearray` over it (`mp_obj_new_bytearray_by_ref`), so `write()`
+  and `readinto()` move the bytes without a copy. Copying a 100 KB block into a
+  Python `bytes` instead grows the GC heap by an area that is never returned:
+  1 MB of PSRAM per save, which is exactly the memory the *next* engine needs.
+- **Answer during `init()` at once, not with the handshake.** The frame loop
+  does not exist while the engine starts, so a request would sit out its timeout;
+  answer -1 (file not found) and preload anything the start-up really needs.
+
+The engine's paths follow rg_system's layout (`/config/...`, `/saves/...`); map
+them under the app's own prefs directory so an uninstall takes them along.
+
 ### Loading game data: the filesystem is the slow part
 
 Reading game assets through the normal file API is far slower than the panel:

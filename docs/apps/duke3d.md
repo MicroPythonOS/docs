@@ -62,7 +62,18 @@ key and the edge swipes are off while Duke is foreground — the level is not
 lost to a stray X or a thumb on the edge.
 
 Settings, saves and the engine's config live in
-`prefs/com.micropythonos.duke3d/`.
+`prefs/com.micropythonos.duke3d/`:
+
+| Engine path | On the badge |
+|---|---|
+| `/config/duke3d.cfg` | `duke3d.cfg` |
+| `/saves/duke3d/game0.sav` | `duke3d/game0.sav` |
+
+Saving is a menu action (START, then SAVE GAME), and the engine's ten slots are
+five hundred kilobytes each, so a handful of saves is what the 7 MB filesystem
+holds. The engine runs on its own task and cannot touch the filesystem itself,
+so a save is a request the activity answers from its frame loop (see
+[Native C/C++ Apps](native-apps.md#the-engines-files-a-blocking-handshake)).
 
 ## How a frame is made
 
@@ -131,6 +142,13 @@ surprising a port. The traps that cost the most time:
   and handed the renderer a texture whose pixels were never loaded. It is now
   1×1 transparent, dimensions and `picsiz` included. The GRP also carries PNG
   overrides (`TILE0785.PNG`, ...) that `lodepng` decodes.
+- **An ART entry that cannot be read is cosmetic, not fatal.** The compacted
+  GRP lists tiles it does not hold (tile 3281 is a 320×200 image with neither
+  ART bytes nor a PNG override). `loadtile()` used to panic on the short read,
+  which ended the launch with `core init failed: -11` — on the badge that looked
+  like a hang at "Loading Duke Nukem 3D...", because a failed start never paints
+  its message. The tile is zeroed now (the whole tile: keeping the partial bytes
+  showed the sky as red/orange stripes) and the log names it.
 - **Menu keys are sampled once a tic.** Duke reads `KB_KeyDown` in `getinput`;
   `KeyHolds.tap()` presses and releases in one call, which the engine never
   sees. `mpos.ui.native_input.KeyHolds.tap_held(code, 150)` keeps the key down
