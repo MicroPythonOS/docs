@@ -96,7 +96,10 @@ surprising a port. The traps that cost the most time:
   `globalhoriz`/`horizlookup2` and the next wall faulted in `hline`/`hlineasm4`
   (the four faces of that corruption were `LoadProhibited`, a rejected cache
   write, `LoadStoreError` and a divide-by-zero in `setaspect`). A port must
-  audit every `setview` call for a size that comes from an asset.
+  audit every `setview` call for a size that comes from an asset. The same
+  overflow exists in the upstream ESP32 profile; the reproduction and proposed
+  patch are in
+  [`c_mpos/duke3d/UPSTREAM.md`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/c_mpos/duke3d/UPSTREAM.md).
 - **A `reportandexit`/`Error` macro has to actually stop.** In this port
   `RG_PANIC` was a log call, so `allocache`'s "CACHE SPACE ALL LOCKED UP" path
   continued with an invalid best fit and wrote past `cac[]`. It now aborts
