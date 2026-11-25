@@ -163,6 +163,25 @@ core.init(buffer, 320, 200, 0)
 rectangle and invalidates only that rectangle, so the letterbox rows are never
 flushed. Coordinates are surface-local; the surface position is added for you.
 
+### A panel smaller than the frame: sample, never crop
+
+An engine with a fixed frame size (Doom and Duke both render 320x200 whatever
+the host says) cannot be given a smaller surface and expected to fill it: its
+conversion loop ends at the surface's width, so the picture loses its right
+edge - on Duke that is the right side of the status bar. The core has to know
+it is presenting a downscaled frame and use nearest neighbour
+(`dst(x, y) = src(round(x*320/out_w), round(y*200/out_h))`, with the same
+rounding `NativeActivity.to_game()` uses so a finger lands on the pixel it is
+over). The surface's shape then selects the path: 320x200 direct, 200x320
+transposed, anything smaller sampled.
+
+The app picks the surface: 320x200 when the panel holds it, otherwise the
+largest rectangle with the frame's own shape that fits. The fri3d 2024's
+296x240 panel becomes 296x185 - the full width, 55 rows of letterbox below.
+Duke runs at **19-20 fps** there (engine 52 ms, convert 8 ms, present handled
+on the other core), so it is the engine's render cost, not the scale, that
+sets the pace.
+
 ### Converting a legacy format, band by band
 
 An engine that hands you 8-bit paletted or 32-bit RGBX pixels needs a conversion

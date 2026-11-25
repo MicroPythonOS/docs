@@ -76,10 +76,27 @@ Settings, saves and the engine's config live in
   transfer overlap.
 - The worker stack is 48 KiB (peak ~38 KB, reached in play, not at start-up).
   A board whose internal RAM cannot give 48 KiB contiguous, like the fri3d
-  2026, gets the stack from PSRAM instead.
+  2024 and 2026, gets the stack from PSRAM instead.
 - A frame is ~47 ms of engine (render ~35 ms + palette convert ~12 ms), and the
   panel transfer runs on the other core. `c_mpos/duke3d/PERFORMANCE.md` has the
   measurements.
+
+## Panels it runs on
+
+The core always renders its 320x200 frame; the host's surface says how to show
+it. A panel that holds the frame gets it as it is (320x240 badges letterbox
+20 rows), a portrait panel gets it transposed (200x320), and a panel that fits
+neither - the fri3d 2024 is **296x240** - gets the whole picture sampled down to
+the largest rectangle with the frame's own shape: 296x185, the full width and
+55 rows of letterbox. Without that path the right edge of the picture (and of
+the status bar) was cropped, which is why the app used to refuse the panel
+outright. Below 160x100 it still refuses with a message.
+
+On the fri3d 2024 that is **19-20 fps** at 296x185, with the repeats of its
+keypad switched off while the engine is foreground. Its buttons and joystick
+are independent inputs, so holding fire and turning at the same time works -
+the badge's driver reports every held key, not just the first one
+(`drivers/indev/fri3d_2024_keypad.py`).
 
 ## Notes for developers
 
