@@ -607,6 +607,15 @@ a button is down needs nothing, because LVGL's last read already says so. A
 driver that synthesises press/release pairs is trusted over that last read,
 since LVGL has seen the release by the time the next frame runs.
 
+`KeyHolds.tap()` is only for an engine that acts on the key **event** (Doom's
+menus). An engine that **samples** its keys once a tic - Duke's menu and
+next-weapon actions read `KB_KeyDown` in `getinput` - drains a press and its
+release from the same frame and sees neither. `KeyHolds.tap_held(code,
+hold_ms=MIN_HOLD_MS)` presses now and releases through the deadline the frame
+loop already runs, long enough for one tic; Duke passes 150 ms because a heavy
+frame can stretch the presenter past the default. See
+[Duke Nukem 3D](duke3d.md#notes-for-developers).
+
 ### Two thumbs at once
 
 A virtual joystick and a fire button are only useful together: a player walks
