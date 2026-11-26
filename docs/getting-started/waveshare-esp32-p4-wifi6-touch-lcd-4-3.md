@@ -78,7 +78,7 @@ The steps below use [esptool](https://docs.espressif.com/projects/esptool/en/lat
 
 Use the OSUpdate app, as on the other boards. See [Updating](updating.md). Updating with the OSUpdate app has not been tested on this board yet.
 
-For a manual offline update, also described there, use the `MicroPythonOS_esp32p4_<version>.ota` file from the releases page. The two OTA slots of the `esp32p4` build are at `0x20000` and `0x420000`.
+For a manual offline update, also described there, use the `MicroPythonOS_esp32p4_<version>.ota` file from the releases page. Where the two OTA slots are depends on the image the board was installed with: at `0x10000` and `0x410000` after installing the 0.22.0 `.bin`, and at `0x20000` and `0x420000` after installing a 0.20.x or 0.21.x `.bin`. Updating with the OSUpdate app does not move them, so a board installed with 0.21.x keeps the older offsets on 0.22.0.
 
 ## The C6 firmware
 
