@@ -41,7 +41,7 @@ Each setting is defined as a dictionary with the following properties:
 - **`ui`** (string): UI type to use for editing. Options: `"textarea"` (default), `"radiobuttons"`, `"dropdown"`, `"slider"`, `"activity"`
 - **`ui_options`** (list): Options for `radiobuttons` and `dropdown` UI types. Each entry is a `(label, value)` tuple — the **label** appears on the radio button or dropdown row AND in the parent `SettingsActivity`'s value-label row beneath the title. The **value** is what gets stored in SharedPreferences. See [SettingsActivity → Display Labels for `ui_options`](settings-activity.md#display-labels-for-ui_options) for details.
 - **`selected_callback`** (callable): Optional live-selection hook for `radiobuttons`/`dropdown`: `selected_callback(value)` fires on every pick before Save (so a picker can preview, e.g. play a sound), while `changed_callback` fires after Save. See [InputActivity](input-activity.md).
-- **`scan_check`** (callable): Optional format check for `textarea` settings: `scan_check(text)` runs on data scanned from a QR code and shows a warning below the field unless it returns `True`. See [InputActivity](input-activity.md).
+- **`scan_check`** (callable): Optional format check for `textarea` settings: `scan_check(text)` runs on data scanned from a QR code and shows a warning below the field when it returns `False` or a warning text. See [InputActivity](input-activity.md).
 - **`placeholder`** (string): Placeholder text for textarea input
 - **`default_value`** (string): Default value to select or fill in
 - **`changed_callback`** (function): Callback function called when the setting value changes
