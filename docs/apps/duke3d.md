@@ -35,7 +35,7 @@ MicroPython task, at **20–22 fps** on an ESP32-S3.
 
 ## Controls
 
-Hold the badge sideways while playing. The touch controls are outlined and
+On a badge, hold it sideways while playing. The touch controls are outlined and
 labelled for a few seconds at start and whenever the game resumes.
 
 | Touch | Action |
@@ -60,6 +60,25 @@ the same map. In the engine's menus the stick moves the cursor and A or Y
 confirm; START goes back (and the engine's Quit closes the game). The OS back
 key and the edge swipes are off while Duke is foreground — the level is not
 lost to a stray X or a thumb on the edge.
+
+On a desktop there is no pad to label, so the keys are these (and the list is
+shown over the picture for a few seconds at launch, with F1 to bring it back):
+
+| Key | Action |
+|-----|--------|
+| arrows | walk and turn |
+| A | fire |
+| B | jump |
+| X or Z | crouch |
+| Y or Space | use / open |
+| Home | next weapon |
+| Esc | menu |
+| F1 | show or hide the key list |
+
+The letters are the action pad's, so a player switching between a badge and a
+computer does not have to learn a second map. Esc is the exception: a keyboard
+has no X button, and Esc is where everyone looks for the menu. In the engine's
+menus the arrows move the cursor, A or Space confirms and Esc goes back.
 
 Settings, saves and the engine's config live in
 `prefs/com.micropythonos.duke3d/`:
