@@ -149,6 +149,20 @@ surprising a port. The traps that cost the most time:
   overflow exists in the upstream ESP32 profile; the reproduction and proposed
   patch are in
   [`c_mpos/duke3d/UPSTREAM.md`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/c_mpos/duke3d/UPSTREAM.md).
+- **A tile view leaves the renderer's view offset in the tile.** `drawrooms()`
+  computes `frameoffset = frameplace + viewoffset`, so the tilted death view
+  (a 320×320 tile that is turned back onto the screen) leaves that offset
+  pointing into the tile. `setviewback()` restores `frameplace` but not the
+  offset, and everything drawn after it — the status bar, the weapon, the menus
+  — belongs to the screen. On a badge the result looked like a graphics fault:
+  the frame froze at the instant of death (the world kept being drawn into the
+  tile, which nothing presented) and the pause menu over the dead view was
+  reduced to red fragments and stripes. `setviewback()` recomputes the offset
+  now, and the span guards are bounded by `frameplace` and the taller of
+  `ydim`/`ydimen` — never by `frameoffset`, which describes a view, not the
+  buffer being drawn into. `tests/test_graphical_duke3d_engine.py` starts a
+  level, kills the player and checks that the red death view and the menu over
+  it reach the screen and that no span is dropped.
 - **A `reportandexit`/`Error` macro has to actually stop.** In this port
   `RG_PANIC` was a log call, so `allocache`'s "CACHE SPACE ALL LOCKED UP" path
   continued with an invalid best fit and wrote past `cac[]`. It now aborts

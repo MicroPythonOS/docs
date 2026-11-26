@@ -195,6 +195,19 @@ Duke runs at **19-20 fps** on the fri3d 2024 that way (engine 52 ms, convert
 8 ms, present on the other core), so it is the engine's render cost, not the
 crop, that sets the pace.
 
+### A view into a tile is a second render target
+
+An engine that renders a room into a texture (a mirror, a tilted death view, a
+thumbnail) reprograms its own state for that view: the framebuffer pointer, the
+bytes per line, the view window, and the *view offset* used by the span
+renderer. What it does not necessarily restore is the offset. In Duke3D
+`drawrooms()` recomputes `frameoffset = frameplace + viewoffset` every time, so
+after `setviewback()` the framebuffer is the screen again while the offset still
+points into the tile — and anything drawn afterwards (HUD, menus) is written to
+the wrong place. Check every "draw into a tile" path for the restore, and when
+guarding a span write, bound it by the *current target buffer* and its height,
+not by a view-relative pointer.
+
 ### The engine's files: a blocking handshake
 
 A core that runs on its own task must never enter MicroPython, and the host's
