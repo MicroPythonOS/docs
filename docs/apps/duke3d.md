@@ -135,19 +135,25 @@ the badge's driver reports every held key, not just the first one
 Duke is the second flash-resident core after Doom, and its renderer keeps
 surprising a port. The traps that cost the most time:
 
-- **Off-screen views are a second size domain.** The engine draws a mirror,
-  screen tilt or save thumbnail into a *tile* with `setviewtotile()`, and sets
-  the view from the tile's own dimensions. The shareware GRP declares a
-  **128×400** mirror and the tilt/thumbnail views ask for **320** — larger than
-  the screen the row/column tables were sized for. The view is now clamped to
-  `MAXYDIM` rows and `MAXXDIM` columns, `ylookup` holds 1024 entries and the
-  `lastx` stores are bounded. Without that, drawing the mirror wrote through
-  `globalhoriz`/`horizlookup2` and the next wall faulted in `hline`/`hlineasm4`
-  (the four faces of that corruption were `LoadProhibited`, a rejected cache
-  write, `LoadStoreError` and a divide-by-zero in `setaspect`). A port must
-  audit every `setview` call for a size that comes from an asset. The same
-  overflow exists in the upstream ESP32 profile; the reproduction and proposed
-  patch are in
+- **Off-screen views are a second size domain.** The engine draws a security
+  camera's monitor, the screen tilt used while the player is dead, or a save
+  thumbnail into a *tile* with `setviewtotile()`, and sets the view from the
+  tile's own dimensions. The death view is **320×320** and a GRP can declare a
+  larger camera texture — bigger than the screen the row/column tables were
+  sized for (the port's profile keeps `MAXYDIM` at 240). The view is now
+  clamped to `MAXYDIM` rows and `MAXXDIM` columns, `ylookup` holds 1024 entries
+  and the `lastx` stores are bounded. Without that, drawing such a view wrote
+  through `globalhoriz`/`horizlookup2` and the next wall faulted in
+  `hline`/`hlineasm4` (the four faces of that corruption were
+  `LoadProhibited`, a rejected cache write, `LoadStoreError` and a
+  divide-by-zero in `setaspect`). Duke's bathroom mirrors are *not* this path:
+  `picnum MIRROR` walls are drawn with `preparemirror()`/`completemirror()`
+  straight into the screen. A port must audit every `setview` call for a size
+  that comes from an asset or a hard-coded tilt. The same overrun was the
+  upstream "death glitch", removed by raising `MAXYDIM` to 320 (`9c46dd9e`);
+  the remaining bounds are in
+  [DynaMight1124/retro-go#31](https://github.com/DynaMight1124/retro-go/pull/31)
+  and analyzed in
   [`c_mpos/duke3d/UPSTREAM.md`](https://github.com/MicroPythonOS/MicroPythonOS/blob/main/c_mpos/duke3d/UPSTREAM.md).
 - **A tile view leaves the renderer's view offset in the tile.** `drawrooms()`
   computes `frameoffset = frameplace + viewoffset`, so the tilted death view
