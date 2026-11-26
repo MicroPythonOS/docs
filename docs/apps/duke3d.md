@@ -146,10 +146,8 @@ surprising a port. The traps that cost the most time:
   through `globalhoriz`/`horizlookup2` and the next wall faulted in
   `hline`/`hlineasm4` (the four faces of that corruption were
   `LoadProhibited`, a rejected cache write, `LoadStoreError` and a
-  divide-by-zero in `setaspect`). Duke's bathroom mirrors are *not* this path:
-  `picnum MIRROR` walls are drawn with `preparemirror()`/`completemirror()`
-  straight into the screen. A port must audit every `setview` call for a size
-  that comes from an asset or a hard-coded tilt. The same overrun was the
+  divide-by-zero in `setaspect`). A port must audit every `setview` call for a
+  size that comes from an asset or a hard-coded tilt. The same overrun was the
   upstream "death glitch", removed by raising `MAXYDIM` to 320 (`9c46dd9e`);
   the remaining bounds are in
   [DynaMight1124/retro-go#31](https://github.com/DynaMight1124/retro-go/pull/31)
@@ -188,6 +186,21 @@ surprising a port. The traps that cost the most time:
   like a hang at "Loading Duke Nukem 3D...", because a failed start never paints
   its message. The tile is zeroed now (the whole tile: keeping the partial bytes
   showed the sky as red/orange stripes) and the log names it.
+- **A texture that cannot be decoded must keep its declared size.** The
+  compacted GRP has no `TILES000.ART`, so everything below tile 1024 that the
+  level uses comes from a PNG override — and an override is decoded with a
+  buffer, which has to fit next to the tile cache. The cache is sized from the
+  engine heap minus a reserve, and with the reserve too small the decode failed
+  and the tile became the "invisible" 1x1 stand-in. That stand-in also *changes
+  the tile's dimensions*, and Duke's parallax sky is one image split into five
+  slices: `parascan()` derives the horizontal step from the base tile while
+  `wallscan()` samples every slice with its own size, so a slice that shrank to
+  1x1 turned the sky into vertical bands of garbage (horizontal stripes on the
+  panel). Three things came out of it: the reserve leaves room for the largest
+  decode, `parascan()` paints a flat sky instead of sampling slices that
+  disagree, and palette PNGs are decoded *as* palette (`color_convert = 0`,
+  a 256-entry lookup instead of a nearest-colour search per pixel), which also
+  made the level load several times faster.
 - **Menu keys are sampled once a tic.** Duke reads `KB_KeyDown` in `getinput`;
   `KeyHolds.tap()` presses and releases in one call, which the engine never
   sees. `mpos.ui.native_input.KeyHolds.tap_held(code, 150)` keeps the key down
