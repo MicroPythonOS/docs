@@ -19,13 +19,23 @@ The GRP ships deflated (`E1L1-4_compromise.grp.zip`, 1.7 MB) and is inflated
 into a buffer outside MicroPython's garbage collector at each launch (2.6 MB);
 nothing is written to storage. The core reads it through the ABI. The engine's
 own task runs on core 0 while the activity presents its frames on the
-MicroPython task, at **20–22 fps** on an ESP32-S3.
+MicroPython task, at **19–22 fps** on an ESP32-S3.
+
+The first frame is about 22 s away on an S3. The GRP is inflated, the engine
+starts, and then the level's 605 textures are decoded before the first tic —
+15 s of that is the texture preload alone. A wait that long has to say what it
+is doing, so the loading screen shows the phase and a percentage
+("Textures 40%"), and a save or a load does the same over the picture
+("Saving 42%").
 
 ## Requirements
 
-- A badge needs a MicroPythonOS with ABI 9 (`mpos_core.start_task`, the worker
-  task) and the 24 KiB MicroPython task stack. The app checks the API and says
-  "needs a newer MicroPythonOS" instead of failing silently.
+- A badge needs a MicroPythonOS with ABI 11 (`mpos_core.start_task` with the
+  `progress=` callback, the worker task) and the 24 KiB MicroPython task stack.
+  The app checks that the task API is present and says "needs a newer
+  MicroPythonOS" when it is not; a firmware with the task API but an older ABI
+  is refused by the loader (`core ABI 11, expected ...`), and the start failure
+  shows that message rather than pretending the engine ran.
 - Duke needs about 7 MB of PSRAM for the three big blocks it keeps at once:
   the inflated GRP (2.6 MB), the engine arena (1.9 MB) and its heap (2.5 MB on
   a fresh boot). On a fragmented board the heap shrinks; a start below 768 KB is
@@ -93,6 +103,9 @@ five hundred kilobytes each, so a handful of saves is what the 7 MB filesystem
 holds. The engine runs on its own task and cannot touch the filesystem itself,
 so a save is a request the activity answers from its frame loop (see
 [Native C/C++ Apps](native-apps.md#the-engines-files-a-blocking-handshake)).
+It is flash-bound and takes tens of seconds for a full slot, so the picture
+says "Saving 42%" from the blocks as they land; a load says the same, and a
+first save into an empty slot shows the bytes instead of a percentage.
 
 ## How a frame is made
 
@@ -100,6 +113,10 @@ so a save is a request the activity answers from its frame loop (see
   ABI 9); it never enters MicroPython. Input is a C ring, the GRP is served by
   pointer from the inflated buffer, the log is a ring the activity drains, and
   the clock is `esp_timer`.
+- Its start-up cannot touch the GUI, so the phases come back as data: ABI 11's
+  `progress(host, permille, text)` is forwarded by `start_task(progress=...)`
+  from the host's task while it waits, and the activity paints "Textures 40%".
+  See [Native C/C++ Apps](native-apps.md#a-start-up-that-takes-seconds-report-progress-abi-11).
 - The core renders into one of two buffers and calls `frame_ready()`; the
   activity shows the published buffer with `NativeDisplay.select_buffer()` +
   `flush()` and hands it back with `task_presented()`. Rendering and the panel
@@ -140,9 +157,13 @@ surprising a port. The traps that cost the most time:
   thumbnail into a *tile* with `setviewtotile()`, and sets the view from the
   tile's own dimensions. The death view is **320×320** and a GRP can declare a
   larger camera texture — bigger than the screen the row/column tables were
-  sized for (the port's profile keeps `MAXYDIM` at 240). The view is now
-  clamped to `MAXYDIM` rows and `MAXXDIM` columns, `ylookup` holds 1024 entries
-  and the `lastx` stores are bounded. Without that, drawing such a view wrote
+  sized for. The view is now clamped to `MAXYDIM` rows and `MAXXDIM` columns
+  while the tile keeps its own dimensions, `ylookup` and `lastx` hold
+  `MAXYDIM + 1` entries, and the ESP32 profile sizes both from
+  `INTERNAL_RES_W` (320) for exactly that 320x320 view. The clamping follows
+  upstream's own patch ([DynaMight1124/retro-go#31](https://github.com/DynaMight1124/retro-go/pull/31))
+  rather than a port variant, so the next sync only has to reconcile the
+  documented port-only extras. Without that, drawing such a view wrote
   through `globalhoriz`/`horizlookup2` and the next wall faulted in
   `hline`/`hlineasm4` (the four faces of that corruption were
   `LoadProhibited`, a rejected cache write, `LoadStoreError` and a

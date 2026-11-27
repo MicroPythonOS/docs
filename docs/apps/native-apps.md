@@ -238,9 +238,33 @@ Two rules make it work:
 - **Answer during `init()` at once, not with the handshake.** The frame loop
   does not exist while the engine starts, so a request would sit out its timeout;
   answer -1 (file not found) and preload anything the start-up really needs.
+- **Reply before doing anything that can fail.** The core is blocked for at most
+  ten seconds; painting a progress label first turns an out-of-memory error or a
+  torn-down screen into a lost savegame. `file_reply(count)` goes first, and the
+  label is best-effort afterwards.
 
 The engine's paths follow rg_system's layout (`/config/...`, `/saves/...`); map
 them under the app's own prefs directory so an uninstall takes them along.
+
+### A start-up that takes seconds: report progress (ABI 11)
+
+A worker core's start-up runs before its first frame and can be long. Duke
+spends 22 s getting to its first frame, and 15 s of that is decoding the level's
+605 textures. The core's task must not touch the GUI, so it reports instead:
+
+```c
+if (abi->version >= 11) {
+    abi->progress(abi->host, 400, "Textures");   /* permille, phase name */
+}
+```
+
+`progress()` only copies the permille and the short text — it never calls back
+into MicroPython from the core's task. `mpos_core.start_task(progress=cb)`
+picks the newest report up from the host's task while it waits for the core to
+come up, so `cb` may create and paint a label. Gate the call on the ABI version
+so an older host still runs the core without progress. Report permille rather
+than whole percent: a long phase that asks for percent can sit on one number
+for half a second, which reads as a hang.
 
 ### Loading game data: the filesystem is the slow part
 
