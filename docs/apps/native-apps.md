@@ -112,6 +112,22 @@ com.micropythonos.breakout/
 └── breakout_xtensawin.mpy
 ```
 
+Doom and Duke ship **both kinds** of engine in one package - a `<soc>.xip`
+flash-resident core and a `module_<arch>.mpy` desktop module - and let the
+manifest's `"native"` map install only what the host runs, so one `.mpk` serves
+a badge and a desktop. The naming rule lives in `mpos.platform`:
+`engine_names()` lists the files this host can run and
+`find_engine(app_directory)` returns the one that is there (or `(None, None)`),
+so an app does not carry a copy of it:
+
+```python
+from mpos import platform
+
+path, name = platform.find_engine("/apps/com.example.game")
+if path is None:
+    show_message("The engine is not installed: " + ", ".join(platform.engine_names()))
+```
+
 ## Limitations
 
 - Native modules must be compiled separately for each target architecture (for example, `x64` for desktop and `xtensawin` for ESP32).
@@ -163,6 +179,33 @@ core.init(buffer, 320, 200, 0)
 rectangle and invalidates only that rectangle, so the letterbox rows are never
 flushed. Coordinates are surface-local; the surface position is added for you.
 
+### Which surface: landscape when it fits, a quarter turn only when it must
+
+Both games ask the framework the same question instead of each deciding for
+itself, because the answer has to match what the engine can present:
+
+```python
+from mpos.ui.native_activity import surface_for_display
+
+width, height, window = surface_for_display(display, 320, 200, "Doom")
+```
+
+The rules, in order:
+
+1. **The engine's own landscape frame whenever the display holds it** - a
+   320x200 frame on a 320x480 window is 320 wide, so the picture stays upright
+   and is letterboxed. A display being taller than it is wide is not a reason
+   to turn the picture on its side; only being *narrower* than the frame is.
+2. **A quarter turn when the display is too narrow but fits rotated** - the
+   badge held sideways: 240x320 logical for a 200x320 surface. The engine
+   transposes its frame (`dst(dx, dy) = src(dy, 199 - dx)`), and
+   `NativeActivity.to_game()` undoes it for touch and overlay coordinates.
+3. **The middle of the frame when neither fits** - see the next section.
+
+Both engines implement all three shapes, in the core *and* in the desktop
+native module, so a desktop can be used to test a badge's 240x320 layout and
+what the app asks for is always something the engine can fill.
+
 ### A panel smaller than the frame: crop the middle, don't resample
 
 An engine with a fixed frame size (Doom and Duke both render 320x200 whatever
@@ -171,13 +214,14 @@ it: its conversion loop ends at the surface's width, so the picture loses its
 right edge - on Duke that is the right side of the status bar. Handing it a
 *scaled* surface works but resamples every pixel to save a few columns.
 
-Both cores now present the **middle** of the frame instead: a 296-wide panel
+The engines present the **middle** of the frame instead: a 296-wide panel
 (the fri3d 2024's 296x240) gets 296x200, with 12 columns dropped at each edge
 and every surviving pixel untouched. A panel shorter than the frame loses rows
 the same way. Only a panel that cannot show a whole row falls back to nearest
 neighbour sampling (Doom keeps that path for a 240x150 quarter scale).
 
-The app chooses the surface and reports where it sits in the frame:
+`surface_for_display()` returns where the surface sits in the frame, and the
+app forwards it to the activity:
 
 ```python
 class Engine:
@@ -189,7 +233,7 @@ class Engine:
 `game_rect_to_panel()`, after the letterbox and before the rotation, so a
 finger still lands on the pixel it is over and an overlay lands where the
 picture is. Leaving it `None` means the surface is the whole frame, which is
-what an engine that scales (Doom's native module) wants.
+what an engine that scales wants.
 
 Duke runs at **19-20 fps** on the fri3d 2024 that way (engine 52 ms, convert
 8 ms, present on the other core), so it is the engine's render cost, not the
@@ -304,6 +348,13 @@ whether the engine can even start twice:
   not the total: the zone is a single `malloc`, so fragmentation matters as much
   as free bytes. Refuse a launch with a message when the block cannot fit rather
   than letting the engine's allocator `I_Error` into a reset.
+
+Both games do this through `mpos.ui.native_assets`, so the rule is written
+once: `asset_buffer(size)` is `mpos_core.buffer` where the firmware has one (a
+desktop gets a bytearray), `free_asset_buffer(buffer)` takes a single block or
+the list of chunks a fragmented heap forced, and `prefs_directory(app_full_name)`
+is where the engine's config and savegames go - under `prefs/`, next to
+`SharedPreferences`, so an uninstall takes them along.
 
 ### Rules for the C side
 
@@ -476,6 +527,16 @@ hold_ms=MIN_HOLD_MS)` presses now and releases through the deadline the frame
 loop already runs, long enough for one tic; Duke passes 150 ms because a heavy
 frame can stretch the presenter past the default. See
 [Duke Nukem 3D](duke3d.md#notes-for-developers).
+
+The desktop keyboard takes the same shape (`drivers/indev/sdl_keyboard.py`).
+It queues SDL's edges - and each OS repeat as a release plus a press, because
+LVGL only reports a key when the keypad goes from released to pressed - and
+fires the navigation hook on the press edge, exactly like
+`fri3d_2024_keypad.py` and the expander. That is what makes one Down press one
+focus move: the board used to read the key's *state* on every LVGL read, so a
+tap could move nothing (the release arrived before the read) or two rows (a
+repeat landed), and a press that changed the screen could click the new
+screen's focused widget on its release.
 
 ### Two thumbs at once
 
