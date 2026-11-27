@@ -199,8 +199,11 @@ surprising a port. The traps that cost the most time:
   panel). Three things came out of it: the reserve leaves room for the largest
   decode, `parascan()` paints a flat sky instead of sampling slices that
   disagree, and palette PNGs are decoded *as* palette (`color_convert = 0`,
-  a 256-entry lookup instead of a nearest-colour search per pixel), which also
-  made the level load several times faster.
+  a 256-entry lookup instead of a nearest-colour search per pixel): a 320x200
+  decode needs 64 KB rather than 250 KB, which is the difference between
+  fitting next to the tile cache and not. It does not shorten the load much -
+  the 15 s texture preload is decoding pixels, not hunting colours - so the
+  start-up progress display earns its place.
 - **Menu keys are sampled once a tic.** Duke reads `KB_KeyDown` in `getinput`;
   `KeyHolds.tap()` presses and releases in one call, which the engine never
   sees. `mpos.ui.native_input.KeyHolds.tap_held(code, 150)` keeps the key down
