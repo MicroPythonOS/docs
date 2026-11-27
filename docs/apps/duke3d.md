@@ -32,16 +32,18 @@ is doing, so the loading screen shows the phase and a percentage
 
 - A badge needs a MicroPythonOS with ABI 11 (`mpos_core.start_task` with the
   `progress=` callback, the worker task) and the 24 KiB MicroPython task stack.
-  The app checks that the task API is present and says "needs a newer
-  MicroPythonOS" when it is not; a firmware with the task API but an older ABI
-  is refused by the loader (`core ABI 11, expected ...`), and the start failure
-  shows that message rather than pretending the engine ran.
+  There is no compatibility path for older firmware: the framework API is not
+  frozen (API level 0), and the loader simply refuses the core on a host that is
+  older than it.
 - Duke needs about 7 MB of PSRAM for the three big blocks it keeps at once:
   the inflated GRP (2.6 MB), the engine arena (1.9 MB) and its heap (2.5 MB on
   a fresh boot). On a fragmented board the heap shrinks; a start below 768 KB is
   refused with "restart the badge" rather than left to fail in the renderer.
-- No audio: the panels this targets have none, and the core's mixer is silent.
-  The engine's sound effects are stubbed.
+- Sound effects need an i2s output (Settings → Audio). The engine's own audiolib
+  mixes them at 11025 Hz and the core hands the samples to the OS's PCM sink; a
+  board with no such output is silent and spends no time on audio (the engine
+  refuses every sound before the host has asked for samples). Music is not
+  ported yet.
 
 ## Controls
 

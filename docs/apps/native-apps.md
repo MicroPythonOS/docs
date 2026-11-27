@@ -272,7 +272,7 @@ with open(real_path(path), "wb" if offset == 0 else "r+b") as handle:
 mpos_core.file_reply(count)           # wakes the engine
 ```
 
-Two rules make it work:
+Three rules make it work:
 
 - **The buffer is the core's own memory, wrapped by reference.** `file_poll()`
   returns a `bytearray` over it (`mp_obj_new_bytearray_by_ref`), so `write()`
@@ -297,7 +297,7 @@ spends 22 s getting to its first frame, and 15 s of that is decoding the level's
 605 textures. The core's task must not touch the GUI, so it reports instead:
 
 ```c
-if (abi->version >= 11) {
+if (abi->progress != NULL) {
     abi->progress(abi->host, 400, "Textures");   /* permille, phase name */
 }
 ```
@@ -305,10 +305,13 @@ if (abi->version >= 11) {
 `progress()` only copies the permille and the short text — it never calls back
 into MicroPython from the core's task. `mpos_core.start_task(progress=cb)`
 picks the newest report up from the host's task while it waits for the core to
-come up, so `cb` may create and paint a label. Gate the call on the ABI version
-so an older host still runs the core without progress. Report permille rather
-than whole percent: a long phase that asks for percent can sit on one number
-for half a second, which reads as a hang.
+come up, so `cb` may create and paint a label. Test the pointer rather than the
+ABI version: the loader leaves it NULL when the same core runs on the host's
+task instead of its own. A core that needs progress declares the ABI it needs
+(API level 0, so there is no older firmware to stay compatible with) and the
+loader refuses a host that is older. Report permille rather than whole percent:
+a long phase that asks for percent can sit on one number for half a second,
+which reads as a hang.
 
 ### Loading game data: the filesystem is the slow part
 
