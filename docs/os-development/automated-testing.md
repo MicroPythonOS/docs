@@ -19,16 +19,16 @@ The following assumes you have MicroPythonOS running on desktop, meaning this wo
 Then you can run a specific unit test by providing its file as an argument:
 
 ```
-./tests/unittest.sh tests/test_package_manager.py
+python3 scripts/test_runner.py tests/test_package_manager.py
 ```
 
 To run all unit tests, do:
 
 ```
-./tests/unittest.sh
+python3 scripts/test_runner.py
 ```
 
-This takes some time, during which you'll see the MicroPythonOS window pop up often.
+This takes some time. The desktop tests run headless: no MicroPythonOS window opens, so they don't take the keyboard focus while you work in another app. To watch them, set `MPOS_TEST_SHOW_WINDOW=1` (`true`, `yes` and `on` work too) or pass `--show-window` to `scripts/test_runner.py`.
 
 There's also a syntax checker:
 
@@ -54,18 +54,18 @@ The following assumes you have the MicroPythonOS REPL shell show up when you run
 Then you can run a specific unit test by adding the --ondevice option and providing its file as an argument:
 
 ```
-./tests/unittest.sh --ondevice tests/test_package_manager.py
+python3 scripts/test_runner.py --ondevice tests/test_package_manager.py
 ```
 
 To run all unit tests, do:
 
 ```
-./tests/unittest.sh --ondevice # this takes a long time
+python3 scripts/test_runner.py --ondevice # this takes a long time
 ```
 
 ## Test Runner Flags
 
-The `test_runner.py` script (used by `unittest.sh` internally) supports these additional flags:
+The `test_runner.py` script supports these additional flags:
 
 | Flag | Description |
 |------|-------------|
@@ -74,6 +74,7 @@ The `test_runner.py` script (used by `unittest.sh` internally) supports these ad
 | `--coverage` | Enable code coverage tracking on desktop builds (requires a coverage build — see `./scripts/build_mpos.sh unix coverage`). |
 | `--coverage-save <file.json>` | Save coverage data to a JSON file for later aggregation or HTML report generation. |
 | `--coverage-load <file.json>` | Load previously saved coverage data to merge with the current run. |
+| `--show-window` | Show the MicroPythonOS window during desktop runs. By default the test binaries use SDL's dummy video driver, so no window opens; `MPOS_TEST_SHOW_WINDOW=1` does the same as this flag. |
 
 ### Coverage Example
 

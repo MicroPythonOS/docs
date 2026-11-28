@@ -243,7 +243,7 @@ BatteryManager.init_adc(999, adc_to_voltage)
 BatteryManager includes comprehensive unit tests:
 
 ```bash
-./MicroPythonOS/tests/unittest.sh MicroPythonOS/tests/test_battery_voltage.py
+python3 scripts/test_runner.py tests/test_battery_voltage.py
 ```
 
 Tests cover:
