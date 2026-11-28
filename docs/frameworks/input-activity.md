@@ -60,6 +60,7 @@ The `setting` dict has the same shape as the one used by `SettingActivity` and `
 - **`max`** (int): Maximum value for `"slider"` (default: `100`)
 - **`allow_deselect`** (bool): For `radiobuttons`, allow the user to un-select the active option (default: `False`)
 - **`selected_callback`** (callable): For `radiobuttons` and `dropdown`, called as `selected_callback(value)` every time the user picks an option (including re-tapping the already-selected radio), **before** Save. Use it to preview a choice live, e.g. play the sound the user just tapped. Independent of `changed_callback`, which still fires only after Save when the stored value changed. Exceptions inside it are logged and swallowed. (default: `None`)
+- **`scan_check`** (callable): For `textarea`, called as `scan_check(text)` after data is scanned from a QR code into the field. Return `True` (or `None`) when the data has the expected format, `False` to show the standard warning (`This doesn't look like a valid <title>. Check that you scanned the right QR code.`, with the setting's title filled in), or a string to show that text as the warning instead. The warning appears below the field (below the on-screen keyboard while that is open), the scanned text is still filled in, and Save is not blocked. It disappears when a later scan passes the check or the user edits the text. Exceptions inside it are logged and swallowed. (default: `None`)
 
 ## Result Contract
 
@@ -89,6 +90,23 @@ Text input with an on-screen keyboard. If the device has a camera, a "Scan data 
     "title": "API Key",
     "key": "api_key",
     "placeholder": "Enter your API key"
+}
+```
+
+To catch a scan of the wrong QR code, give the setting a `scan_check`:
+
+```python
+def looks_like_api_key(text):
+    if len(text) == 32 and all(c in "0123456789abcdef" for c in text):
+        return True
+    if text.startswith(("http://", "https://")):
+        return "This QR code looks like a web address, not an API key. Check that you scanned the right QR code."
+    return False  # standard warning
+
+{
+    "title": "API Key",
+    "key": "api_key",
+    "scan_check": looks_like_api_key
 }
 ```
 
