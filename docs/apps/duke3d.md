@@ -19,7 +19,7 @@ The GRP ships deflated (`E1L1-4_compromise.grp.zip`, 1.7 MB) and is inflated
 into a buffer outside MicroPython's garbage collector at each launch (2.6 MB);
 nothing is written to storage. The core reads it through the ABI. The engine's
 own task runs on core 0 while the activity presents its frames on the
-MicroPython task, at **19–22 fps** on an ESP32-S3.
+MicroPython task, at **17–19 fps** on an ESP32-S3.
 
 The first frame is about 22 s away on an S3. The GRP is inflated, the engine
 starts, and then the level's 605 textures are decoded before the first tic —
@@ -39,11 +39,15 @@ is doing, so the loading screen shows the phase and a percentage
   the inflated GRP (2.6 MB), the engine arena (1.9 MB) and its heap (2.5 MB on
   a fresh boot). On a fragmented board the heap shrinks; a start below 768 KB is
   refused with "restart the badge" rather than left to fail in the renderer.
-- Sound effects need an i2s output (Settings → Audio). The engine's own audiolib
-  mixes them at 11025 Hz and the core hands the samples to the OS's PCM sink; a
-  board with no such output is silent and spends no time on audio (the engine
-  refuses every sound before the host has asked for samples). Music is not
-  ported yet.
+- Sound needs an i2s output (Settings → Audio). The engine's own audiolib mixes
+  the effects at 11025 Hz, and the same ring carries the music: the OPL3
+  emulator plays the GRP's `.mid` files with the Adlib timbre bank, so the
+  five songs of the compacted episode (WATRWLD1, STREETS, STALKER, GRABBAG,
+  DETHTOLL) play through the engine's menus and levels. A board with no such
+  output is silent and spends no time on audio (the engine refuses every sound,
+  and never loads or renders a song, before the host has asked for samples).
+  The in-game sound menu's MUSIC ON/OFF and MUSIC VOLUME work as they do on a
+  desktop.
 
 ## Controls
 
